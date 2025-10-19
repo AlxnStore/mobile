@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 void main() {
   print('Initial Active: ${TicketHistoryService.getActiveTickets()}');
@@ -35,7 +35,6 @@ class TixIDApp extends StatelessWidget {
     );
   }
 }
-
 // ==================== MODELS ====================
 
 class Film {
@@ -2189,9 +2188,6 @@ class _Film3DCard extends StatelessWidget {
   }
 }
 
-// ==================== FILM DETAIL PAGE - PART 1 ====================
-// ==================== FILM DETAIL PAGE - FIXED ====================
-
 class FilmDetailPage extends StatefulWidget {
   final Film film;
   final VoidCallback onUpdate;
@@ -2216,8 +2212,6 @@ class _FilmDetailPageState extends State<FilmDetailPage>
 
   late YoutubePlayerController _youtubeController;
   bool _showTrailer = false;
-  bool _isControllerReady = false; // ✅ TAMBAH INI
-
   late TabController _tabController;
 
   final List<Schedule> schedules = [
@@ -2259,29 +2253,77 @@ class _FilmDetailPageState extends State<FilmDetailPage>
         times: ['12:30', '15:30', '18:30', '21:30']),
   ];
 
-  // ✅ METODE EKSTRAK VIDEO ID YANG LEBIH ROBUST
   String? _extractYoutubeId(String url) {
     try {
-      // Format: https://youtu.be/VIDEO_ID atau https://youtu.be/VIDEO_ID?...
       if (url.contains('youtu.be/')) {
         final parts = url.split('youtu.be/');
         if (parts.length > 1) {
-          return parts[1].split('?').first.split('&').first;
+          String id = parts[1].split('?').first.split('&').first;
+          if (id.isNotEmpty) {
+            print('✅ Video ID extracted: $id');
+            return id;
+          }
         }
       }
-      // Format: https://www.youtube.com/watch?v=VIDEO_ID&...
+
       if (url.contains('youtube.com') && url.contains('v=')) {
         final uri = Uri.parse(url);
-        return uri.queryParameters['v'];
+        String? id = uri.queryParameters['v'];
+        if (id != null && id.isNotEmpty) {
+          print('✅ Video ID extracted: $id');
+          return id;
+        }
       }
+
+      String? id = YoutubePlayerController.convertUrlToId(url);
+      if (id != null && id.isNotEmpty) {
+        print('✅ Video ID extracted using package: $id');
+        return id;
+      }
+
       return null;
     } catch (e) {
-      print('❌ Error mengekstrak YouTube ID: $e');
+      print('❌ Error extracting video ID: $e');
       return null;
     }
   }
 
-  @override
+  void _initYoutubeController() {
+    try {
+      String? videoId = _extractYoutubeId(widget.film.trailerUrl);
+
+      if (videoId == null || videoId.isEmpty) {
+        print('⚠️ Video ID not found, using default');
+        videoId = 'JfVOs4VSpmA';
+      }
+
+      _youtubeController = YoutubePlayerController.fromVideoId(
+        videoId: videoId,
+        autoPlay: false,
+        params: const YoutubePlayerParams(
+          showControls: true,
+          mute: false,
+          showFullscreenButton: true,
+          loop: false,
+        ),
+      );
+
+      print('✅ YouTube IFrame Controller initialized');
+    } catch (e) {
+      print('❌ Error initializing YouTube controller: $e');
+      _youtubeController = YoutubePlayerController.fromVideoId(
+        videoId: 'JfVOs4VSpmA',
+        autoPlay: false,
+        params: const YoutubePlayerParams(
+          showControls: true,
+          mute: false,
+          showFullscreenButton: true,
+          loop: false,
+        ),
+      );
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -2294,79 +2336,18 @@ class _FilmDetailPageState extends State<FilmDetailPage>
       }
     });
 
-    // ✅ INISIALISASI DENGAN LISTENER
-    try {
-      String? videoId = YoutubePlayer.convertUrlToId(widget.film.trailerUrl);
-
-      if (videoId == null || videoId.isEmpty) {
-        videoId = _extractYoutubeId(widget.film.trailerUrl);
-      }
-
-      if (videoId == null || videoId.isEmpty) {
-        print('⚠️ Gagal ekstrak');
-        videoId = 'dQw4w9WgXcQ';
-      }
-
-      _youtubeController = YoutubePlayerController(
-        initialVideoId: videoId,
-        flags: const YoutubePlayerFlags(
-          autoPlay: false,
-          mute: false,
-          disableDragSeek: false,
-          loop: false,
-          enableCaption: true,
-        ),
-      );
-
-      // ✅ TAMBAH LISTENER
-      _youtubeController.addListener(() {
-        if (_youtubeController.value.isReady && !_isControllerReady) {
-          setState(() {
-            _isControllerReady = true;
-          });
-          print('✅ YouTube Player READY!');
-        }
-      });
-
-      // ✅ DELAY UNTUK MEMASTIKAN
-      Future.delayed(const Duration(milliseconds: 500), () {
-        if (mounted) {
-          setState(() {
-            _isControllerReady = true;
-          });
-        }
-      });
-
-      print('✅ Controller init dengan ID: $videoId');
-    } catch (e) {
-      print('❌ Error: $e');
-    }
+    _initYoutubeController();
   }
 
   void _toggleTrailer() {
-    if (!_isControllerReady) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Tunggu sebentar, video sedang dimuat...'),
-          duration: Duration(seconds: 2),
-        ),
-      );
-      return;
-    }
-
     setState(() {
       _showTrailer = !_showTrailer;
     });
 
     if (_showTrailer) {
-      Future.delayed(const Duration(milliseconds: 300), () {
-        if (mounted && _isControllerReady) {
-          _youtubeController.play();
-          print('▶️ Video mulai diputar');
-        }
-      });
+      _youtubeController.playVideo();
     } else {
-      _youtubeController.pause();
+      _youtubeController.pauseVideo();
     }
   }
 
@@ -2402,66 +2383,59 @@ class _FilmDetailPageState extends State<FilmDetailPage>
               TextField(
                 controller: titleController,
                 decoration: const InputDecoration(
-                  labelText: 'Judul Film',
-                  prefixIcon: Icon(Icons.movie, color: Color(0xFF001A4D)),
-                ),
+                    labelText: 'Judul Film',
+                    prefixIcon: Icon(Icons.movie, color: Color(0xFF001A4D))),
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: genreController,
                 decoration: const InputDecoration(
-                  labelText: 'Genre',
-                  prefixIcon: Icon(Icons.category, color: Color(0xFF001A4D)),
-                ),
+                    labelText: 'Genre',
+                    prefixIcon: Icon(Icons.category, color: Color(0xFF001A4D))),
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: durationController,
                 decoration: const InputDecoration(
-                  labelText: 'Durasi',
-                  prefixIcon: Icon(Icons.schedule, color: Color(0xFF001A4D)),
-                ),
+                    labelText: 'Durasi',
+                    prefixIcon: Icon(Icons.schedule, color: Color(0xFF001A4D))),
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: ratingController,
                 decoration: const InputDecoration(
-                  labelText: 'Rating',
-                  prefixIcon: Icon(Icons.star, color: Color(0xFFFFB800)),
-                ),
+                    labelText: 'Rating',
+                    prefixIcon: Icon(Icons.star, color: Color(0xFFFFB800))),
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: directorController,
                 decoration: const InputDecoration(
-                  labelText: 'Director',
-                  prefixIcon: Icon(Icons.person, color: Color(0xFF001A4D)),
-                ),
+                    labelText: 'Director',
+                    prefixIcon: Icon(Icons.person, color: Color(0xFF001A4D))),
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: ageRatingController,
                 decoration: const InputDecoration(
-                  labelText: 'Age Rating',
-                  prefixIcon: Icon(Icons.info, color: Color(0xFF001A4D)),
-                ),
+                    labelText: 'Age Rating',
+                    prefixIcon: Icon(Icons.info, color: Color(0xFF001A4D))),
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: imageUrlController,
                 decoration: const InputDecoration(
-                  labelText: 'Image URL',
-                  prefixIcon: Icon(Icons.image, color: Color(0xFF001A4D)),
-                ),
+                    labelText: 'Image URL',
+                    prefixIcon: Icon(Icons.image, color: Color(0xFF001A4D))),
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: trailerUrlController,
                 decoration: const InputDecoration(
-                  labelText: 'Trailer URL',
-                  hintText: 'https://youtu.be/...',
-                  prefixIcon: Icon(Icons.play_circle, color: Color(0xFF001A4D)),
-                ),
+                    labelText: 'Trailer URL',
+                    hintText: 'https://youtu.be/...',
+                    prefixIcon:
+                        Icon(Icons.play_circle, color: Color(0xFF001A4D))),
               ),
             ],
           ),
@@ -2504,8 +2478,7 @@ class _FilmDetailPageState extends State<FilmDetailPage>
             icon: const Icon(Icons.save, color: Colors.white),
             label: const Text('Update', style: TextStyle(color: Colors.white)),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF001A4D),
-            ),
+                backgroundColor: const Color(0xFF001A4D)),
           ),
         ],
       ),
@@ -2581,30 +2554,52 @@ class _FilmDetailPageState extends State<FilmDetailPage>
               onPressed: () => Navigator.pop(context),
             ),
             actions: [
-              IconButton(
-                icon: const Icon(Icons.edit, color: Colors.white),
-                onPressed: _showEditFilmDialog,
-              ),
-              IconButton(
-                icon: const Icon(Icons.delete, color: Colors.white),
-                onPressed: _deleteFilm,
-              ),
+              // ✅ TOMBOL X DI SINI (SELALU DI ATAS)
+              if (_showTrailer)
+                IconButton(
+                  icon: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.3),
+                          blurRadius: 8,
+                          spreadRadius: 2,
+                        ),
+                      ],
+                    ),
+                    child:
+                        const Icon(Icons.close, color: Colors.white, size: 20),
+                  ),
+                  onPressed: () {
+                    print('❌ Close button clicked!');
+                    _toggleTrailer();
+                  },
+                ),
+              if (!_showTrailer) ...[
+                IconButton(
+                  icon: const Icon(Icons.edit, color: Colors.white),
+                  onPressed: _showEditFilmDialog,
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.white),
+                  onPressed: _deleteFilm,
+                ),
+              ],
             ],
             flexibleSpace: FlexibleSpaceBar(
               background: Stack(
                 fit: StackFit.expand,
                 children: [
-                  // ✅ TAMPILKAN YOUTUBE PLAYER LANGSUNG TANPA LOADING
+                  // VIDEO PLAYER FULL SCREEN DENGAN PADDING ATAS
                   if (_showTrailer)
-                    YoutubePlayer(
-                      controller: _youtubeController,
-                      showVideoProgressIndicator: true,
-                      progressIndicatorColor: const Color(0xFFFFB800),
-                      progressColors: const ProgressBarColors(
-                        playedColor: Color(0xFF001A4D),
-                        handleColor: Color(0xFFFFB800),
-                        bufferedColor: Colors.white24,
-                        backgroundColor: Colors.white12,
+                    Padding(
+                      padding: const EdgeInsets.only(top: 56),
+                      child: YoutubePlayer(
+                        controller: _youtubeController,
+                        aspectRatio: 16 / 9,
                       ),
                     )
                   else
@@ -2620,6 +2615,8 @@ class _FilmDetailPageState extends State<FilmDetailPage>
                         );
                       },
                     ),
+
+                  // GRADIENT OVERLAY (HANYA SAAT TIDAK PLAY)
                   if (!_showTrailer)
                     Container(
                       decoration: BoxDecoration(
@@ -2627,13 +2624,14 @@ class _FilmDetailPageState extends State<FilmDetailPage>
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                           colors: [
-                            Colors.black.withOpacity(0.3),
-                            Colors.black.withOpacity(0.7),
+                            Colors.black.withValues(alpha: 0.3),
+                            Colors.black.withValues(alpha: 0.7),
                           ],
                         ),
                       ),
                     ),
-                  // ✅ TOMBOL PLAY LANGSUNG SIAP DIGUNAKAN
+
+                  // TOMBOL PLAY (HANYA SAAT TIDAK PLAY)
                   if (!_showTrailer)
                     Center(
                       child: GestureDetector(
@@ -2647,7 +2645,7 @@ class _FilmDetailPageState extends State<FilmDetailPage>
                             border: Border.all(color: Colors.white, width: 3),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.3),
+                                color: Colors.black.withValues(alpha: 0.3),
                                 blurRadius: 10,
                                 spreadRadius: 2,
                               ),
@@ -2655,23 +2653,6 @@ class _FilmDetailPageState extends State<FilmDetailPage>
                           ),
                           child: const Icon(Icons.play_arrow,
                               color: Colors.white, size: 40),
-                        ),
-                      ),
-                    ),
-                  if (_showTrailer)
-                    Positioned(
-                      top: 50,
-                      right: 16,
-                      child: GestureDetector(
-                        onTap: _toggleTrailer,
-                        child: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.6),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(Icons.close,
-                              color: Colors.white, size: 24),
                         ),
                       ),
                     ),
@@ -2825,7 +2806,7 @@ class _FilmDetailPageState extends State<FilmDetailPage>
                       const SingleChildScrollView(
                         padding: EdgeInsets.all(16),
                         child: Text(
-                          'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.\n\nDuis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
+                          'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
                           style: TextStyle(
                               fontSize: 14, height: 1.6, color: Colors.black87),
                         ),
@@ -2848,16 +2829,13 @@ class _FilmDetailPageState extends State<FilmDetailPage>
       children: [
         SizedBox(
           width: 80,
-          child: Text(
-            label,
-            style: const TextStyle(color: Color(0xFF999999), fontSize: 12),
-          ),
+          child: Text(label,
+              style: const TextStyle(color: Color(0xFF999999), fontSize: 12)),
         ),
         Expanded(
-          child: Text(
-            value,
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
-          ),
+          child: Text(value,
+              style:
+                  const TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
         ),
       ],
     );
@@ -2937,29 +2915,6 @@ class _FilmDetailPageState extends State<FilmDetailPage>
                     _showCinemaFilter();
                   }),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _buildFilterButton('Sortir', 'Terdekat', () {}),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _buildFilterButton('Studio', 'Semua', () {}),
-                ),
-                const SizedBox(width: 12),
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: const Color(0xFFDDDDDD)),
-                  ),
-                  child: IconButton(
-                    icon: const Icon(Icons.search, color: Color(0xFF001A4D)),
-                    onPressed: () {},
-                    padding: EdgeInsets.zero,
-                  ),
-                ),
               ],
             ),
           ),
@@ -2998,17 +2953,13 @@ class _FilmDetailPageState extends State<FilmDetailPage>
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    label,
-                    style:
-                        const TextStyle(fontSize: 10, color: Color(0xFF999999)),
-                  ),
-                  Text(
-                    value,
-                    style: const TextStyle(
-                        fontSize: 12, fontWeight: FontWeight.bold),
-                    overflow: TextOverflow.ellipsis,
-                  ),
+                  Text(label,
+                      style: const TextStyle(
+                          fontSize: 10, color: Color(0xFF999999))),
+                  Text(value,
+                      style: const TextStyle(
+                          fontSize: 12, fontWeight: FontWeight.bold),
+                      overflow: TextOverflow.ellipsis),
                 ],
               ),
             ),
@@ -3027,7 +2978,7 @@ class _FilmDetailPageState extends State<FilmDetailPage>
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -3044,25 +2995,15 @@ class _FilmDetailPageState extends State<FilmDetailPage>
                     size: 24, color: Color(0xFFCCCCCC)),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: Text(
-                    cinema.name,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                    ),
-                  ),
+                  child: Text(cinema.name,
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 14)),
                 ),
                 Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: cinema.type == 'CGV'
-                        ? Colors.red
-                        : cinema.type == 'IMAX'
-                            ? Colors.blue
-                            : cinema.type == 'CINEPOLIS'
-                                ? Colors.orange
-                                : const Color(0xFF001A4D),
+                    color: const Color(0xFF001A4D),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
@@ -3094,13 +3035,9 @@ class _FilmDetailPageState extends State<FilmDetailPage>
                     Icon(Icons.theater_comedy,
                         color: Color(0xFF666666), size: 16),
                     SizedBox(width: 8),
-                    Text(
-                      'Layar besar, suara hebat! Amankan kursimu',
-                      style: TextStyle(fontSize: 12, color: Color(0xFF666666)),
-                    ),
-                    SizedBox(width: 4),
-                    Icon(Icons.local_fire_department,
-                        color: Colors.orange, size: 16),
+                    Text('Layar besar, suara hebat!',
+                        style:
+                            TextStyle(fontSize: 12, color: Color(0xFF666666))),
                   ],
                 ),
                 const SizedBox(height: 12),
@@ -3108,15 +3045,8 @@ class _FilmDetailPageState extends State<FilmDetailPage>
                   spacing: 8,
                   runSpacing: 8,
                   children: cinema.times.map((time) {
-                    final isSelected = selectedTime == time &&
-                        selectedCinemaLocation == cinema.name;
                     return GestureDetector(
                       onTap: () {
-                        setState(() {
-                          selectedTime = time;
-                          selectedCinemaLocation = cinema.name;
-                        });
-
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -3134,24 +3064,13 @@ class _FilmDetailPageState extends State<FilmDetailPage>
                         padding: const EdgeInsets.symmetric(
                             horizontal: 16, vertical: 8),
                         decoration: BoxDecoration(
-                          color: isSelected
-                              ? const Color(0xFF001A4D)
-                              : Colors.white,
-                          border: Border.all(
-                            color: isSelected
-                                ? const Color(0xFF001A4D)
-                                : const Color(0xFFDDDDDD),
-                          ),
+                          color: Colors.white,
+                          border: Border.all(color: const Color(0xFFDDDDDD)),
                           borderRadius: BorderRadius.circular(6),
                         ),
-                        child: Text(
-                          time,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                            color: isSelected ? Colors.white : Colors.black,
-                          ),
-                        ),
+                        child: Text(time,
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 12)),
                       ),
                     );
                   }).toList(),
@@ -3189,10 +3108,8 @@ class _FilmDetailPageState extends State<FilmDetailPage>
               ),
             ),
             const SizedBox(height: 20),
-            const Text(
-              'Pilih Bioskop',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
+            const Text('Pilih Bioskop',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 20),
             ListTile(
               leading: const Icon(Icons.check_circle_outline,
@@ -3202,9 +3119,7 @@ class _FilmDetailPageState extends State<FilmDetailPage>
                   ? const Icon(Icons.check, color: Color(0xFF001A4D))
                   : null,
               onTap: () {
-                setState(() {
-                  selectedCinema = 'Semua';
-                });
+                setState(() => selectedCinema = 'Semua');
                 Navigator.pop(context);
               },
             ),
@@ -3215,9 +3130,7 @@ class _FilmDetailPageState extends State<FilmDetailPage>
                   ? const Icon(Icons.check, color: Color(0xFF001A4D))
                   : null,
               onTap: () {
-                setState(() {
-                  selectedCinema = 'CGV';
-                });
+                setState(() => selectedCinema = 'CGV');
                 Navigator.pop(context);
               },
             ),
@@ -3228,9 +3141,7 @@ class _FilmDetailPageState extends State<FilmDetailPage>
                   ? const Icon(Icons.check, color: Color(0xFF001A4D))
                   : null,
               onTap: () {
-                setState(() {
-                  selectedCinema = 'XXI';
-                });
+                setState(() => selectedCinema = 'XXI');
                 Navigator.pop(context);
               },
             ),
@@ -3241,9 +3152,7 @@ class _FilmDetailPageState extends State<FilmDetailPage>
                   ? const Icon(Icons.check, color: Color(0xFF001A4D))
                   : null,
               onTap: () {
-                setState(() {
-                  selectedCinema = 'IMAX';
-                });
+                setState(() => selectedCinema = 'IMAX');
                 Navigator.pop(context);
               },
             ),
@@ -3254,9 +3163,7 @@ class _FilmDetailPageState extends State<FilmDetailPage>
                   ? const Icon(Icons.check, color: Color(0xFF001A4D))
                   : null,
               onTap: () {
-                setState(() {
-                  selectedCinema = 'CINEPOLIS';
-                });
+                setState(() => selectedCinema = 'CINEPOLIS');
                 Navigator.pop(context);
               },
             ),
@@ -3270,11 +3177,7 @@ class _FilmDetailPageState extends State<FilmDetailPage>
   @override
   void dispose() {
     _tabController.dispose();
-    try {
-      _youtubeController.dispose();
-    } catch (e) {
-      print('Error dispose YouTube controller: $e');
-    }
+    _youtubeController.close();
     super.dispose();
   }
 }
@@ -6304,7 +6207,7 @@ class _ProfilePageState extends State<ProfilePage> {
             child: Column(
               children: [
                 Transform.translate(
-                  offset: const Offset(0, -50),
+                  offset: const Offset(0, 0),
                   child: Column(
                     children: [
                       Stack(
