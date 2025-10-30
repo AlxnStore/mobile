@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:collection/collection.dart';
 
 void main() {
   print('Initial Active: ${TicketHistoryService.getActiveTickets()}');
@@ -16,7 +17,7 @@ class TixIDApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'TIX ID',
+      title: 'CINEMA 1',
       theme: ThemeData(
         primaryColor: const Color(0xfffafafb),
         useMaterial3: true,
@@ -190,7 +191,7 @@ class AuthService {
     'alfian': UserProfile(
       username: 'alfian',
       name: 'Alfian',
-      phoneNumber: '081234567890',
+      phoneNumber: 'Frontend Developer',
       profileImageUrl:
           'https://i.pinimg.com/736x/c8/05/30/c80530f1ad4fa82dfc8a78a7665cd8f7.jpg',
       backgroundImageUrl:
@@ -263,10 +264,8 @@ class AuthService {
       username: username,
       name: username[0].toUpperCase() + username.substring(1),
       phoneNumber: '08xxxxxxxxxx',
-      profileImageUrl:
-          'https://i.pinimg.com/736x/c8/05/30/c80530f1ad4fa82dfc8a78a7665cd8f7.jpg',
-      backgroundImageUrl:
-          'https://i.pinimg.com/736x/04/7b/ab/047bab988a4771be2f77d0e3bf36c5ff.jpg',
+      profileImageUrl: '',
+      backgroundImageUrl: '',
     );
 
     _currentUsername = username;
@@ -410,7 +409,9 @@ class FilmService {
   }
 }
 
-// ==================== TICKET HISTORY SERVICE ====================
+// ==================== TICKET HISTORY SERVICE (UPDATE) ====================
+
+// ==================== TICKET HISTORY SERVICE (UPDATE) ====================
 
 class TicketHistoryService {
   static final List<TicketHistory> _history = [];
@@ -445,6 +446,15 @@ class TicketHistoryService {
     } catch (e) {
       return null;
     }
+  }
+
+  // ✅ TAMBAHAN UNTUK ADMIN
+  static List<TicketHistory> getAllTickets() {
+    return List.unmodifiable(_history);
+  }
+
+  static List<TicketHistory> getTicketsByUserId(String userId) {
+    return _history.where((ticket) => ticket.userId == userId).toList();
   }
 }
 
@@ -613,6 +623,408 @@ class SeatService {
   }
 }
 
+class WatchlistService {
+  static final Map<String, List<String>> _watchlists = {};
+
+  static void addToWatchlist(String userId, String filmId) {
+    if (!_watchlists.containsKey(userId)) {
+      _watchlists[userId] = [];
+    }
+    if (!_watchlists[userId]!.contains(filmId)) {
+      _watchlists[userId]!.add(filmId);
+    }
+  }
+
+  static void removeFromWatchlist(String userId, String filmId) {
+    if (_watchlists.containsKey(userId)) {
+      _watchlists[userId]!.remove(filmId);
+    }
+  }
+
+  static bool isInWatchlist(String userId, String filmId) {
+    if (!_watchlists.containsKey(userId)) return false;
+    return _watchlists[userId]!.contains(filmId);
+  }
+
+  static List<Film> getWatchlistFilms(String userId) {
+    if (!_watchlists.containsKey(userId)) return [];
+
+    List<Film> films = [];
+    for (String filmId in _watchlists[userId]!) {
+      Film? film = FilmService.getFilmById(filmId);
+      if (film != null) {
+        films.add(film);
+      }
+    }
+    return films;
+  }
+
+  static int getWatchlistCount(String userId) {
+    if (!_watchlists.containsKey(userId)) return 0;
+    return _watchlists[userId]!.length;
+  }
+}
+
+class WatchlistPage extends StatefulWidget {
+  const WatchlistPage({Key? key}) : super(key: key);
+
+  @override
+  State<WatchlistPage> createState() => _WatchlistPageState();
+}
+
+class _WatchlistPageState extends State<WatchlistPage> {
+  List<Film> watchlistFilms = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadWatchlist();
+  }
+
+  void _loadWatchlist() {
+    setState(() {
+      isLoading = true;
+    });
+
+    final userId = AuthService.getCurrentUsername();
+    if (userId != null) {
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (mounted) {
+          setState(() {
+            watchlistFilms = WatchlistService.getWatchlistFilms(userId);
+            isLoading = false;
+          });
+        }
+      });
+    } else {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  void _removeFromWatchlist(Film film) {
+    final userId = AuthService.getCurrentUsername();
+    if (userId == null) return;
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.warning, color: Colors.orange, size: 22),
+            SizedBox(width: 8),
+            Text('Hapus dari Watchlist?'),
+          ],
+        ),
+        content: Text(
+            'Apakah Anda yakin ingin menghapus "${film.title}" dari watchlist?'),
+        actions: [
+          TextButton.icon(
+            onPressed: () => Navigator.pop(context),
+            icon: const Icon(Icons.close),
+            label: const Text('Batal'),
+          ),
+          ElevatedButton.icon(
+            onPressed: () {
+              WatchlistService.removeFromWatchlist(userId, film.id);
+              Navigator.pop(context);
+              _loadWatchlist();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Row(
+                    children: [
+                      const Icon(Icons.check_circle,
+                          color: Colors.white, size: 20),
+                      const SizedBox(width: 8),
+                      Text('${film.title} dihapus dari watchlist'),
+                    ],
+                  ),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            },
+            icon: const Icon(Icons.delete, color: Colors.white),
+            label: const Text('Hapus', style: TextStyle(color: Colors.white)),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF5F5F5),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Color(0xFF001A4D)),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Row(
+          children: [
+            Icon(Icons.favorite, color: Colors.red, size: 22),
+            SizedBox(width: 8),
+            Text(
+              'My Watchlist',
+              style: TextStyle(
+                color: Color(0xFF001A4D),
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          if (watchlistFilms.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(right: 16),
+              child: Center(
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Colors.red),
+                  ),
+                  child: Text(
+                    '${watchlistFilms.length} Film',
+                    style: const TextStyle(
+                      color: Colors.red,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+      body: isLoading
+          ? const Center(
+              child: CircularProgressIndicator(color: Color(0xFF001A4D)),
+            )
+          : watchlistFilms.isEmpty
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.favorite_border,
+                          size: 80, color: Colors.grey.shade300),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Watchlist Kosong',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Tambahkan film favorit Anda ke watchlist',
+                        style: TextStyle(
+                            fontSize: 14, color: Colors.grey.shade500),
+                      ),
+                      const SizedBox(height: 24),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        icon: const Icon(Icons.movie, color: Colors.white),
+                        label: const Text('Jelajahi Film',
+                            style: TextStyle(color: Colors.white)),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF001A4D),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 24, vertical: 12),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : RefreshIndicator(
+                  onRefresh: () async {
+                    _loadWatchlist();
+                    await Future.delayed(const Duration(milliseconds: 500));
+                  },
+                  child: GridView.builder(
+                    padding: const EdgeInsets.all(16),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      childAspectRatio: 0.65,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                    ),
+                    itemCount: watchlistFilms.length,
+                    itemBuilder: (context, index) {
+                      final film = watchlistFilms[index];
+                      return _buildWatchlistCard(film);
+                    },
+                  ),
+                ),
+    );
+  }
+
+  Widget _buildWatchlistCard(Film film) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => FilmDetailPage(
+              film: film,
+              onUpdate: _loadWatchlist,
+            ),
+          ),
+        ).then((_) => _loadWatchlist());
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(12),
+                      topRight: Radius.circular(12),
+                    ),
+                    child: Image.network(
+                      film.imageUrl,
+                      width: double.infinity,
+                      height: double.infinity,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          color: const Color(0xFFDDDDDD),
+                          alignment: Alignment.center,
+                          child: const Icon(Icons.movie,
+                              size: 40, color: Colors.white),
+                        );
+                      },
+                    ),
+                  ),
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFB800),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.star, size: 12, color: Colors.white),
+                          const SizedBox(width: 2),
+                          Text(
+                            film.rating,
+                            style: const TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    top: 8,
+                    left: 8,
+                    child: GestureDetector(
+                      onTap: () => _removeFromWatchlist(film),
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.3),
+                              blurRadius: 4,
+                            ),
+                          ],
+                        ),
+                        child: const Icon(Icons.favorite,
+                            size: 16, color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    film.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    film.genre,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: Color(0xFF666666),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF001A4D).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      film.ageRating,
+                      style: const TextStyle(
+                        fontSize: 9,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF001A4D),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 // ==================== LOGIN PAGE ====================
 
 class LoginPage extends StatefulWidget {
@@ -683,25 +1095,76 @@ class _LoginPageState extends State<LoginPage> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 60),
+
+              // Header Logo
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
                   color: const Color(0xfffbfcfd),
                   borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
-                child: const Text(
-                  'TIX ID',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xff13013b),
-                  ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: const Color(0xffffffff),
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xfffcfdfe).withOpacity(0.3),
+                                blurRadius: 8,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: const Icon(
+                            Icons.local_movies,
+                            color: Color(0xFFFFB800),
+                            size: 36,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        const Text(
+                          'CINEMA 1',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xff13013b),
+                            letterSpacing: 1.2,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Cinema Booking System',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF666666),
+                        letterSpacing: 1.5,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
                 ),
               ),
+
               const SizedBox(height: 40),
+
               const Text(
-                'Masuk ke TIX ID',
+                'Masuk ke CINEMA 1',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -709,7 +1172,10 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 textAlign: TextAlign.center,
               ),
+
               const SizedBox(height: 32),
+
+              // Username Field
               const Text(
                 'USERNAME',
                 style: TextStyle(
@@ -741,7 +1207,10 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
               ),
+
               const SizedBox(height: 16),
+
+              // Password Field
               const Text(
                 'PASSWORD',
                 style: TextStyle(
@@ -787,7 +1256,9 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
               ),
+
               const SizedBox(height: 8),
+
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton(
@@ -801,7 +1272,10 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
               ),
+
               const SizedBox(height: 24),
+
+              // Login Button
               ElevatedButton(
                 onPressed: _isLoading ? null : _handleLogin,
                 style: ElevatedButton.styleFrom(
@@ -829,7 +1303,61 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
               ),
+
+              const SizedBox(height: 16),
+
+              // 🆕 TOMBOL ADMIN - PROMINENT
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      const Color(0xFFFFB800).withOpacity(0.1),
+                      const Color(0xFFFFB800).withOpacity(0.05),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: const Color(0xFFFFB800),
+                    width: 2,
+                  ),
+                ),
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AdminLoginPage(),
+                      ),
+                    );
+                  },
+                  icon: const Icon(
+                    Icons.admin_panel_settings,
+                    color: Color(0xFFFFB800),
+                    size: 22,
+                  ),
+                  label: const Text(
+                    'Login sebagai Admin',
+                    style: TextStyle(
+                      color: Color(0xFFFFB800),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                    ),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide.none,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ),
+              ),
+
               const SizedBox(height: 24),
+
+              // Register Link
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -852,6 +1380,8 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ],
               ),
+
+              const SizedBox(height: 32),
             ],
           ),
         ),
@@ -866,7 +1396,6 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 }
-
 // ==================== REGISTER PAGE ====================
 
 class RegisterPage extends StatefulWidget {
@@ -979,7 +1508,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: const Text(
-                  'TIX ID',
+                  'CINEMA 1',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 32,
@@ -1183,7 +1712,7 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 }
 
-// ==================== HOMEPAGE - PART 1 ====================
+// ==================== HOMEPAGE - DENGAN FITUR SCROLL DAN SIDEBAR ====================
 
 class HomePage extends StatefulWidget {
   final int initialTab;
@@ -1201,6 +1730,10 @@ class _HomePageState extends State<HomePage> {
   late PageController _pageController;
   List<Film> filteredFilms = [];
   List<String> favoriteCinemas = [];
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  // ✅ KEY UNTUK SCROLL KE FILM SECTION
+  final GlobalKey _filmSectionKey = GlobalKey();
 
   final List<String> cinemas = [
     'AEON MALL JGC CGV',
@@ -1231,6 +1764,26 @@ class _HomePageState extends State<HomePage> {
     print('');
   }
 
+// ==================== UPDATE MAIN FUNCTION ====================
+
+  void main() {
+    print('Initial Active: ${TicketHistoryService.getActiveTickets()}');
+    print('');
+    print('═══════════════════════════════════════');
+    print('🎬 CINEMA 1 - Admin & User Management');
+    print('═══════════════════════════════════════');
+    print('👤 User Credentials:');
+    print('   - alfian/123, dika/456, ricky/789');
+    print('   - rizki/157, faisal/246, isan/2025');
+    print('');
+    print('🔐 Admin Credentials:');
+    print('   - admin/admin123');
+    print('   - admin2/admin456');
+    print('═══════════════════════════════════════');
+    print('');
+    runApp(const TixIDApp());
+  }
+
   void _loadFilms() {
     setState(() {
       filteredFilms = FilmService.getAllFilms();
@@ -1250,8 +1803,19 @@ class _HomePageState extends State<HomePage> {
       }
     });
     if (query.isNotEmpty && filteredFilms.isNotEmpty) {
-      _scrollController.animateTo(500,
-          duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
+      _scrollToFilmSection();
+    }
+  }
+
+  // ✅ FUNGSI SCROLL KE FILM SECTION
+  void _scrollToFilmSection() {
+    if (_filmSectionKey.currentContext != null) {
+      Scrollable.ensureVisible(
+        _filmSectionKey.currentContext!,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+        alignment: 0.0,
+      );
     }
   }
 
@@ -1583,22 +2147,223 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void _showAllFilms() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.85,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+        ),
+        child: Column(
+          children: [
+            const SizedBox(height: 12),
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: const Color(0xFFDDDDDD),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: [
+                  const Icon(Icons.movie_filter,
+                      color: Color(0xFF001A4D), size: 28),
+                  const SizedBox(width: 12),
+                  const Text(
+                    'Semua Film',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(),
+            Expanded(
+              child: GridView.builder(
+                padding: const EdgeInsets.all(16),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 0.65,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                ),
+                itemCount: FilmService.getAllFilms().length,
+                itemBuilder: (context, index) {
+                  final film = FilmService.getAllFilms()[index];
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => FilmDetailPage(
+                            film: film,
+                            onUpdate: _loadFilms,
+                          ),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: ClipRRect(
+                              borderRadius: const BorderRadius.only(
+                                topLeft: Radius.circular(12),
+                                topRight: Radius.circular(12),
+                              ),
+                              child: Stack(
+                                children: [
+                                  Image.network(
+                                    film.imageUrl,
+                                    width: double.infinity,
+                                    height: double.infinity,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Container(
+                                        color: const Color(0xFFDDDDDD),
+                                        alignment: Alignment.center,
+                                        child: const Icon(Icons.movie,
+                                            size: 40, color: Colors.white),
+                                      );
+                                    },
+                                  ),
+                                  Positioned(
+                                    top: 8,
+                                    right: 8,
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 6, vertical: 4),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFFFB800),
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          const Icon(Icons.star,
+                                              size: 12, color: Colors.white),
+                                          const SizedBox(width: 2),
+                                          Text(
+                                            film.rating,
+                                            style: const TextStyle(
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  film.title,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  film.genre,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    color: Color(0xFF666666),
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF001A4D)
+                                        .withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Text(
+                                    film.ageRating,
+                                    style: const TextStyle(
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(0xFF001A4D),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.menu, color: Color(0xFF001A4D), size: 28),
-          onPressed: () {},
+          onPressed: () {
+            _scaffoldKey.currentState?.openDrawer();
+          },
           tooltip: 'Menu',
         ),
         title: const Row(children: [
           Icon(Icons.movie, color: Color(0xFF001A4D), size: 24),
           SizedBox(width: 8),
-          Text('TIX ID',
+          Text('cinema 1',
               style: TextStyle(
                 color: Color(0xFF001A4D),
                 fontWeight: FontWeight.bold,
@@ -1606,12 +2371,6 @@ class _HomePageState extends State<HomePage> {
               )),
         ]),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.add_circle_outline,
-                color: Color(0xFF001A4D), size: 26),
-            onPressed: _showAddFilmDialog,
-            tooltip: 'Tambah Film',
-          ),
           IconButton(
             icon: const Icon(Icons.notifications_outlined,
                 color: Color(0xFF001A4D), size: 26),
@@ -1632,6 +2391,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
+      drawer: _buildDrawer(),
       body: selectedTab == 0
           ? _buildBerandaTab()
           : selectedTab == 1
@@ -1671,6 +2431,299 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  // ✅ SIDEBAR/DRAWER
+  Widget _buildDrawer() {
+    final userProfile = AuthService.getCurrentUserProfile();
+    final activeTickets = TicketHistoryService.getActiveTickets();
+
+    return Drawer(
+      child: Container(
+        color: Colors.white,
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            UserAccountsDrawerHeader(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    const Color(0xFF001A4D),
+                    const Color(0xFF0066CC).withOpacity(0.8)
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+              currentAccountPicture: CircleAvatar(
+                backgroundColor: Colors.white,
+                child: userProfile?.profileImageUrl.isNotEmpty == true
+                    ? ClipOval(
+                        child: Image.network(
+                          userProfile!.profileImageUrl,
+                          width: 80,
+                          height: 80,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Icon(Icons.person,
+                                size: 40, color: Color(0xFF001A4D));
+                          },
+                        ),
+                      )
+                    : const Icon(Icons.person,
+                        size: 40, color: Color(0xFF001A4D)),
+              ),
+              accountName: Text(
+                userProfile?.name ?? 'Pengguna',
+                style:
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+              accountEmail: Text(
+                userProfile?.phoneNumber ?? '',
+                style: const TextStyle(fontSize: 13),
+              ),
+            ),
+            // Statistik Tiket
+            Container(
+              margin: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF0F8FF),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFF0066CC)),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Column(
+                    children: [
+                      const Icon(Icons.confirmation_number,
+                          color: Color(0xFF0066CC), size: 28),
+                      const SizedBox(height: 8),
+                      Text(
+                        '${activeTickets.length}',
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF0066CC),
+                        ),
+                      ),
+                      const Text(
+                        'Tiket Aktif',
+                        style:
+                            TextStyle(fontSize: 11, color: Color(0xFF666666)),
+                      ),
+                    ],
+                  ),
+                  Container(
+                    width: 1,
+                    height: 50,
+                    color: const Color(0xFFDDDDDD),
+                  ),
+                  Column(
+                    children: [
+                      const Icon(Icons.history,
+                          color: Color(0xFF666666), size: 28),
+                      const SizedBox(height: 8),
+                      Text(
+                        '${TicketHistoryService.getUsedTickets().length}',
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF666666),
+                        ),
+                      ),
+                      const Text(
+                        'Riwayat',
+                        style:
+                            TextStyle(fontSize: 11, color: Color(0xFF666666)),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const Divider(),
+            _buildDrawerItem(
+              icon: Icons.home,
+              title: 'Beranda',
+              onTap: () {
+                Navigator.pop(context);
+                setState(() => selectedTab = 0);
+              },
+            ),
+            _buildDrawerItem(
+              icon: Icons.confirmation_number,
+              title: 'Tiket Saya',
+              badge: activeTickets.length,
+              onTap: () {
+                Navigator.pop(context);
+                setState(() => selectedTab = 1);
+              },
+            ),
+            _buildDrawerItem(
+              icon: Icons.person,
+              title: 'Profil Saya',
+              onTap: () {
+                Navigator.pop(context);
+                setState(() => selectedTab = 2);
+              },
+            ),
+            const Divider(),
+            _buildDrawerItem(
+              icon: Icons.favorite,
+              title: 'Watchlist',
+              badge: WatchlistService.getWatchlistCount(
+                  AuthService.getCurrentUsername() ?? ''),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const WatchlistPage()),
+                );
+              },
+            ),
+            _buildDrawerItem(
+              icon: Icons.star,
+              title: 'Bioskop Favorit',
+              onTap: () {
+                Navigator.pop(context);
+                _showCinemaSelectionDialog();
+              },
+            ),
+            _buildDrawerItem(
+              icon: Icons.settings,
+              title: 'Pengaturan',
+              onTap: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Fitur akan segera hadir')),
+                );
+              },
+            ),
+            _buildDrawerItem(
+              icon: Icons.help,
+              title: 'Bantuan',
+              onTap: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Fitur akan segera hadir')),
+                );
+              },
+            ),
+            const Divider(),
+            _buildDrawerItem(
+              icon: Icons.logout,
+              title: 'Keluar',
+              textColor: Colors.red,
+              iconColor: Colors.red,
+              onTap: () {
+                Navigator.pop(context);
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Row(
+                      children: [
+                        Icon(Icons.warning, color: Colors.red, size: 22),
+                        SizedBox(width: 8),
+                        Text('Keluar'),
+                      ],
+                    ),
+                    content: const Text('Apakah Anda yakin ingin keluar?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('Batal'),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          AuthService.logout();
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const LoginPage()),
+                            (route) => false,
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red),
+                        child: const Text('Keluar',
+                            style: TextStyle(color: Colors.white)),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 20),
+            Center(
+              child: Text(
+                'CINEMA 1 v1.0.0',
+                style: TextStyle(
+                  fontSize: 11,
+                  color: Colors.grey.shade500,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDrawerItem({
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+    Color? textColor,
+    Color? iconColor,
+    int? badge,
+  }) {
+    return ListTile(
+      leading: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Icon(icon, color: iconColor ?? const Color(0xFF001A4D), size: 24),
+          if (badge != null && badge > 0)
+            Positioned(
+              right: -6,
+              top: -6,
+              child: Container(
+                padding: const EdgeInsets.all(4),
+                decoration: const BoxDecoration(
+                  color: Colors.red,
+                  shape: BoxShape.circle,
+                ),
+                constraints: const BoxConstraints(
+                  minWidth: 18,
+                  minHeight: 18,
+                ),
+                child: Text(
+                  badge > 99 ? '99+' : badge.toString(),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+        ],
+      ),
+      title: Text(
+        title,
+        style: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          color: textColor ?? Colors.black87,
+        ),
+      ),
+      onTap: onTap,
+    );
+  }
+
   Widget _buildBerandaTab() {
     return ListView(
       controller: _scrollController,
@@ -1681,7 +2734,7 @@ class _HomePageState extends State<HomePage> {
             controller: searchController,
             onChanged: _searchFilms,
             decoration: InputDecoration(
-              hintText: 'Cari film di TIX ID',
+              hintText: 'Cari film di cinema 1',
               prefixIcon: const Icon(Icons.search, color: Color(0xFF666666)),
               suffixIcon: searchController.text.isNotEmpty
                   ? IconButton(
@@ -1868,30 +2921,37 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         const SizedBox(height: 24),
-        Padding(
+        Container(
+          key: _filmSectionKey,
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          child:
-              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            Row(children: [
-              const Icon(Icons.local_movies,
-                  color: Color(0xFF001A4D), size: 22),
-              const SizedBox(width: 8),
-              Text(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(children: [
+                const Icon(Icons.local_movies,
+                    color: Color(0xFF001A4D), size: 22),
+                const SizedBox(width: 8),
+                Text(
                   searchController.text.isEmpty
                       ? 'Sedang Tayang'
                       : 'Hasil Pencarian (${filteredFilms.length})',
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                  )),
-            ]),
-            if (searchController.text.isEmpty)
-              TextButton.icon(
-                onPressed: () {},
-                icon: const Icon(Icons.arrow_forward, size: 16),
-                label: const Text('Semua'),
-              ),
-          ]),
+                  ),
+                ),
+              ]),
+              if (searchController.text.isEmpty)
+                TextButton.icon(
+                  onPressed: _showAllFilms,
+                  icon: const Icon(Icons.grid_view, size: 16),
+                  label: const Text('Semua'),
+                  style: TextButton.styleFrom(
+                    foregroundColor: const Color(0xFF001A4D),
+                  ),
+                ),
+            ],
+          ),
         ),
         if (filteredFilms.isEmpty)
           Padding(
@@ -2213,13 +3273,16 @@ class _FilmDetailPageState extends State<FilmDetailPage>
   late YoutubePlayerController _youtubeController;
   bool _showTrailer = false;
   late TabController _tabController;
+  bool isInWatchlist = false;
 
   final List<Schedule> schedules = [
-    Schedule(date: '10 Okt', day: 'JUM', times: []),
-    Schedule(date: '11 Okt', day: 'SAB', times: []),
-    Schedule(date: '12 Okt', day: 'MIN', times: []),
-    Schedule(date: '13 Okt', day: 'SEN', times: []),
-    Schedule(date: '14 Okt', day: 'SEL', times: []),
+    Schedule(date: '1 Nov', day: 'Sen', times: []),
+    Schedule(date: '2 Nov', day: 'Sel', times: []),
+    Schedule(date: '3 Nov', day: 'Rab', times: []),
+    Schedule(date: '4 Nov', day: 'Kam', times: []),
+    Schedule(date: '5 Nov', day: 'Jum', times: []),
+    Schedule(date: '6 Nov', day: 'Sab', times: []),
+    Schedule(date: '7 Nov', day: 'Min', times: []),
   ];
 
   final List<CinemaLocation> cinemas = [
@@ -2324,6 +3387,56 @@ class _FilmDetailPageState extends State<FilmDetailPage>
     }
   }
 
+  void _checkWatchlistStatus() {
+    final userId = AuthService.getCurrentUsername();
+    if (userId != null) {
+      setState(() {
+        isInWatchlist = WatchlistService.isInWatchlist(userId, widget.film.id);
+      });
+    }
+  }
+
+  void _toggleWatchlist() {
+    final userId = AuthService.getCurrentUsername();
+    if (userId == null) return;
+
+    setState(() {
+      if (isInWatchlist) {
+        WatchlistService.removeFromWatchlist(userId, widget.film.id);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.remove_circle_outline,
+                    color: Colors.white, size: 20),
+                const SizedBox(width: 8),
+                Text('${widget.film.title} dihapus dari watchlist'),
+              ],
+            ),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      } else {
+        WatchlistService.addToWatchlist(userId, widget.film.id);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.favorite, color: Colors.white, size: 20),
+                const SizedBox(width: 8),
+                Text('${widget.film.title} ditambahkan ke watchlist'),
+              ],
+            ),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+      isInWatchlist = !isInWatchlist;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -2337,6 +3450,7 @@ class _FilmDetailPageState extends State<FilmDetailPage>
     });
 
     _initYoutubeController();
+    _checkWatchlistStatus();
   }
 
   void _toggleTrailer() {
@@ -2541,6 +3655,9 @@ class _FilmDetailPageState extends State<FilmDetailPage>
 
   @override
   Widget build(BuildContext context) {
+    final userId = AuthService.getCurrentUsername() ?? '';
+    final watchlistCount = WatchlistService.getWatchlistCount(userId);
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: CustomScrollView(
@@ -2554,7 +3671,6 @@ class _FilmDetailPageState extends State<FilmDetailPage>
               onPressed: () => Navigator.pop(context),
             ),
             actions: [
-              // ✅ TOMBOL X DI SINI (SELALU DI ATAS)
               if (_showTrailer)
                 IconButton(
                   icon: Container(
@@ -2564,7 +3680,7 @@ class _FilmDetailPageState extends State<FilmDetailPage>
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.3),
+                          color: Colors.black.withOpacity(0.3),
                           blurRadius: 8,
                           spreadRadius: 2,
                         ),
@@ -2578,22 +3694,11 @@ class _FilmDetailPageState extends State<FilmDetailPage>
                     _toggleTrailer();
                   },
                 ),
-              if (!_showTrailer) ...[
-                IconButton(
-                  icon: const Icon(Icons.edit, color: Colors.white),
-                  onPressed: _showEditFilmDialog,
-                ),
-                IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.white),
-                  onPressed: _deleteFilm,
-                ),
-              ],
             ],
             flexibleSpace: FlexibleSpaceBar(
               background: Stack(
                 fit: StackFit.expand,
                 children: [
-                  // VIDEO PLAYER FULL SCREEN DENGAN PADDING ATAS
                   if (_showTrailer)
                     Padding(
                       padding: const EdgeInsets.only(top: 56),
@@ -2615,8 +3720,6 @@ class _FilmDetailPageState extends State<FilmDetailPage>
                         );
                       },
                     ),
-
-                  // GRADIENT OVERLAY (HANYA SAAT TIDAK PLAY)
                   if (!_showTrailer)
                     Container(
                       decoration: BoxDecoration(
@@ -2624,14 +3727,12 @@ class _FilmDetailPageState extends State<FilmDetailPage>
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                           colors: [
-                            Colors.black.withValues(alpha: 0.3),
-                            Colors.black.withValues(alpha: 0.7),
+                            Colors.black.withOpacity(0.3),
+                            Colors.black.withOpacity(0.7),
                           ],
                         ),
                       ),
                     ),
-
-                  // TOMBOL PLAY (HANYA SAAT TIDAK PLAY)
                   if (!_showTrailer)
                     Center(
                       child: GestureDetector(
@@ -2645,7 +3746,7 @@ class _FilmDetailPageState extends State<FilmDetailPage>
                             border: Border.all(color: Colors.white, width: 3),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.3),
+                                color: Colors.black.withOpacity(0.3),
                                 blurRadius: 10,
                                 spreadRadius: 2,
                               ),
@@ -2752,30 +3853,49 @@ class _FilmDetailPageState extends State<FilmDetailPage>
                       ),
                       Column(
                         children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 8),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.red),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: const Row(
-                              children: [
-                                Icon(Icons.favorite_border,
-                                    color: Colors.red, size: 20),
-                                SizedBox(width: 8),
-                                Text('Masukkan watchlist',
+                          GestureDetector(
+                            onTap: _toggleWatchlist,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 8),
+                              decoration: BoxDecoration(
+                                color:
+                                    isInWatchlist ? Colors.red : Colors.white,
+                                border: Border.all(color: Colors.red),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    isInWatchlist
+                                        ? Icons.favorite
+                                        : Icons.favorite_border,
+                                    color: isInWatchlist
+                                        ? Colors.white
+                                        : Colors.red,
+                                    size: 20,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    isInWatchlist
+                                        ? 'Di Watchlist'
+                                        : 'Masukkan watchlist',
                                     style: TextStyle(
-                                        color: Colors.red,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 11)),
-                              ],
+                                      color: isInWatchlist
+                                          ? Colors.white
+                                          : Colors.red,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                           const SizedBox(height: 4),
-                          const Text(
-                            '21.441 Orang',
-                            style: TextStyle(
+                          Text(
+                            '$watchlistCount Orang',
+                            style: const TextStyle(
                                 color: Color(0xFF999999), fontSize: 11),
                           ),
                         ],
@@ -2978,10 +4098,9 @@ class _FilmDetailPageState extends State<FilmDetailPage>
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 2)),
         ],
       ),
       child: Column(
@@ -5851,6 +6970,8 @@ class TicketDetailPage extends StatelessWidget {
 
 // ==================== PROFILE PAGE ====================
 
+// ==================== PROFILE PAGE ====================
+
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
 
@@ -6226,9 +7347,19 @@ class _ProfilePageState extends State<ProfilePage> {
                             ),
                             child: CircleAvatar(
                               radius: 60,
-                              backgroundImage:
-                                  NetworkImage(userProfile!.profileImageUrl),
                               backgroundColor: const Color(0xFF001A4D),
+                              child: ClipOval(
+                                child: Image.network(
+                                  userProfile!.profileImageUrl,
+                                  width: 120,
+                                  height: 120,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return const Icon(Icons.person,
+                                        size: 60, color: Colors.white);
+                                  },
+                                ),
+                              ),
                             ),
                           ),
                           Positioned(
@@ -6387,6 +7518,9 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget _buildMenuSection() {
+    final userId = AuthService.getCurrentUsername() ?? '';
+    final watchlistCount = WatchlistService.getWatchlistCount(userId);
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -6416,18 +7550,11 @@ class _ProfilePageState extends State<ProfilePage> {
           _buildMenuItem(
             icon: Icons.favorite,
             title: 'Watchlist',
+            badge: watchlistCount,
             onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Row(
-                    children: [
-                      Icon(Icons.info, color: Colors.white, size: 20),
-                      SizedBox(width: 8),
-                      Text('Fitur akan segera hadir'),
-                    ],
-                  ),
-                  duration: Duration(seconds: 2),
-                ),
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const WatchlistPage()),
               );
             },
           ),
@@ -6478,6 +7605,7 @@ class _ProfilePageState extends State<ProfilePage> {
     required IconData icon,
     required String title,
     required VoidCallback onTap,
+    int? badge,
   }) {
     return ListTile(
       leading: Container(
@@ -6490,8 +7618,29 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
       title: Text(title,
           style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
-      trailing:
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (badge != null && badge > 0)
+            Container(
+              margin: const EdgeInsets.only(right: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.red,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                badge > 99 ? '99+' : badge.toString(),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
           const Icon(Icons.chevron_right, color: Color(0xFF666666), size: 20),
+        ],
+      ),
       onTap: onTap,
     );
   }
@@ -6548,6 +7697,8 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 }
+
+// ==================== ICON TEST PAGE ====================
 
 // ==================== ICON TEST PAGE ====================
 
@@ -6676,5 +7827,3188 @@ class IconTestPage extends StatelessWidget {
         trailing: Icon(icon, size: 20, color: const Color(0xFF666666)),
       ),
     );
+  }
+}
+
+// ==================== ADMIN MODEL ====================
+
+class AdminUser {
+  final String username;
+  final String password;
+  final String name;
+  final String role;
+
+  AdminUser({
+    required this.username,
+    required this.password,
+    required this.name,
+    this.role = 'admin',
+  });
+}
+
+// ==================== ADMIN SERVICE ====================
+
+class AdminService {
+  static final Map<String, AdminUser> _admins = {
+    'admin': AdminUser(
+      username: 'admin',
+      password: 'admin123',
+      name: 'Super Admin',
+      role: 'admin',
+    ),
+    'admin2': AdminUser(
+      username: 'admin2',
+      password: 'admin456',
+      name: 'Admin Manager',
+      role: 'admin',
+    ),
+  };
+
+  static AdminUser? _currentAdmin;
+
+  static bool authenticateAdmin(String username, String password) {
+    if (_admins.containsKey(username) &&
+        _admins[username]!.password == password) {
+      _currentAdmin = _admins[username];
+      return true;
+    }
+    return false;
+  }
+
+  static bool isAdmin() {
+    return _currentAdmin != null;
+  }
+
+  static AdminUser? getCurrentAdmin() {
+    return _currentAdmin;
+  }
+
+  static void logoutAdmin() {
+    _currentAdmin = null;
+  }
+
+  // Analytics
+  static Map<String, dynamic> getBookingStatistics() {
+    final allTickets = TicketHistoryService.getAllTickets();
+    int totalBookings = allTickets.length;
+    int totalRevenue =
+        allTickets.fold(0, (sum, ticket) => sum + ticket.totalAmount);
+    int activeTickets = allTickets.where((t) => t.status == 'active').length;
+    int usedTickets = allTickets.where((t) => t.status == 'used').length;
+
+    return {
+      'totalBookings': totalBookings,
+      'totalRevenue': totalRevenue,
+      'activeTickets': activeTickets,
+      'usedTickets': usedTickets,
+    };
+  }
+
+  static Map<String, int> getBookingsByUser() {
+    final allTickets = TicketHistoryService.getAllTickets();
+    Map<String, int> userBookings = {};
+
+    for (var ticket in allTickets) {
+      userBookings[ticket.userId] = (userBookings[ticket.userId] ?? 0) + 1;
+    }
+
+    return userBookings;
+  }
+
+  static Map<String, int> getBookingsByFilm() {
+    final allTickets = TicketHistoryService.getAllTickets();
+    Map<String, int> filmBookings = {};
+
+    for (var ticket in allTickets) {
+      filmBookings[ticket.film.title] =
+          (filmBookings[ticket.film.title] ?? 0) + 1;
+    }
+
+    return filmBookings;
+  }
+
+  static List<TicketHistory> getRecentBookings({int limit = 10}) {
+    final allTickets = TicketHistoryService.getAllTickets();
+    allTickets.sort((a, b) => b.purchaseDate.compareTo(a.purchaseDate));
+    return allTickets.take(limit).toList();
+  }
+
+  static Map<String, dynamic> getDashboardAnalytics() {
+    final allTickets = TicketHistoryService.getAllTickets();
+    final allFilms = FilmService.getAllFilms();
+
+    // Revenue per day (last 7 days)
+    Map<String, int> revenuePerDay = {};
+    for (var ticket in allTickets) {
+      String dateKey =
+          '${ticket.purchaseDate.day}/${ticket.purchaseDate.month}';
+      revenuePerDay[dateKey] =
+          (revenuePerDay[dateKey] ?? 0) + ticket.totalAmount;
+    }
+
+    // Top performing films
+    Map<String, int> filmRevenue = {};
+    for (var ticket in allTickets) {
+      filmRevenue[ticket.film.title] =
+          (filmRevenue[ticket.film.title] ?? 0) + ticket.totalAmount;
+    }
+
+    // User activity
+    Set<String> activeUsers = allTickets
+        .where((t) => t.status == 'active')
+        .map((t) => t.userId)
+        .toSet();
+
+    return {
+      'revenuePerDay': revenuePerDay,
+      'filmRevenue': filmRevenue,
+      'totalFilms': allFilms.length,
+      'activeUsers': activeUsers.length,
+      'averageTicketPrice': allTickets.isEmpty
+          ? 0
+          : allTickets.fold(0, (sum, t) => sum + t.totalAmount) ~/
+              allTickets.length,
+    };
+  }
+}
+
+class AdminLoginPage extends StatefulWidget {
+  const AdminLoginPage({Key? key}) : super(key: key);
+
+  @override
+  State<AdminLoginPage> createState() => _AdminLoginPageState();
+}
+
+class _AdminLoginPageState extends State<AdminLoginPage> {
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  bool _isPasswordVisible = false;
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Pre-fill untuk testing (hapus di production)
+    _usernameController.text = 'admin';
+    _passwordController.text = 'admin123';
+  }
+
+  void _handleLogin() {
+    // Trim whitespace dari input (SUDAH DIPERBAIKI - TANPA toLowerCase)
+    final username = _usernameController.text.trim();
+    final password = _passwordController.text.trim();
+
+    print('═══════════════════════════════════════');
+    print('🔐 ADMIN LOGIN ATTEMPT');
+    print('═══════════════════════════════════════');
+    print('Input Username: "$username"');
+    print('Input Password: "$password"');
+    print('Username Length: ${username.length}');
+    print('Password Length: ${password.length}');
+
+    if (username.isEmpty || password.isEmpty) {
+      print('❌ VALIDATION FAILED: Empty fields');
+      _showDialog('Error', 'Username dan password harus diisi!');
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    Future.delayed(const Duration(milliseconds: 800), () {
+      if (!mounted) return;
+
+      print('Attempting authentication...');
+      final isAuthenticated =
+          AdminService.authenticateAdmin(username, password);
+
+      print('Authentication Result: $isAuthenticated');
+      print('═══════════════════════════════════════');
+
+      setState(() => _isLoading = false);
+
+      if (isAuthenticated) {
+        print('✅ LOGIN SUCCESS - Navigating to Dashboard');
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const AdminDashboardPage()),
+        );
+      } else {
+        print('❌ LOGIN FAILED - Invalid credentials');
+        _showDialog(
+            'Error',
+            'Username atau password admin salah!\n\n'
+                'Gunakan:\n'
+                'Username: admin\n'
+                'Password: admin123\n\n'
+                'atau\n\n'
+                'Username: admin2\n'
+                'Password: admin456');
+      }
+    });
+  }
+
+  void _showDialog(String title, String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            Icon(
+              title == 'Error' ? Icons.error : Icons.info,
+              color: title == 'Error' ? Colors.red : Colors.blue,
+              size: 24,
+            ),
+            const SizedBox(width: 8),
+            Text(title),
+          ],
+        ),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(height: 60),
+
+              // Header
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFF8E1),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: const Color(0xFFFFB800), width: 2),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFFB800),
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFFFFB800).withOpacity(0.3),
+                                blurRadius: 8,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: const Icon(
+                            Icons.admin_panel_settings,
+                            color: Colors.white,
+                            size: 36,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        const Text(
+                          'admin',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF001A4D),
+                            letterSpacing: 1.2,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Cinema Management System',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF666666),
+                        letterSpacing: 1.5,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 40),
+
+              const Text(
+                'Login Admin',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF001A4D),
+                ),
+                textAlign: TextAlign.center,
+              ),
+
+              const SizedBox(height: 32),
+
+              // Username Field
+              const Text(
+                'USERNAME',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey,
+                ),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _usernameController,
+                textInputAction: TextInputAction.next,
+                autocorrect: false,
+                enableSuggestions: false,
+                decoration: InputDecoration(
+                  hintText: 'Masukkan username admin',
+                  prefixIcon: const Icon(Icons.admin_panel_settings,
+                      color: Color(0xFFFFB800)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: Colors.grey.shade300),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: Colors.grey.shade300),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide:
+                        const BorderSide(color: Color(0xFFFFB800), width: 2),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 16,
+                  ),
+                ),
+                onSubmitted: (_) => FocusScope.of(context).nextFocus(),
+              ),
+
+              const SizedBox(height: 16),
+
+              // Password Field
+              const Text(
+                'PASSWORD',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey,
+                ),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _passwordController,
+                obscureText: !_isPasswordVisible,
+                textInputAction: TextInputAction.done,
+                autocorrect: false,
+                enableSuggestions: false,
+                decoration: InputDecoration(
+                  hintText: 'Masukkan Password',
+                  prefixIcon: const Icon(Icons.lock, color: Color(0xFFFFB800)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: Colors.grey.shade300),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: Colors.grey.shade300),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide:
+                        const BorderSide(color: Color(0xFFFFB800), width: 2),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 16,
+                  ),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _isPasswordVisible
+                          ? Icons.visibility_off
+                          : Icons.visibility,
+                      color: Colors.grey,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _isPasswordVisible = !_isPasswordVisible;
+                      });
+                    },
+                  ),
+                ),
+                onSubmitted: (_) => _handleLogin(),
+              ),
+
+              const SizedBox(height: 24),
+
+              // Login Button
+              ElevatedButton(
+                onPressed: _isLoading ? null : _handleLogin,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFFFB800),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  elevation: 2,
+                ),
+                child: _isLoading
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : const Text(
+                        'Login sebagai Admin',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+              ),
+
+              const SizedBox(height: 24),
+
+              // Back to User Login
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text('Bukan admin? '),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const LoginPage()),
+                      );
+                    },
+                    child: const Text(
+                      'Login sebagai User',
+                      style: TextStyle(
+                        color: Color(0xFF001A4D),
+                        fontWeight: FontWeight.bold,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 40),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCredentialRow(
+      String label1, String value1, String label2, String value2) {
+    return Row(
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label1,
+                style: const TextStyle(
+                  fontSize: 10,
+                  color: Color(0xFF666666),
+                ),
+              ),
+              const SizedBox(height: 2),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(4),
+                  border: Border.all(color: Colors.grey.shade300),
+                ),
+                child: Text(
+                  value1,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'monospace',
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label2,
+                style: const TextStyle(
+                  fontSize: 10,
+                  color: Color(0xFF666666),
+                ),
+              ),
+              const SizedBox(height: 2),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(4),
+                  border: Border.all(color: Colors.grey.shade300),
+                ),
+                child: Text(
+                  value2,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'monospace',
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+}
+
+// ==================== ADMIN DASHBOARD PAGE ====================
+
+class AdminDashboardPage extends StatefulWidget {
+  const AdminDashboardPage({Key? key}) : super(key: key);
+
+  @override
+  State<AdminDashboardPage> createState() => _AdminDashboardPageState();
+}
+
+class _AdminDashboardPageState extends State<AdminDashboardPage> {
+  int selectedTab = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    print('');
+    print('═══════════════════════════════════════');
+    print('👨‍💼 ADMIN DASHBOARD INITIALIZED');
+    print('═══════════════════════════════════════');
+    final admin = AdminService.getCurrentAdmin();
+    print('Admin: ${admin?.name} (${admin?.username})');
+    print('Total Films: ${FilmService.getAllFilms().length}');
+    print('Total Tickets: ${TicketHistoryService.getAllTickets().length}');
+    print('═══════════════════════════════════════');
+    print('');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF5F5F5),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFFFB800),
+        elevation: 0,
+        automaticallyImplyLeading: false,
+        title: Row(
+          children: [
+            const Icon(Icons.admin_panel_settings,
+                color: Colors.white, size: 26),
+            const SizedBox(width: 12),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Admin Dashboard',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  ),
+                ),
+                Text(
+                  AdminService.getCurrentAdmin()?.name ?? 'Administrator',
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 11,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout, color: Colors.white),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Row(
+                    children: [
+                      Icon(Icons.warning, color: Colors.red, size: 22),
+                      SizedBox(width: 8),
+                      Text('Logout Admin'),
+                    ],
+                  ),
+                  content: const Text(
+                      'Apakah Anda yakin ingin keluar dari panel admin?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Batal'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        AdminService.logoutAdmin();
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const LoginPage()),
+                          (route) => false,
+                        );
+                      },
+                      style:
+                          ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                      child: const Text('Logout',
+                          style: TextStyle(color: Colors.white)),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+      body: selectedTab == 1
+          ? const AdminFilmManagementTab()
+          : selectedTab == 2
+              ? const AdminTicketManagementTab()
+              : const AdminProfileTab(),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: selectedTab,
+        selectedItemColor: const Color(0xFFFFB800),
+        unselectedItemColor: const Color(0xFFCCCCCC),
+        selectedFontSize: 12,
+        unselectedFontSize: 11,
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: Colors.white,
+        elevation: 8,
+        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.dashboard, size: 26),
+            activeIcon: Icon(Icons.dashboard, size: 28),
+            label: 'Dashboard',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.movie_outlined, size: 26),
+            activeIcon: Icon(Icons.movie, size: 28),
+            label: 'Film',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.confirmation_number_outlined, size: 26),
+            activeIcon: Icon(Icons.confirmation_number, size: 28),
+            label: 'Tiket',
+          ),
+        ],
+        onTap: (index) {
+          setState(() => selectedTab = index);
+        },
+      ),
+    );
+  }
+}
+
+// ==================== ADMIN OVERVIEW TAB ====================
+
+// ==================== ADMIN OVERVIEW TAB ====================
+
+class AdminOverviewTab extends StatelessWidget {
+  const AdminOverviewTab({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final stats = AdminService.getBookingStatistics();
+    final analytics = AdminService.getDashboardAnalytics();
+    final recentBookings = AdminService.getRecentBookings(limit: 5);
+
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        // Welcome Banner
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                const Color(0xFFFFB800),
+                const Color(0xFFFFB800).withOpacity(0.7),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFFFFB800).withOpacity(0.3),
+                blurRadius: 15,
+                offset: const Offset(0, 5),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.admin_panel_settings,
+                  color: Colors.white,
+                  size: 40,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Admin Dashboard',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Welcome, ${AdminService.getCurrentAdmin()?.name ?? "Admin"}!',
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 13,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.access_time,
+                              color: Colors.white, size: 12),
+                          const SizedBox(width: 4),
+                          Text(
+                            'Last updated: ${DateTime.now().hour}:${DateTime.now().minute.toString().padLeft(2, '0')}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 20),
+
+        // Quick Stats Grid
+        GridView.count(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          crossAxisCount: 2,
+          childAspectRatio: 1.5,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
+          children: [
+            _buildStatCard(
+              icon: Icons.confirmation_number,
+              title: 'Total Booking',
+              value: '${stats['totalBookings']}',
+              color: Colors.blue,
+              trend: '+12%',
+            ),
+            _buildStatCard(
+              icon: Icons.attach_money,
+              title: 'Revenue',
+              value: 'Rp${_formatCurrency(stats['totalRevenue'] ~/ 1000)}K',
+              color: Colors.green,
+              trend: '+8%',
+            ),
+            _buildStatCard(
+              icon: Icons.people,
+              title: 'Active Users',
+              value: '${analytics['activeUsers']}',
+              color: Colors.purple,
+              trend: '+5%',
+            ),
+            _buildStatCard(
+              icon: Icons.movie,
+              title: 'Total Films',
+              value: '${analytics['totalFilms']}',
+              color: Colors.orange,
+              trend: 'Stable',
+            ),
+          ],
+        ),
+
+        const SizedBox(height: 20),
+
+        // Performance Metrics
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFB800).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(
+                      Icons.bar_chart,
+                      color: Color(0xFFFFB800),
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  const Text(
+                    'Performance Metrics',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              _buildMetricRow(
+                'Active Tickets',
+                stats['activeTickets'],
+                stats['totalBookings'],
+                Colors.green,
+              ),
+              const SizedBox(height: 12),
+              _buildMetricRow(
+                'Used Tickets',
+                stats['usedTickets'],
+                stats['totalBookings'],
+                Colors.grey,
+              ),
+              const SizedBox(height: 12),
+              _buildMetricRow(
+                'Avg Ticket Price',
+                analytics['averageTicketPrice'] ~/ 1000,
+                100,
+                Colors.blue,
+                suffix: 'K',
+              ),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 20),
+
+        // Revenue Chart (Simple Bar Representation)
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.green.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(
+                      Icons.trending_up,
+                      color: Colors.green,
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  const Text(
+                    'Revenue Overview',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              ..._buildRevenueChart(analytics['revenuePerDay']),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 20),
+
+        // Recent Bookings
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Icon(
+                          Icons.history,
+                          color: Colors.blue,
+                          size: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      const Text(
+                        'Recent Bookings',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
+                  ),
+                  TextButton(
+                    onPressed: () {},
+                    child: const Text('View All'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              if (recentBookings.isEmpty)
+                const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(20),
+                    child: Column(
+                      children: [
+                        Icon(Icons.inbox, size: 50, color: Color(0xFFCCCCCC)),
+                        SizedBox(height: 8),
+                        Text(
+                          'Belum ada booking',
+                          style: TextStyle(color: Color(0xFF666666)),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              else
+                ...recentBookings
+                    .map((ticket) => _buildRecentBookingItem(ticket)),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 20),
+
+        // Top Films
+        _buildTopFilmsSection(),
+
+        const SizedBox(height: 100),
+      ],
+    );
+  }
+
+  Widget _buildStatCard({
+    required IconData icon,
+    required String title,
+    required String value,
+    required Color color,
+    String? trend,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(icon, color: color, size: 24),
+              ),
+              if (trend != null)
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.green.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    trend,
+                    style: const TextStyle(
+                      color: Colors.green,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 11,
+              color: Color(0xFF666666),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF001A4D),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMetricRow(
+    String label,
+    int value,
+    int total,
+    Color color, {
+    String suffix = '',
+  }) {
+    final percentage = total > 0 ? (value / total * 100).toInt() : 0;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 12,
+                color: Color(0xFF666666),
+              ),
+            ),
+            Text(
+              '$value$suffix',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Stack(
+          children: [
+            Container(
+              height: 8,
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+            FractionallySizedBox(
+              widthFactor: percentage / 100,
+              child: Container(
+                height: 8,
+                decoration: BoxDecoration(
+                  color: color,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  List<Widget> _buildRevenueChart(Map<String, int> revenueData) {
+    if (revenueData.isEmpty) {
+      return [
+        const Center(
+          child: Padding(
+            padding: EdgeInsets.all(20),
+            child: Text(
+              'No revenue data',
+              style: TextStyle(color: Color(0xFF666666)),
+            ),
+          ),
+        ),
+      ];
+    }
+
+    final maxRevenue = revenueData.values.reduce((a, b) => a > b ? a : b);
+
+    // ✅ PERBAIKAN: Buat list baru yang mutable dari entries
+    final entries = revenueData.entries.toList();
+
+    return entries.take(7).map((entry) {
+      final heightPercent = (entry.value / maxRevenue * 100).toInt();
+
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: Row(
+          children: [
+            SizedBox(
+              width: 50,
+              child: Text(
+                entry.key,
+                style: const TextStyle(
+                  fontSize: 11,
+                  color: Color(0xFF666666),
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Stack(
+                children: [
+                  Container(
+                    height: 24,
+                    decoration: BoxDecoration(
+                      color: Colors.green.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                  FractionallySizedBox(
+                    widthFactor: heightPercent / 100,
+                    child: Container(
+                      height: 24,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Colors.green, Colors.green.shade300],
+                        ),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      alignment: Alignment.centerRight,
+                      padding: const EdgeInsets.only(right: 8),
+                      child: Text(
+                        'Rp${_formatCurrency(entry.value ~/ 1000)}K',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }).toList();
+  }
+
+  Widget _buildRecentBookingItem(TicketHistory ticket) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF5F5F5),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: ticket.status == 'active'
+              ? Colors.green.withOpacity(0.3)
+              : Colors.grey.withOpacity(0.3),
+        ),
+      ),
+      child: Row(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(6),
+            child: Image.network(
+              ticket.film.imageUrl,
+              width: 50,
+              height: 70,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) => Container(
+                width: 50,
+                height: 70,
+                color: const Color(0xFFDDDDDD),
+                child: const Icon(Icons.movie, size: 24, color: Colors.white),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  ticket.film.title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.person,
+                      size: 12,
+                      color: Colors.grey.shade600,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      ticket.userId,
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'Seats: ${ticket.seats.join(", ")}',
+                  style: const TextStyle(
+                    fontSize: 10,
+                    color: Color(0xFF666666),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                'Rp${_formatCurrency(ticket.totalAmount)}',
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13,
+                  color: Color(0xFF0066CC),
+                ),
+              ),
+              const SizedBox(height: 4),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: ticket.status == 'active' ? Colors.green : Colors.grey,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  ticket.status.toUpperCase(),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 9,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTopFilmsSection() {
+    final filmBookings = AdminService.getBookingsByFilm();
+
+    // ✅ PERBAIKAN: Buat list mutable dari entries, lalu sort
+    final sortedFilms = filmBookings.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFB800).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(
+                      Icons.trending_up,
+                      color: Color(0xFFFFB800),
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  const Text(
+                    'Top Performing Films',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFB800).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  'Top ${sortedFilms.length}',
+                  style: const TextStyle(
+                    color: Color(0xFFFFB800),
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          if (sortedFilms.isEmpty)
+            const Center(
+              child: Padding(
+                padding: EdgeInsets.all(20),
+                child: Column(
+                  children: [
+                    Icon(Icons.movie_outlined,
+                        size: 50, color: Color(0xFFCCCCCC)),
+                    SizedBox(height: 8),
+                    Text(
+                      'Belum ada data',
+                      style: TextStyle(color: Color(0xFF666666)),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          else
+            ...sortedFilms.take(5).map((entry) => _buildFilmRankItem(
+                  entry.key,
+                  entry.value,
+                  sortedFilms.indexOf(entry) + 1,
+                )),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFilmRankItem(String filmTitle, int bookings, int rank) {
+    Color rankColor;
+    IconData rankIcon;
+
+    switch (rank) {
+      case 1:
+        rankColor = const Color(0xFFFFD700); // Gold
+        rankIcon = Icons.emoji_events;
+        break;
+      case 2:
+        rankColor = const Color(0xFFC0C0C0); // Silver
+        rankIcon = Icons.emoji_events;
+        break;
+      case 3:
+        rankColor = const Color(0xFFCD7F32); // Bronze
+        rankIcon = Icons.emoji_events;
+        break;
+      default:
+        rankColor = const Color(0xFF001A4D);
+        rankIcon = Icons.star;
+    }
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: rank <= 3
+              ? [rankColor.withOpacity(0.1), Colors.white]
+              : [const Color(0xFFF5F5F5), const Color(0xFFF5F5F5)],
+        ),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color:
+              rank <= 3 ? rankColor.withOpacity(0.3) : const Color(0xFFEEEEEE),
+          width: rank <= 3 ? 2 : 1,
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: rank <= 3
+                    ? [rankColor, rankColor.withOpacity(0.7)]
+                    : [const Color(0xFF001A4D), const Color(0xFF0066CC)],
+              ),
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: rankColor.withOpacity(0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(rankIcon, color: Colors.white, size: 16),
+                Text(
+                  '#$rank',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 9,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  filmTitle,
+                  style: TextStyle(
+                    fontWeight: rank <= 3 ? FontWeight.bold : FontWeight.w600,
+                    fontSize: 14,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.confirmation_number,
+                      size: 12,
+                      color: Colors.grey.shade600,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      '$bookings bookings',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            decoration: BoxDecoration(
+              color: const Color(0xFF0066CC).withOpacity(0.1),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: const Color(0xFF0066CC).withOpacity(0.3),
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.trending_up,
+                  color: Color(0xFF0066CC),
+                  size: 14,
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  '$bookings',
+                  style: const TextStyle(
+                    color: Color(0xFF0066CC),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatCurrency(int value) {
+    return value.toString().replaceAllMapped(
+          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+          (Match m) => '${m[1]},',
+        );
+  }
+}
+
+// ==================== ADMIN FILM MANAGEMENT TAB ====================
+
+class AdminFilmManagementTab extends StatefulWidget {
+  const AdminFilmManagementTab({Key? key}) : super(key: key);
+
+  @override
+  State<AdminFilmManagementTab> createState() => _AdminFilmManagementTabState();
+}
+
+class _AdminFilmManagementTabState extends State<AdminFilmManagementTab> {
+  List<Film> films = [];
+  TextEditingController searchController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFilms();
+  }
+
+  void _loadFilms() {
+    setState(() {
+      films = FilmService.getAllFilms();
+    });
+  }
+
+  void _searchFilms(String query) {
+    setState(() {
+      if (query.isEmpty) {
+        films = FilmService.getAllFilms();
+      } else {
+        films = FilmService.getAllFilms()
+            .where((film) =>
+                film.title.toLowerCase().contains(query.toLowerCase()) ||
+                film.genre.toLowerCase().contains(query.toLowerCase()))
+            .toList();
+      }
+    });
+  }
+
+  void _showAddFilmDialog() {
+    final titleController = TextEditingController();
+    final genreController = TextEditingController();
+    final durationController = TextEditingController();
+    final ratingController = TextEditingController();
+    final directorController = TextEditingController();
+    final ageRatingController = TextEditingController();
+    final imageUrlController = TextEditingController();
+    final trailerUrlController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.add_circle, color: Color(0xFFFFB800), size: 24),
+            SizedBox(width: 8),
+            Text('Tambah Film Baru'),
+          ],
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: titleController,
+                decoration: InputDecoration(
+                  labelText: 'Judul Film',
+                  prefixIcon: const Icon(Icons.movie, color: Color(0xFFFFB800)),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8)),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: genreController,
+                decoration: InputDecoration(
+                  labelText: 'Genre',
+                  prefixIcon:
+                      const Icon(Icons.category, color: Color(0xFFFFB800)),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8)),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: durationController,
+                decoration: InputDecoration(
+                  labelText: 'Durasi',
+                  prefixIcon:
+                      const Icon(Icons.schedule, color: Color(0xFFFFB800)),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8)),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: ratingController,
+                decoration: InputDecoration(
+                  labelText: 'Rating',
+                  prefixIcon: const Icon(Icons.star, color: Color(0xFFFFB800)),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8)),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: directorController,
+                decoration: InputDecoration(
+                  labelText: 'Director',
+                  prefixIcon:
+                      const Icon(Icons.person, color: Color(0xFFFFB800)),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8)),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: ageRatingController,
+                decoration: InputDecoration(
+                  labelText: 'Age Rating',
+                  prefixIcon: const Icon(Icons.info, color: Color(0xFFFFB800)),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8)),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: imageUrlController,
+                decoration: InputDecoration(
+                  labelText: 'Image URL',
+                  prefixIcon: const Icon(Icons.image, color: Color(0xFFFFB800)),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8)),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: trailerUrlController,
+                decoration: InputDecoration(
+                  labelText: 'YouTube Trailer URL',
+                  hintText: 'https://youtu.be/...',
+                  prefixIcon:
+                      const Icon(Icons.play_circle, color: Color(0xFFFFB800)),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8)),
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton.icon(
+            onPressed: () => Navigator.pop(context),
+            icon: const Icon(Icons.close),
+            label: const Text('Batal'),
+          ),
+          ElevatedButton.icon(
+            onPressed: () {
+              if (titleController.text.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Judul film harus diisi!'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+                return;
+              }
+
+              final newFilm = Film(
+                id: DateTime.now().millisecondsSinceEpoch.toString(),
+                title: titleController.text,
+                genre: genreController.text,
+                duration: durationController.text,
+                rating: ratingController.text,
+                director: directorController.text,
+                ageRating: ageRatingController.text,
+                imageUrl: imageUrlController.text,
+                trailerUrl: trailerUrlController.text,
+              );
+
+              FilmService.addFilm(newFilm);
+              _loadFilms();
+              Navigator.pop(context);
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Row(
+                    children: [
+                      Icon(Icons.check_circle, color: Colors.white, size: 20),
+                      SizedBox(width: 8),
+                      Text('Film berhasil ditambahkan!'),
+                    ],
+                  ),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            },
+            icon: const Icon(Icons.save, color: Colors.white),
+            label: const Text('Simpan', style: TextStyle(color: Colors.white)),
+            style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFFFB800)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showEditFilmDialog(Film film) {
+    final titleController = TextEditingController(text: film.title);
+    final genreController = TextEditingController(text: film.genre);
+    final durationController = TextEditingController(text: film.duration);
+    final ratingController = TextEditingController(text: film.rating);
+    final directorController = TextEditingController(text: film.director);
+    final ageRatingController = TextEditingController(text: film.ageRating);
+    final imageUrlController = TextEditingController(text: film.imageUrl);
+    final trailerUrlController = TextEditingController(text: film.trailerUrl);
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.edit, color: Color(0xFFFFB800), size: 22),
+            SizedBox(width: 8),
+            Text('Edit Film'),
+          ],
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: titleController,
+                decoration: const InputDecoration(
+                  labelText: 'Judul Film',
+                  prefixIcon: Icon(Icons.movie, color: Color(0xFFFFB800)),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: genreController,
+                decoration: const InputDecoration(
+                  labelText: 'Genre',
+                  prefixIcon: Icon(Icons.category, color: Color(0xFFFFB800)),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: durationController,
+                decoration: const InputDecoration(
+                  labelText: 'Durasi',
+                  prefixIcon: Icon(Icons.schedule, color: Color(0xFFFFB800)),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: ratingController,
+                decoration: const InputDecoration(
+                  labelText: 'Rating',
+                  prefixIcon: Icon(Icons.star, color: Color(0xFFFFB800)),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: directorController,
+                decoration: const InputDecoration(
+                  labelText: 'Director',
+                  prefixIcon: Icon(Icons.person, color: Color(0xFFFFB800)),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: ageRatingController,
+                decoration: const InputDecoration(
+                  labelText: 'Age Rating',
+                  prefixIcon: Icon(Icons.info, color: Color(0xFFFFB800)),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: imageUrlController,
+                decoration: const InputDecoration(
+                  labelText: 'Image URL',
+                  prefixIcon: Icon(Icons.image, color: Color(0xFFFFB800)),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: trailerUrlController,
+                decoration: const InputDecoration(
+                  labelText: 'Trailer URL',
+                  prefixIcon: Icon(Icons.play_circle, color: Color(0xFFFFB800)),
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton.icon(
+            onPressed: () => Navigator.pop(context),
+            icon: const Icon(Icons.close),
+            label: const Text('Batal'),
+          ),
+          ElevatedButton.icon(
+            onPressed: () {
+              final updatedFilm = Film(
+                id: film.id,
+                title: titleController.text,
+                genre: genreController.text,
+                duration: durationController.text,
+                rating: ratingController.text,
+                director: directorController.text,
+                ageRating: ageRatingController.text,
+                imageUrl: imageUrlController.text,
+                trailerUrl: trailerUrlController.text,
+              );
+
+              FilmService.updateFilm(updatedFilm);
+              _loadFilms();
+              Navigator.pop(context);
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Row(
+                    children: [
+                      Icon(Icons.check_circle, color: Colors.white, size: 20),
+                      SizedBox(width: 8),
+                      Text('Film berhasil diupdate!'),
+                    ],
+                  ),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            },
+            icon: const Icon(Icons.save, color: Colors.white),
+            label: const Text('Update', style: TextStyle(color: Colors.white)),
+            style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFFFB800)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _deleteFilm(Film film) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.warning, color: Colors.red, size: 22),
+            SizedBox(width: 8),
+            Text('Hapus Film'),
+          ],
+        ),
+        content: Text('Apakah Anda yakin ingin menghapus "${film.title}"?'),
+        actions: [
+          TextButton.icon(
+            onPressed: () => Navigator.pop(context),
+            icon: const Icon(Icons.close),
+            label: const Text('Batal'),
+          ),
+          ElevatedButton.icon(
+            onPressed: () {
+              FilmService.deleteFilm(film.id);
+              _loadFilms();
+              Navigator.pop(context);
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Row(
+                    children: [
+                      Icon(Icons.delete, color: Colors.white, size: 20),
+                      SizedBox(width: 8),
+                      Text('Film berhasil dihapus!'),
+                    ],
+                  ),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            },
+            icon: const Icon(Icons.delete, color: Colors.white),
+            label: const Text('Hapus', style: TextStyle(color: Colors.white)),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          color: Colors.white,
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: searchController,
+                      onChanged: _searchFilms,
+                      decoration: InputDecoration(
+                        hintText: 'Cari film...',
+                        prefixIcon: const Icon(Icons.search),
+                        suffixIcon: searchController.text.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.close),
+                                onPressed: () {
+                                  searchController.clear();
+                                  _searchFilms('');
+                                },
+                              )
+                            : null,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25),
+                          borderSide:
+                              const BorderSide(color: Color(0xFFDDDDDD)),
+                        ),
+                        filled: true,
+                        fillColor: const Color(0xFFF5F5F5),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  ElevatedButton.icon(
+                    onPressed: _showAddFilmDialog,
+                    icon: const Icon(Icons.add, color: Colors.white, size: 20),
+                    label: const Text('Tambah',
+                        style: TextStyle(color: Colors.white)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFFFB800),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  const Icon(Icons.movie, color: Color(0xFFFFB800), size: 20),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Total: ${films.length} Film',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: films.isEmpty
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.movie_outlined,
+                          size: 80, color: Colors.grey.shade300),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Tidak ada film',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : GridView.builder(
+                  padding: const EdgeInsets.all(16),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: 0.65,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                  ),
+                  itemCount: films.length,
+                  itemBuilder: (context, index) {
+                    final film = films[index];
+                    return _buildFilmCard(film);
+                  },
+                ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFilmCard(Film film) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Stack(
+              children: [
+                ClipRRect(
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(12),
+                    topRight: Radius.circular(12),
+                  ),
+                  child: Image.network(
+                    film.imageUrl,
+                    width: double.infinity,
+                    height: double.infinity,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        color: const Color(0xFFDDDDDD),
+                        alignment: Alignment.center,
+                        child: const Icon(Icons.movie,
+                            size: 40, color: Colors.white),
+                      );
+                    },
+                  ),
+                ),
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFB800),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.star, size: 12, color: Colors.white),
+                        const SizedBox(width: 2),
+                        Text(
+                          film.rating,
+                          style: const TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: 8,
+                  left: 8,
+                  child: Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () => _showEditFilmDialog(film),
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: Colors.blue,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.3),
+                                blurRadius: 4,
+                              ),
+                            ],
+                          ),
+                          child: const Icon(Icons.edit,
+                              size: 14, color: Colors.white),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      GestureDetector(
+                        onTap: () => _deleteFilm(film),
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.3),
+                                blurRadius: 4,
+                              ),
+                            ],
+                          ),
+                          child: const Icon(Icons.delete,
+                              size: 14, color: Colors.white),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  film.title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  film.genre,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: Color(0xFF666666),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF001A4D).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    film.ageRating,
+                    style: const TextStyle(
+                      fontSize: 9,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF001A4D),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
+}
+
+// ==================== ADMIN TICKET MANAGEMENT TAB ====================
+
+class AdminTicketManagementTab extends StatefulWidget {
+  const AdminTicketManagementTab({Key? key}) : super(key: key);
+
+  @override
+  State<AdminTicketManagementTab> createState() =>
+      _AdminTicketManagementTabState();
+}
+
+class _AdminTicketManagementTabState extends State<AdminTicketManagementTab> {
+  String selectedFilter = 'all';
+  String selectedUser = 'all';
+  List<TicketHistory> tickets = [];
+  List<String> users = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  void _loadData() {
+    setState(() {
+      tickets = TicketHistoryService.getAllTickets();
+      users = tickets.map((t) => t.userId).toSet().toList();
+    });
+  }
+
+  List<TicketHistory> get filteredTickets {
+    var result = tickets;
+
+    // Filter by status
+    if (selectedFilter == 'active') {
+      result = result.where((t) => t.status == 'active').toList();
+    } else if (selectedFilter == 'used') {
+      result = result.where((t) => t.status == 'used').toList();
+    }
+
+    // Filter by user
+    if (selectedUser != 'all') {
+      result = result.where((t) => t.userId == selectedUser).toList();
+    }
+
+    return result;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final filtered = filteredTickets;
+
+    return Column(
+      children: [
+        Container(
+          color: Colors.white,
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildFilterButton(
+                      'Semua',
+                      'all',
+                      Icons.list,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: _buildFilterButton(
+                      'Aktif',
+                      'active',
+                      Icons.check_circle,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: _buildFilterButton(
+                      'Digunakan',
+                      'used',
+                      Icons.history,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<String>(
+                value: selectedUser,
+                decoration: InputDecoration(
+                  labelText: 'Filter by User',
+                  prefixIcon:
+                      const Icon(Icons.person, color: Color(0xFFFFB800)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                items: [
+                  const DropdownMenuItem(
+                      value: 'all', child: Text('Semua User')),
+                  ...users.map((user) => DropdownMenuItem(
+                        value: user,
+                        child: Text(user),
+                      )),
+                ],
+                onChanged: (value) {
+                  setState(() {
+                    selectedUser = value ?? 'all';
+                  });
+                },
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  const Icon(Icons.confirmation_number,
+                      color: Color(0xFFFFB800), size: 20),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Total: ${filtered.length} Tiket',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: filtered.isEmpty
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.confirmation_number_outlined,
+                          size: 80, color: Colors.grey.shade300),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Tidak ada tiket',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: filtered.length,
+                  itemBuilder: (context, index) {
+                    return _buildTicketCard(filtered[index]);
+                  },
+                ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFilterButton(String label, String value, IconData icon) {
+    final isSelected = selectedFilter == value;
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          selectedFilter = value;
+        });
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFFFFB800) : Colors.white,
+          border: Border.all(
+            color:
+                isSelected ? const Color(0xFFFFB800) : const Color(0xFFDDDDDD),
+            width: isSelected ? 2 : 1,
+          ),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              color: isSelected ? Colors.white : const Color(0xFF666666),
+              size: 18,
+            ),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: TextStyle(
+                color: isSelected ? Colors.white : const Color(0xFF666666),
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                fontSize: 12,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTicketCard(TicketHistory ticket) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: ticket.status == 'active'
+                  ? const Color(0xFFFFB800)
+                  : Colors.grey.shade300,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(12),
+                topRight: Radius.circular(12),
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  ticket.status == 'active'
+                      ? Icons.confirmation_number
+                      : Icons.check_circle,
+                  color: ticket.status == 'active'
+                      ? Colors.white
+                      : Colors.grey.shade600,
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  ticket.status == 'active' ? 'TIKET AKTIF' : 'SUDAH DIGUNAKAN',
+                  style: TextStyle(
+                    color: ticket.status == 'active'
+                        ? Colors.white
+                        : Colors.grey.shade600,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
+                ),
+                const Spacer(),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: ticket.status == 'active'
+                        ? Colors.white.withOpacity(0.2)
+                        : Colors.grey.shade400,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    'User: ${ticket.userId}',
+                    style: TextStyle(
+                      color: ticket.status == 'active'
+                          ? Colors.white
+                          : Colors.grey.shade700,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.network(
+                    ticket.film.imageUrl,
+                    width: 80,
+                    height: 110,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      width: 80,
+                      height: 110,
+                      color: const Color(0xFFDDDDDD),
+                      child: const Icon(Icons.movie,
+                          size: 40, color: Colors.white),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        ticket.film.title,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          const Icon(Icons.location_on,
+                              size: 12, color: Color(0xFF666666)),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              ticket.cinema,
+                              style: const TextStyle(
+                                  fontSize: 11, color: Color(0xFF666666)),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          const Icon(Icons.calendar_today,
+                              size: 12, color: Color(0xFF666666)),
+                          const SizedBox(width: 4),
+                          Text(
+                            '${ticket.date}, ${ticket.time}',
+                            style: const TextStyle(
+                                fontSize: 12, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          const Icon(Icons.event_seat,
+                              size: 12, color: Color(0xFF666666)),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              'Kursi: ${ticket.seats.join(', ')}',
+                              style: const TextStyle(
+                                  fontSize: 11, color: Color(0xFF666666)),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          const Icon(Icons.qr_code,
+                              size: 12, color: Color(0xFF666666)),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              'ID: ${ticket.bookingId}',
+                              style: const TextStyle(
+                                  fontSize: 10, color: Color(0xFF666666)),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF5F5F5),
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(12),
+                bottomRight: Radius.circular(12),
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Row(
+                      children: [
+                        Icon(Icons.account_balance_wallet,
+                            size: 14, color: Color(0xFF666666)),
+                        SizedBox(width: 4),
+                        Text(
+                          'Total Pembayaran',
+                          style:
+                              TextStyle(fontSize: 11, color: Color(0xFF666666)),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Rp${ticket.totalAmount}',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF0066CC),
+                      ),
+                    ),
+                  ],
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    const Text(
+                      'Dibeli pada',
+                      style: TextStyle(fontSize: 10, color: Color(0xFF666666)),
+                    ),
+                    Text(
+                      '${ticket.purchaseDate.day}/${ticket.purchaseDate.month}/${ticket.purchaseDate.year}',
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ==================== ADMIN PROFILE TAB ====================
+
+class AdminProfileTab extends StatefulWidget {
+  const AdminProfileTab({Key? key}) : super(key: key);
+
+  @override
+  State<AdminProfileTab> createState() => _AdminProfileTabState();
+}
+
+class _AdminProfileTabState extends State<AdminProfileTab> {
+  String profileImageUrl =
+      'https://i.pinimg.com/736x/43/aa/ad/43aaada331e1435c354145a1d7481462.jpg';
+
+  void _showEditProfileImageDialog() {
+    final controller = TextEditingController(text: profileImageUrl);
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.image, color: Color(0xFFFFB800), size: 22),
+            SizedBox(width: 8),
+            Text('Edit Foto Profil'),
+          ],
+        ),
+        content: TextField(
+          controller: controller,
+          decoration: InputDecoration(
+            hintText: 'Masukkan URL foto profil',
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+            prefixIcon: const Icon(Icons.link, color: Color(0xFFFFB800)),
+          ),
+        ),
+        actions: [
+          TextButton.icon(
+            onPressed: () => Navigator.pop(context),
+            icon: const Icon(Icons.close),
+            label: const Text('Batal'),
+          ),
+          ElevatedButton.icon(
+            onPressed: () {
+              if (controller.text.trim().isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('URL tidak boleh kosong!'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+                return;
+              }
+
+              setState(() {
+                profileImageUrl = controller.text.trim();
+              });
+
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Row(
+                    children: [
+                      Icon(Icons.check_circle, color: Colors.white, size: 20),
+                      SizedBox(width: 8),
+                      Text('Foto profil berhasil diperbarui!'),
+                    ],
+                  ),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            },
+            icon: const Icon(Icons.save, color: Colors.white),
+            label: const Text('Simpan', style: TextStyle(color: Colors.white)),
+            style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFFFB800)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final admin = AdminService.getCurrentAdmin();
+    final stats = AdminService.getBookingStatistics();
+
+    return ListView(
+      children: [
+        Container(
+          height: 200,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                const Color(0xFFFFB800),
+                const Color(0xFFFFB800).withOpacity(0.7),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Stack(
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 4),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          blurRadius: 10,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: CircleAvatar(
+                      radius: 50,
+                      backgroundColor: Colors.white,
+                      child: ClipOval(
+                        child: Image.network(
+                          profileImageUrl,
+                          width: 100,
+                          height: 100,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Icon(Icons.person,
+                                size: 50, color: Color(0xFFFFB800));
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: GestureDetector(
+                      onTap: _showEditProfileImageDialog,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                              color: const Color(0xFFFFB800), width: 2),
+                        ),
+                        padding: const EdgeInsets.all(8),
+                        child: const Icon(
+                          Icons.camera_alt,
+                          color: Color(0xFFFFB800),
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Text(
+                admin?.name ?? 'Administrator',
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.admin_panel_settings,
+                        color: Colors.white, size: 16),
+                    const SizedBox(width: 6),
+                    Text(
+                      admin?.role.toUpperCase() ?? 'ADMIN',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              // Statistics
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Row(
+                      children: [
+                        Icon(Icons.analytics,
+                            color: Color(0xFFFFB800), size: 20),
+                        SizedBox(width: 8),
+                        Text(
+                          'Statistik Sistem',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    _buildStatRow('Total Booking', '${stats['totalBookings']}',
+                        Icons.confirmation_number),
+                    const Divider(height: 20),
+                    _buildStatRow(
+                      'Total Revenue',
+                      'Rp${_formatCurrency(stats['totalRevenue'])}',
+                      Icons.attach_money,
+                    ),
+                    const Divider(height: 20),
+                    _buildStatRow('Tiket Aktif', '${stats['activeTickets']}',
+                        Icons.check_circle),
+                    const Divider(height: 20),
+                    _buildStatRow('Tiket Digunakan', '${stats['usedTickets']}',
+                        Icons.history),
+                    const Divider(height: 20),
+                    _buildStatRow('Total Film',
+                        '${FilmService.getAllFilms().length}', Icons.movie),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              // Admin Info
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Row(
+                      children: [
+                        Icon(Icons.info_outline,
+                            color: Color(0xFFFFB800), size: 20),
+                        SizedBox(width: 8),
+                        Text(
+                          'Informasi Admin',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    _buildInfoRow(
+                        'Username', admin?.username ?? '-', Icons.person),
+                    const Divider(height: 20),
+                    _buildInfoRow('Nama', admin?.name ?? '-', Icons.badge),
+                    const Divider(height: 20),
+                    _buildInfoRow('Role', admin?.role.toUpperCase() ?? '-',
+                        Icons.admin_panel_settings),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              // Logout Button
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Row(
+                          children: [
+                            Icon(Icons.warning, color: Colors.red, size: 22),
+                            SizedBox(width: 8),
+                            Text('Logout Admin'),
+                          ],
+                        ),
+                        content: const Text(
+                            'Apakah Anda yakin ingin keluar dari panel admin?'),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text('Batal'),
+                          ),
+                          ElevatedButton(
+                            onPressed: () {
+                              AdminService.logoutAdmin();
+                              Navigator.pushAndRemoveUntil(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const LoginPage()),
+                                (route) => false,
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.red),
+                            child: const Text('Logout',
+                                style: TextStyle(color: Colors.white)),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.logout, size: 18),
+                  label: const Text('KELUAR DARI admin'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.red,
+                    side: const BorderSide(color: Colors.red, width: 2),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatRow(String label, String value, IconData icon) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: const Color(0xFFFFB800).withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, color: const Color(0xFFFFB800), size: 20),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            label,
+            style: const TextStyle(
+              fontSize: 13,
+              color: Color(0xFF666666),
+            ),
+          ),
+        ),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF001A4D),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildInfoRow(String label, String value, IconData icon) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: const Color(0xFFFFB800).withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, color: const Color(0xFFFFB800), size: 20),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 11,
+                  color: Color(0xFF666666),
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF001A4D),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _formatCurrency(int value) {
+    return value.toString().replaceAllMapped(
+          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+          (Match m) => '${m[1]},',
+        );
   }
 }
