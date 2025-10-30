@@ -11,15 +11,17 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.2
-  youtube_player_iframe: ^5.2.1
-  http: ^1.1.0
-  url_launcher: ^6.2.1
+  cupertino_icons: ^1.0.8
+  youtube_player_iframe: ^5.1.2
+  http: ^1.2.1
+  url_launcher: ^6.2.6
+  
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.0
+  build_runner: ^2.4.13
 
 flutter:
   uses-material-design: true
