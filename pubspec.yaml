@@ -15,7 +15,14 @@ dependencies:
   youtube_player_iframe: ^5.1.2
   http: ^1.2.1
   url_launcher: ^6.2.6
-  
+  flutter_local_notifications: ^17.0.0
+  flutter_share: ^2.0.0
+  screenshot: ^2.0.0
+  path_provider: ^2.0.0
+  permission_handler: ^10.0.0
+  collection: ^1.18.0
+  shared_preferences: ^2.2.2  # TAMBAHKAN INI
+  local_auth: ^2.1.8  
 
 dev_dependencies:
   flutter_test:
