@@ -4144,26 +4144,6 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                 ),
-
-                // Play Button Overlay
-                Positioned.fill(
-                  child: Center(
-                    child: Container(
-                      width: 70,
-                      height: 70,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white.withOpacity(0.3),
-                        border: Border.all(color: Colors.white, width: 3),
-                      ),
-                      child: const Icon(
-                        Icons.play_arrow,
-                        color: Colors.white,
-                        size: 40,
-                      ),
-                    ),
-                  ),
-                ),
               ],
             ),
           ),
