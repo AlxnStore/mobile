@@ -332,7 +332,7 @@ class _SecurityVerificationPageState extends State<SecurityVerificationPage> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: const Color(0xFFFFB800).withOpacity(0.1),
+                color: const Color(0xFFFFB800).withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
@@ -1234,7 +1234,7 @@ class _WatchlistPageState extends State<WatchlistPage> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Colors.red.withOpacity(0.1),
+                    color: Colors.red.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(color: Colors.red),
                   ),
@@ -1344,7 +1344,7 @@ class _WatchlistPageState extends State<WatchlistPage> {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(isDark ? 0.3 : 0.1),
+              color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.1),
               blurRadius: 8,
               offset: const Offset(0, 4),
             ),
@@ -1415,7 +1415,7 @@ class _WatchlistPageState extends State<WatchlistPage> {
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.3),
+                              color: Colors.black.withValues(alpha: 0.3),
                               blurRadius: 4,
                             ),
                           ],
@@ -1463,7 +1463,7 @@ class _WatchlistPageState extends State<WatchlistPage> {
                       color: (isDark
                               ? const Color(0xFFFFB800)
                               : const Color(0xFF001A4D))
-                          .withOpacity(0.1),
+                          .withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
@@ -1869,13 +1869,13 @@ class OverlayNotificationManager {
                 gradient: LinearGradient(
                   colors: [
                     const Color(0xFFFFB800),
-                    const Color(0xFFFFB800).withOpacity(0.9),
+                    const Color(0xFFFFB800).withValues(alpha: 0.9),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.3),
+                    color: Colors.black.withValues(alpha: 0.3),
                     blurRadius: 20,
                     offset: const Offset(0, 10),
                     spreadRadius: 2,
@@ -1887,7 +1887,7 @@ class OverlayNotificationManager {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.3),
+                      color: Colors.white.withValues(alpha: 0.3),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
@@ -1936,7 +1936,7 @@ class OverlayNotificationManager {
                         Text(
                           notification.message,
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.9),
+                            color: Colors.white.withValues(alpha: 0.9),
                             fontSize: 12,
                           ),
                           maxLines: 2,
@@ -1951,7 +1951,7 @@ class OverlayNotificationManager {
                     child: Container(
                       padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.3),
+                        color: Colors.white.withValues(alpha: 0.3),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
@@ -2072,7 +2072,8 @@ class _LoginPageState extends State<LoginPage> {
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+                      color:
+                          Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -2095,7 +2096,7 @@ class _LoginPageState extends State<LoginPage> {
                                 color: (isDark
                                         ? const Color(0xFFFFB800)
                                         : const Color(0xfffcfdfe))
-                                    .withOpacity(0.3),
+                                    .withValues(alpha: 0.3),
                                 blurRadius: 8,
                                 offset: const Offset(0, 4),
                               ),
@@ -2325,8 +2326,8 @@ class _LoginPageState extends State<LoginPage> {
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      const Color(0xFFFFB800).withOpacity(0.1),
-                      const Color(0xFFFFB800).withOpacity(0.05),
+                      const Color(0xFFFFB800).withValues(alpha: 0.1),
+                      const Color(0xFFFFB800).withValues(alpha: 0.05),
                     ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
@@ -3002,7 +3003,7 @@ class _HomePageState extends State<HomePage> {
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         color: isFavorite
-                            ? const Color(0xFFFFB800).withOpacity(0.2)
+                            ? const Color(0xFFFFB800).withValues(alpha: 0.2)
                             : (isDark
                                 ? Colors.grey.shade800
                                 : const Color(0xFFEEEEEE)),
@@ -3238,7 +3239,7 @@ class _HomePageState extends State<HomePage> {
                       ? [const Color(0xFF2A2A2A), const Color(0xFF1E1E1E)]
                       : [
                           const Color(0xFF001A4D),
-                          const Color(0xFF0066CC).withOpacity(0.8)
+                          const Color(0xFF0066CC).withValues(alpha: 0.8)
                         ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -3738,7 +3739,8 @@ class _HomePageState extends State<HomePage> {
                               padding: const EdgeInsets.all(6),
                               decoration: BoxDecoration(
                                 color: isFavorite
-                                    ? const Color(0xFFFFB800).withOpacity(0.2)
+                                    ? const Color(0xFFFFB800)
+                                        .withValues(alpha: 0.2)
                                     : (isDark
                                         ? Colors.grey.shade800
                                         : Colors.grey.shade200),
@@ -4003,7 +4005,7 @@ class _HomePageState extends State<HomePage> {
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.3),
+                color: Colors.black.withValues(alpha: 0.3),
                 blurRadius: 20,
                 offset: const Offset(0, 10),
                 spreadRadius: 2,
@@ -4039,7 +4041,7 @@ class _HomePageState extends State<HomePage> {
                         end: Alignment.bottomCenter,
                         colors: [
                           Colors.transparent,
-                          Colors.black.withOpacity(0.7),
+                          Colors.black.withValues(alpha: 0.7),
                         ],
                         stops: const [0.5, 1.0],
                       ),
@@ -4106,10 +4108,10 @@ class _HomePageState extends State<HomePage> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 10, vertical: 6),
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
+                                color: Colors.white.withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(6),
                                 border: Border.all(
-                                    color: Colors.white.withOpacity(0.5)),
+                                    color: Colors.white.withValues(alpha: 0.5)),
                               ),
                               child: Text(
                                 film.ageRating,
@@ -4129,7 +4131,7 @@ class _HomePageState extends State<HomePage> {
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontSize: 14,
-                            color: Colors.white.withOpacity(0.9),
+                            color: Colors.white.withValues(alpha: 0.9),
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -4137,7 +4139,7 @@ class _HomePageState extends State<HomePage> {
                           film.duration,
                           style: TextStyle(
                             fontSize: 12,
-                            color: Colors.white.withOpacity(0.8),
+                            color: Colors.white.withValues(alpha: 0.8),
                           ),
                         ),
                       ],
@@ -4455,7 +4457,7 @@ class _AllFilmsPageState extends State<AllFilmsPage> {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(isDark ? 0.3 : 0.1),
+              color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.1),
               blurRadius: 8,
               offset: const Offset(0, 4),
             ),
@@ -4552,7 +4554,7 @@ class _AllFilmsPageState extends State<AllFilmsPage> {
                       color: (isDark
                               ? const Color(0xFFFFB800)
                               : const Color(0xFF001A4D))
-                          .withOpacity(0.1),
+                          .withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
@@ -4599,13 +4601,13 @@ class _Film3DCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.25),
+              color: Colors.black.withValues(alpha: 0.25),
               blurRadius: 20,
               offset: const Offset(0, 10),
               spreadRadius: 2,
             ),
             BoxShadow(
-              color: const Color(0xFF001A4D).withOpacity(0.1),
+              color: const Color(0xFF001A4D).withValues(alpha: 0.1),
               blurRadius: 30,
               offset: const Offset(0, 15),
             ),
@@ -4636,7 +4638,7 @@ class _Film3DCard extends StatelessWidget {
                     end: Alignment.bottomCenter,
                     colors: [
                       Colors.transparent,
-                      Colors.black.withOpacity(0.7),
+                      Colors.black.withValues(alpha: 0.7),
                     ],
                     stops: const [0.5, 1.0],
                   ),
@@ -4697,10 +4699,10 @@ class _Film3DCard extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(4),
-                          border:
-                              Border.all(color: Colors.white.withOpacity(0.5)),
+                          border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.5)),
                         ),
                         child: Text(
                           film.ageRating,
@@ -4719,7 +4721,7 @@ class _Film3DCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: 12,
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white.withValues(alpha: 0.9),
                       ),
                     ),
                   ],
@@ -4971,7 +4973,7 @@ class _FilmDetailPageState extends State<FilmDetailPage>
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.3),
+                          color: Colors.black.withValues(alpha: 0.3),
                           blurRadius: 8,
                           spreadRadius: 2,
                         ),
@@ -5019,8 +5021,8 @@ class _FilmDetailPageState extends State<FilmDetailPage>
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                           colors: [
-                            Colors.black.withOpacity(0.3),
-                            Colors.black.withOpacity(0.7),
+                            Colors.black.withValues(alpha: 0.3),
+                            Colors.black.withValues(alpha: 0.7),
                           ],
                         ),
                       ),
@@ -5038,7 +5040,7 @@ class _FilmDetailPageState extends State<FilmDetailPage>
                             border: Border.all(color: Colors.white, width: 3),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.3),
+                                color: Colors.black.withValues(alpha: 0.3),
                                 blurRadius: 10,
                                 spreadRadius: 2,
                               ),
@@ -5447,7 +5449,7 @@ class _FilmDetailPageState extends State<FilmDetailPage>
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+              color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
               blurRadius: 10,
               offset: const Offset(0, 2)),
         ],
@@ -6160,7 +6162,7 @@ class _SeatSelectionPageWithAPIState extends State<SeatSelectionPageWithAPI> {
               color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(isDark ? 0.3 : 0.1),
+                  color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.1),
                   blurRadius: 8,
                   offset: const Offset(0, -2),
                 ),
@@ -6455,7 +6457,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
       body: Column(
         children: [
           Container(
-            color: Colors.red.withOpacity(0.1),
+            color: Colors.red.withValues(alpha: 0.1),
             padding: const EdgeInsets.all(12),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -6493,7 +6495,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
           color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
           boxShadow: [
             BoxShadow(
-                color: Colors.black.withOpacity(isDark ? 0.3 : 0.12),
+                color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.12),
                 blurRadius: 4,
                 offset: const Offset(0, -2))
           ],
@@ -6558,7 +6560,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+              color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
               blurRadius: 8,
               offset: const Offset(0, 2))
         ],
@@ -6612,7 +6614,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         color: (isDark
                                 ? const Color(0xFFFFB800)
                                 : const Color(0xFF001A4D))
-                            .withOpacity(0.1),
+                            .withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
@@ -6685,7 +6687,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+              color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
               blurRadius: 8,
               offset: const Offset(0, 2))
         ],
@@ -6805,7 +6807,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+              color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
               blurRadius: 8,
               offset: const Offset(0, 2))
         ],
@@ -7065,7 +7067,7 @@ class _PaymentConfirmPageState extends State<PaymentConfirmPage> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.green.withOpacity(0.1),
+                color: Colors.green.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
@@ -7297,7 +7299,7 @@ class _PaymentConfirmPageState extends State<PaymentConfirmPage> {
         body: ListView(
           children: [
             Container(
-              color: Colors.red.withOpacity(0.1),
+              color: Colors.red.withValues(alpha: 0.1),
               padding: const EdgeInsets.all(12),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -7325,8 +7327,8 @@ class _PaymentConfirmPageState extends State<PaymentConfirmPage> {
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
-                            color:
-                                Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+                            color: Colors.black
+                                .withValues(alpha: isDark ? 0.3 : 0.05),
                             blurRadius: 8)
                       ],
                     ),
@@ -7428,8 +7430,8 @@ class _PaymentConfirmPageState extends State<PaymentConfirmPage> {
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
-                            color:
-                                Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+                            color: Colors.black
+                                .withValues(alpha: isDark ? 0.3 : 0.05),
                             blurRadius: 8)
                       ],
                     ),
@@ -7859,7 +7861,7 @@ class _TicketSuccessPageState extends State<TicketSuccessPage> {
       body: ListView(
         children: [
           Container(
-            color: Colors.green.withOpacity(0.1),
+            color: Colors.green.withValues(alpha: 0.1),
             padding: const EdgeInsets.all(16),
             child: const Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -8145,7 +8147,7 @@ class _TicketSuccessPageState extends State<TicketSuccessPage> {
           color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(isDark ? 0.3 : 0.12),
+              color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.12),
               blurRadius: 4,
               offset: const Offset(0, -2),
             ),
@@ -8423,7 +8425,7 @@ class _TicketHistoryPageState extends State<TicketHistoryPage>
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -8549,7 +8551,7 @@ class _TicketHistoryPageState extends State<TicketHistoryPage>
                               color: (isDark
                                       ? const Color(0xFFFFB800)
                                       : const Color(0xFF001A4D))
-                                  .withOpacity(0.1),
+                                  .withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(
@@ -8889,7 +8891,7 @@ Tunjukkan e-ticket ini di bioskop.
                 leading: Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: Colors.blue.withOpacity(0.1),
+                    color: Colors.blue.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(Icons.copy, color: Colors.blue),
@@ -8921,7 +8923,7 @@ Tunjukkan e-ticket ini di bioskop.
                 leading: Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: Colors.green.withOpacity(0.1),
+                    color: Colors.green.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(Icons.image, color: Colors.green),
@@ -8965,7 +8967,7 @@ Tunjukkan e-ticket ini di bioskop.
                 leading: Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: Colors.orange.withOpacity(0.1),
+                    color: Colors.orange.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(Icons.qr_code, color: Colors.orange),
@@ -9051,8 +9053,8 @@ Tunjukkan e-ticket ini di bioskop.
         children: [
           Container(
             color: ticket.status == 'active'
-                ? Colors.green.withOpacity(0.1)
-                : Colors.grey.withOpacity(0.1),
+                ? Colors.green.withValues(alpha: 0.1)
+                : Colors.grey.withValues(alpha: 0.1),
             padding: const EdgeInsets.all(16),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -9093,7 +9095,8 @@ Tunjukkan e-ticket ini di bioskop.
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
-                          color: Colors.black.withOpacity(0.05), blurRadius: 8)
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 8)
                     ],
                   ),
                   child: Column(
@@ -9219,7 +9222,8 @@ Tunjukkan e-ticket ini di bioskop.
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
-                          color: Colors.black.withOpacity(0.05), blurRadius: 8)
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 8)
                     ],
                   ),
                   child: Column(
@@ -9737,8 +9741,8 @@ class _ProfilePageState extends State<ProfilePage> {
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
-                          Colors.black.withOpacity(0.3),
-                          Colors.black.withOpacity(0.7)
+                          Colors.black.withValues(alpha: 0.3),
+                          Colors.black.withValues(alpha: 0.7)
                         ],
                       ),
                     ),
@@ -9748,7 +9752,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     right: 16,
                     child: Container(
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.3),
+                        color: Colors.black.withValues(alpha: 0.3),
                         shape: BoxShape.circle,
                       ),
                       child: IconButton(
@@ -9782,7 +9786,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                   width: 4),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.2),
+                                  color: Colors.black.withValues(alpha: 0.2),
                                   blurRadius: 10,
                                   offset: const Offset(0, 5),
                                 ),
@@ -9891,7 +9895,7 @@ class _ProfilePageState extends State<ProfilePage> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+              color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
               blurRadius: 8,
               offset: const Offset(0, 2))
         ],
@@ -9981,7 +9985,7 @@ class _ProfilePageState extends State<ProfilePage> {
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
           color: (isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D))
-              .withOpacity(0.1),
+              .withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Icon(icon,
@@ -10015,7 +10019,7 @@ class _ProfilePageState extends State<ProfilePage> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+              color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
               blurRadius: 8,
               offset: const Offset(0, 2))
         ],
@@ -10092,7 +10096,7 @@ class _ProfilePageState extends State<ProfilePage> {
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
           color: (isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D))
-              .withOpacity(0.1),
+              .withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Icon(icon,
@@ -10466,12 +10470,12 @@ class _NotificationPageState extends State<NotificationPage> {
                   ? (isDark ? Colors.grey.shade800 : const Color(0xFFDDDDDD))
                   : (isDark
                       ? const Color(0xFFFFB800)
-                      : const Color(0xFF0066CC).withOpacity(0.3)),
+                      : const Color(0xFF0066CC).withValues(alpha: 0.3)),
               width: notification.isRead ? 1 : 2,
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+                color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -10485,7 +10489,7 @@ class _NotificationPageState extends State<NotificationPage> {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: typeColor.withOpacity(0.1),
+                    color: typeColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(typeIcon, color: typeColor, size: 24),
@@ -10689,7 +10693,7 @@ class IconTestPage extends StatelessWidget {
         leading: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: const Color(0xFF001A4D).withOpacity(0.1),
+            color: const Color(0xFF001A4D).withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(icon, color: const Color(0xFF001A4D), size: 24),
@@ -10967,7 +10971,7 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                   border: Border.all(color: const Color(0xFFFFB800), width: 2),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
+                      color: Colors.black.withValues(alpha: 0.05),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -10985,7 +10989,8 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                             borderRadius: BorderRadius.circular(12),
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xFFFFB800).withOpacity(0.3),
+                                color: const Color(0xFFFFB800)
+                                    .withValues(alpha: 0.3),
                                 blurRadius: 8,
                                 offset: const Offset(0, 4),
                               ),
@@ -11591,13 +11596,13 @@ class AdminOverviewTab extends StatelessWidget {
             gradient: LinearGradient(
               colors: [
                 const Color(0xFFFFB800),
-                const Color(0xFFFFB800).withOpacity(0.7),
+                const Color(0xFFFFB800).withValues(alpha: 0.7),
               ],
             ),
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFFFFB800).withOpacity(0.3),
+                color: const Color(0xFFFFB800).withValues(alpha: 0.3),
                 blurRadius: 15,
                 offset: const Offset(0, 5),
               ),
@@ -11608,7 +11613,7 @@ class AdminOverviewTab extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(
@@ -11645,7 +11650,7 @@ class AdminOverviewTab extends StatelessWidget {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Row(
@@ -11723,7 +11728,7 @@ class AdminOverviewTab extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withValues(alpha: 0.05),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -11737,7 +11742,7 @@ class AdminOverviewTab extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFFB800).withOpacity(0.1),
+                      color: const Color(0xFFFFB800).withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Icon(
@@ -11792,7 +11797,7 @@ class AdminOverviewTab extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withValues(alpha: 0.05),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -11806,7 +11811,7 @@ class AdminOverviewTab extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Colors.green.withOpacity(0.1),
+                      color: Colors.green.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Icon(
@@ -11841,7 +11846,7 @@ class AdminOverviewTab extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withValues(alpha: 0.05),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -11858,7 +11863,7 @@ class AdminOverviewTab extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: Colors.blue.withOpacity(0.1),
+                          color: Colors.blue.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: const Icon(
@@ -11931,7 +11936,7 @@ class AdminOverviewTab extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -11947,7 +11952,7 @@ class AdminOverviewTab extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
+                  color: color.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(icon, color: color, size: 24),
@@ -11957,7 +11962,7 @@ class AdminOverviewTab extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Colors.green.withOpacity(0.1),
+                    color: Colors.green.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
@@ -12031,7 +12036,7 @@ class AdminOverviewTab extends StatelessWidget {
             Container(
               height: 8,
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: color.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
@@ -12095,7 +12100,7 @@ class AdminOverviewTab extends StatelessWidget {
                   Container(
                     height: 24,
                     decoration: BoxDecoration(
-                      color: Colors.green.withOpacity(0.1),
+                      color: Colors.green.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
@@ -12139,8 +12144,8 @@ class AdminOverviewTab extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
           color: ticket.status == 'active'
-              ? Colors.green.withOpacity(0.3)
-              : Colors.grey.withOpacity(0.3),
+              ? Colors.green.withValues(alpha: 0.3)
+              : Colors.grey.withValues(alpha: 0.3),
         ),
       ),
       child: Row(
@@ -12251,7 +12256,7 @@ class AdminOverviewTab extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -12268,7 +12273,7 @@ class AdminOverviewTab extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFFB800).withOpacity(0.1),
+                      color: const Color(0xFFFFB800).withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Icon(
@@ -12291,7 +12296,7 @@ class AdminOverviewTab extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFFB800).withOpacity(0.1),
+                  color: const Color(0xFFFFB800).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
@@ -12362,13 +12367,14 @@ class AdminOverviewTab extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: rank <= 3
-              ? [rankColor.withOpacity(0.1), Colors.white]
+              ? [rankColor.withValues(alpha: 0.1), Colors.white]
               : [const Color(0xFFF5F5F5), const Color(0xFFF5F5F5)],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color:
-              rank <= 3 ? rankColor.withOpacity(0.3) : const Color(0xFFEEEEEE),
+          color: rank <= 3
+              ? rankColor.withValues(alpha: 0.3)
+              : const Color(0xFFEEEEEE),
           width: rank <= 3 ? 2 : 1,
         ),
       ),
@@ -12380,13 +12386,13 @@ class AdminOverviewTab extends StatelessWidget {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: rank <= 3
-                    ? [rankColor, rankColor.withOpacity(0.7)]
+                    ? [rankColor, rankColor.withValues(alpha: 0.7)]
                     : [const Color(0xFF001A4D), const Color(0xFF0066CC)],
               ),
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: rankColor.withOpacity(0.3),
+                  color: rankColor.withValues(alpha: 0.3),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -12445,10 +12451,10 @@ class AdminOverviewTab extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             decoration: BoxDecoration(
-              color: const Color(0xFF0066CC).withOpacity(0.1),
+              color: const Color(0xFF0066CC).withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: const Color(0xFF0066CC).withOpacity(0.3),
+                color: const Color(0xFF0066CC).withValues(alpha: 0.3),
               ),
             ),
             child: Row(
@@ -12995,7 +13001,7 @@ class _AdminFilmManagementTabState extends State<AdminFilmManagementTab> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -13068,7 +13074,7 @@ class _AdminFilmManagementTabState extends State<AdminFilmManagementTab> {
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.3),
+                                color: Colors.black.withValues(alpha: 0.3),
                                 blurRadius: 4,
                               ),
                             ],
@@ -13087,7 +13093,7 @@ class _AdminFilmManagementTabState extends State<AdminFilmManagementTab> {
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.3),
+                                color: Colors.black.withValues(alpha: 0.3),
                                 blurRadius: 4,
                               ),
                             ],
@@ -13131,7 +13137,7 @@ class _AdminFilmManagementTabState extends State<AdminFilmManagementTab> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF001A4D).withOpacity(0.1),
+                    color: const Color(0xFF001A4D).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
@@ -13368,7 +13374,7 @@ class _AdminTicketManagementTabState extends State<AdminTicketManagementTab> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -13415,7 +13421,7 @@ class _AdminTicketManagementTabState extends State<AdminTicketManagementTab> {
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: ticket.status == 'active'
-                        ? Colors.white.withOpacity(0.2)
+                        ? Colors.white.withValues(alpha: 0.2)
                         : Colors.grey.shade400,
                     borderRadius: BorderRadius.circular(4),
                   ),
@@ -13694,7 +13700,7 @@ class _AdminProfileTabState extends State<AdminProfileTab> {
             gradient: LinearGradient(
               colors: [
                 const Color(0xFFFFB800),
-                const Color(0xFFFFB800).withOpacity(0.7),
+                const Color(0xFFFFB800).withValues(alpha: 0.7),
               ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -13711,7 +13717,7 @@ class _AdminProfileTabState extends State<AdminProfileTab> {
                       border: Border.all(color: Colors.white, width: 4),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.2),
+                          color: Colors.black.withValues(alpha: 0.2),
                           blurRadius: 10,
                           offset: const Offset(0, 5),
                         ),
@@ -13771,7 +13777,7 @@ class _AdminProfileTabState extends State<AdminProfileTab> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(
@@ -13806,7 +13812,7 @@ class _AdminProfileTabState extends State<AdminProfileTab> {
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
+                      color: Colors.black.withValues(alpha: 0.05),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -13859,7 +13865,7 @@ class _AdminProfileTabState extends State<AdminProfileTab> {
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
+                      color: Colors.black.withValues(alpha: 0.05),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -13957,7 +13963,7 @@ class _AdminProfileTabState extends State<AdminProfileTab> {
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: const Color(0xFFFFB800).withOpacity(0.1),
+            color: const Color(0xFFFFB800).withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(icon, color: const Color(0xFFFFB800), size: 20),
@@ -13990,7 +13996,7 @@ class _AdminProfileTabState extends State<AdminProfileTab> {
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: const Color(0xFFFFB800).withOpacity(0.1),
+            color: const Color(0xFFFFB800).withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(icon, color: const Color(0xFFFFB800), size: 20),
@@ -14180,7 +14186,7 @@ class _AdminChatManagementTabState extends State<AdminChatManagementTab> {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -14194,7 +14200,7 @@ class _AdminChatManagementTabState extends State<AdminChatManagementTab> {
               width: 50,
               height: 50,
               decoration: BoxDecoration(
-                color: const Color(0xFF001A4D).withOpacity(0.1),
+                color: const Color(0xFF001A4D).withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Center(
@@ -14239,7 +14245,7 @@ class _AdminChatManagementTabState extends State<AdminChatManagementTab> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: const Color(0xFFFFB800).withOpacity(0.1),
+                color: const Color(0xFFFFB800).withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: const Color(0xFFFFB800)),
               ),
@@ -14566,7 +14572,7 @@ class _AdminChatDetailPageState extends State<AdminChatDetailPage> {
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 8,
                   offset: const Offset(0, -2),
                 ),
@@ -14640,7 +14646,7 @@ class _AdminChatDetailPageState extends State<AdminChatDetailPage> {
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 4,
               offset: const Offset(0, 2),
             ),
@@ -14710,7 +14716,7 @@ class _AdminChatDetailPageState extends State<AdminChatDetailPage> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: const Color(0xFFFFB800).withOpacity(0.1),
+          color: const Color(0xFFFFB800).withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: const Color(0xFFFFB800)),
         ),
@@ -15128,12 +15134,12 @@ class _AdminNotificationPageState extends State<AdminNotificationPage> {
             border: Border.all(
               color: notification.isRead
                   ? const Color(0xFFDDDDDD)
-                  : Colors.orange.withOpacity(0.3),
+                  : Colors.orange.withValues(alpha: 0.3),
               width: notification.isRead ? 1 : 2,
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withValues(alpha: 0.05),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -15147,7 +15153,7 @@ class _AdminNotificationPageState extends State<AdminNotificationPage> {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: typeColor.withOpacity(0.1),
+                    color: typeColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(typeIcon, color: typeColor, size: 24),
@@ -15552,7 +15558,7 @@ class _SettingsPageState extends State<SettingsPage> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
+            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.12),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -16190,7 +16196,7 @@ class HelpPage extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -16207,7 +16213,7 @@ class HelpPage extends StatelessWidget {
             decoration: BoxDecoration(
               color:
                   (isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D))
-                      .withOpacity(0.1),
+                      .withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(icon,
@@ -16252,18 +16258,18 @@ class HelpPage extends StatelessWidget {
           colors: isDark
               ? [
                   const Color(0xFFFFB800),
-                  const Color(0xFFFFB800).withOpacity(0.7),
+                  const Color(0xFFFFB800).withValues(alpha: 0.7),
                 ]
               : [
                   const Color(0xFF001A4D),
-                  const Color(0xFF0066CC).withOpacity(0.8),
+                  const Color(0xFF0066CC).withValues(alpha: 0.8),
                 ],
         ),
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
             color: (isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D))
-                .withOpacity(0.3),
+                .withValues(alpha: 0.3),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -16331,7 +16337,7 @@ class HelpPage extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
             child: Icon(icon, color: Colors.white, size: 24),
@@ -16611,7 +16617,7 @@ class _ChatCSPageState extends State<ChatCSPage> {
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 8,
                   offset: const Offset(0, -2),
                 ),
@@ -16685,7 +16691,7 @@ class _ChatCSPageState extends State<ChatCSPage> {
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 4,
               offset: const Offset(0, 2),
             ),
