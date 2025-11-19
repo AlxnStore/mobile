@@ -8,6 +8,7 @@ import 'package:collection/collection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:local_auth/local_auth.dart';
 import 'dart:math';
+import 'package:flutter/services.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -2434,7 +2435,7 @@ class _RegisterPageState extends State<RegisterPage> {
   bool _isConfirmPasswordVisible = false;
   bool _isLoading = false;
 
-  void _handleRegister() {
+  void _handleRegister() async {
     final username = _usernameController.text.trim();
     final password = _passwordController.text;
     final confirmPassword = _confirmPasswordController.text;
@@ -2461,33 +2462,30 @@ class _RegisterPageState extends State<RegisterPage> {
 
     setState(() => _isLoading = true);
 
-    Future.delayed(const Duration(seconds: 1), () {
-      if (!mounted) return;
+    await Future.delayed(const Duration(seconds: 1));
 
-      final success = AuthService.register(username, password);
+    if (!mounted) return;
 
-      setState(() => _isLoading = false);
+    final success = AuthService.register(username, password);
 
-      if (success) {
-        _showDialog(
-          'Berhasil',
-          'Akun berhasil dibuat! Silakan login.',
-          onOk: () {
-            Navigator.of(context).pop();
-            Navigator.of(context).pop();
-          },
-        );
-      } else {
-        _showDialog('Error', 'Username sudah digunakan!');
+    setState(() => _isLoading = false);
+
+    if (success) {
+      await _showDialog('Berhasil', 'Akun berhasil dibuat! Silakan login.');
+      if (mounted) {
+        Navigator.of(context).pop();
       }
-    });
+    } else {
+      _showDialog('Error', 'Username sudah digunakan!');
+    }
   }
 
-  void _showDialog(String title, String message, {VoidCallback? onOk}) {
+  Future<void> _showDialog(String title, String message) async {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    showDialog(
+    return showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (context) => AlertDialog(
         backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
         title: Text(title,
@@ -2498,7 +2496,6 @@ class _RegisterPageState extends State<RegisterPage> {
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
-              if (onOk != null) onOk();
             },
             child: const Text('OK'),
           ),
@@ -2804,7 +2801,7 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   late int selectedTab;
   String selectedCity = 'JAKARTA';
   final searchController = TextEditingController();
@@ -2814,9 +2811,17 @@ class _HomePageState extends State<HomePage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final GlobalKey _filmSectionKey = GlobalKey();
 
-  // PageController untuk carousel
   late PageController _pageController;
   double _currentPage = 0;
+
+  // Animation Controllers
+  late AnimationController _fabController;
+  late AnimationController _cartController;
+  late Animation<double> _cartBounceAnimation;
+  late AnimationController _shimmerController;
+
+  bool _showScrollToTop = false;
+  int _cartItemCount = 0;
 
   final List<String> cinemas = [
     'AEON MALL JGC CGV',
@@ -2834,18 +2839,74 @@ class _HomePageState extends State<HomePage> {
     selectedTab = widget.initialTab;
     _loadFilms();
 
-    // Initialize PageController
     _pageController = PageController(
-      viewportFraction: 0.8,
+      viewportFraction: 0.85,
       initialPage: 0,
     );
 
-    // Listen to page changes
     _pageController.addListener(() {
       setState(() {
         _currentPage = _pageController.page ?? 0;
       });
     });
+
+    _scrollController.addListener(() {
+      if (_scrollController.offset > 300 && !_showScrollToTop) {
+        setState(() => _showScrollToTop = true);
+        _fabController.forward();
+      } else if (_scrollController.offset <= 300 && _showScrollToTop) {
+        setState(() => _showScrollToTop = false);
+        _fabController.reverse();
+      }
+    });
+
+    _fabController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+
+    _cartController = AnimationController(
+      duration: const Duration(milliseconds: 600),
+      vsync: this,
+    );
+
+    _cartBounceAnimation = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 1.0, end: 1.3)
+            .chain(CurveTween(curve: Curves.easeOut)),
+        weight: 33,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 1.3, end: 0.9)
+            .chain(CurveTween(curve: Curves.easeInOut)),
+        weight: 34,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 0.9, end: 1.0)
+            .chain(CurveTween(curve: Curves.easeOut)),
+        weight: 33,
+      ),
+    ]).animate(_cartController);
+
+    // Shimmer Animation Controller
+    _shimmerController = AnimationController(
+      duration: const Duration(milliseconds: 2000),
+      vsync: this,
+    )..repeat();
+
+    _updateCartCount();
+  }
+
+  void _updateCartCount() {
+    final activeTickets = TicketHistoryService.getActiveTickets();
+    if (_cartItemCount != activeTickets.length) {
+      setState(() {
+        _cartItemCount = activeTickets.length;
+      });
+      if (_cartItemCount > 0) {
+        _cartController.forward(from: 0);
+      }
+    }
   }
 
   void _loadFilms() {
@@ -2882,32 +2943,38 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  void _scrollToTop() {
+    _scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeInOut,
+    );
+  }
+
   void _toggleFavoriteCinema(String cinema) {
+    HapticFeedback.mediumImpact();
+
     setState(() {
       if (favoriteCinemas.contains(cinema)) {
         favoriteCinemas.remove(cinema);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Row(children: [
-            const Icon(Icons.delete_outline, color: Colors.white, size: 20),
-            const SizedBox(width: 8),
-            Text('$cinema dihapus dari favorit'),
-          ]),
-          duration: const Duration(seconds: 1),
-          backgroundColor: Colors.red.shade600,
-        ));
+        _showSnackBar('$cinema dihapus dari favorit', Colors.red.shade600);
       } else {
         favoriteCinemas.add(cinema);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Row(children: [
-            const Icon(Icons.star, color: Colors.white, size: 20),
-            const SizedBox(width: 8),
-            Text('$cinema ditambahkan ke favorit'),
-          ]),
-          duration: const Duration(seconds: 1),
-          backgroundColor: Colors.green.shade600,
-        ));
+        _showSnackBar('$cinema ditambahkan ke favorit', Colors.green.shade600);
       }
     });
+  }
+
+  void _showSnackBar(String message, Color backgroundColor) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        duration: const Duration(milliseconds: 1500),
+        backgroundColor: backgroundColor,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
   }
 
   List<String> _getSortedCinemas() {
@@ -2934,29 +3001,36 @@ class _HomePageState extends State<HomePage> {
         decoration: BoxDecoration(
           color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
           borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(20),
-            topRight: Radius.circular(20),
+            topLeft: Radius.circular(25),
+            topRight: Radius.circular(25),
           ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              blurRadius: 15,
+              offset: const Offset(0, -3),
+            ),
+          ],
         ),
         child: Column(children: [
           const SizedBox(height: 12),
           Container(
-            width: 40,
-            height: 4,
+            width: 50,
+            height: 5,
             decoration: BoxDecoration(
               color: isDark ? Colors.grey.shade700 : const Color(0xFFDDDDDD),
-              borderRadius: BorderRadius.circular(2),
+              borderRadius: BorderRadius.circular(3),
             ),
           ),
           const SizedBox(height: 20),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Row(children: [
               const Icon(Icons.location_on, color: Color(0xFFFFB800), size: 28),
               const SizedBox(width: 12),
               Text('Pilih Bioskop Favorit',
                   style: TextStyle(
-                    fontSize: 18,
+                    fontSize: 20,
                     fontWeight: FontWeight.bold,
                     color: isDark ? Colors.white : Colors.black,
                   )),
@@ -2964,10 +3038,10 @@ class _HomePageState extends State<HomePage> {
           ),
           const SizedBox(height: 8),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Text('Tandai bioskop favorit untuk akses lebih cepat',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 13,
                   color:
                       isDark ? Colors.grey.shade400 : const Color(0xFF666666),
                 )),
@@ -2980,6 +3054,7 @@ class _HomePageState extends State<HomePage> {
               itemBuilder: (context, index) {
                 final cinema = cinemas[index];
                 final isFavorite = favoriteCinemas.contains(cinema);
+
                 return Container(
                   margin: const EdgeInsets.only(bottom: 12),
                   decoration: BoxDecoration(
@@ -2991,7 +3066,7 @@ class _HomePageState extends State<HomePage> {
                               : const Color(0xFFDDDDDD)),
                       width: isFavorite ? 2 : 1,
                     ),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(16),
                     color: isFavorite
                         ? (isDark
                             ? const Color(0xFF2A2A2A)
@@ -2999,15 +3074,19 @@ class _HomePageState extends State<HomePage> {
                         : (isDark ? const Color(0xFF1E1E1E) : Colors.white),
                   ),
                   child: ListTile(
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
                     leading: Container(
-                      padding: const EdgeInsets.all(8),
+                      padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
                         color: isFavorite
-                            ? const Color(0xFFFFB800).withValues(alpha: 0.2)
+                            ? const Color(0xFFFFB800).withOpacity(0.2)
                             : (isDark
                                 ? Colors.grey.shade800
                                 : const Color(0xFFEEEEEE)),
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(12),
                       ),
                       child: Icon(
                         isFavorite ? Icons.star : Icons.star_outline,
@@ -3022,7 +3101,7 @@ class _HomePageState extends State<HomePage> {
                     title: Text(cinema,
                         style: TextStyle(
                           fontWeight:
-                              isFavorite ? FontWeight.bold : FontWeight.normal,
+                              isFavorite ? FontWeight.bold : FontWeight.w500,
                           fontSize: 14,
                           color: isDark ? Colors.white : Colors.black,
                         )),
@@ -3034,20 +3113,12 @@ class _HomePageState extends State<HomePage> {
                               color: const Color(0xFFFFB800),
                               borderRadius: BorderRadius.circular(20),
                             ),
-                            child: const Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(Icons.check,
-                                    size: 14, color: Colors.white),
-                                SizedBox(width: 4),
-                                Text('Favorit',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.bold,
-                                    )),
-                              ],
-                            ),
+                            child: const Text('Favorit',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                )),
                           )
                         : null,
                     onTap: () => _toggleFavoriteCinema(cinema),
@@ -3057,7 +3128,7 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               border: Border(
                   top: BorderSide(
@@ -3068,18 +3139,24 @@ class _HomePageState extends State<HomePage> {
             ),
             child: SizedBox(
               width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.check_circle,
-                    size: 20, color: Colors.white),
-                label: const Text('SELESAI',
-                    style: TextStyle(color: Colors.white)),
+              child: ElevatedButton(
+                onPressed: () {
+                  HapticFeedback.mediumImpact();
+                  Navigator.pop(context);
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF001A4D),
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8)),
+                      borderRadius: BorderRadius.circular(12)),
                 ),
+                child: const Text('SELESAI',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1,
+                    )),
               ),
             ),
           ),
@@ -3097,29 +3174,77 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: isDark ? const Color(0xFF121212) : Colors.white,
       appBar: AppBar(
         backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-        elevation: 0,
+        elevation: 2,
         leading: IconButton(
           icon: Icon(Icons.menu,
               color: isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D),
               size: 28),
           onPressed: () {
+            HapticFeedback.lightImpact();
             _scaffoldKey.currentState?.openDrawer();
           },
-          tooltip: 'Menu',
         ),
         title: Row(children: [
           Icon(Icons.movie,
               color: isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D),
-              size: 24),
-          const SizedBox(width: 8),
+              size: 26),
+          const SizedBox(width: 10),
           Text('cinema 1',
               style: TextStyle(
                 color: isDark ? Colors.white : const Color(0xFF001A4D),
                 fontWeight: FontWeight.bold,
-                fontSize: 20,
+                fontSize: 21,
               )),
         ]),
         actions: [
+          Stack(
+            children: [
+              IconButton(
+                icon: Icon(Icons.shopping_cart_outlined,
+                    color: isDark
+                        ? const Color(0xFFFFB800)
+                        : const Color(0xFF001A4D),
+                    size: 26),
+                onPressed: () {
+                  HapticFeedback.mediumImpact();
+                  setState(() => selectedTab = 1);
+                },
+              ),
+              if (_cartItemCount > 0)
+                Positioned(
+                  right: 6,
+                  top: 6,
+                  child: AnimatedBuilder(
+                    animation: _cartBounceAnimation,
+                    builder: (context, child) {
+                      return Transform.scale(
+                        scale: _cartBounceAnimation.value,
+                        child: Container(
+                          padding: const EdgeInsets.all(5),
+                          decoration: const BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 20,
+                            minHeight: 20,
+                          ),
+                          child: Text(
+                            '$_cartItemCount',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+            ],
+          ),
           Stack(
             children: [
               IconButton(
@@ -3129,6 +3254,7 @@ class _HomePageState extends State<HomePage> {
                         : const Color(0xFF001A4D),
                     size: 26),
                 onPressed: () {
+                  HapticFeedback.lightImpact();
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -3136,23 +3262,22 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ).then((_) => setState(() {}));
                 },
-                tooltip: 'Notifikasi',
               ),
               if (NotificationService.getUnreadCount(
                       AuthService.getCurrentUsername() ?? '') >
                   0)
                 Positioned(
-                  right: 8,
-                  top: 8,
+                  right: 6,
+                  top: 6,
                   child: Container(
-                    padding: const EdgeInsets.all(4),
+                    padding: const EdgeInsets.all(5),
                     decoration: const BoxDecoration(
                       color: Colors.red,
                       shape: BoxShape.circle,
                     ),
                     constraints: const BoxConstraints(
-                      minWidth: 16,
-                      minHeight: 16,
+                      minWidth: 18,
+                      minHeight: 18,
                     ),
                     child: Text(
                       '${NotificationService.getUnreadCount(AuthService.getCurrentUsername() ?? '')}',
@@ -3173,10 +3298,10 @@ class _HomePageState extends State<HomePage> {
                     isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D),
                 size: 26),
             onPressed: () {
+              HapticFeedback.lightImpact();
               Navigator.push(context,
                   MaterialPageRoute(builder: (context) => const ProfilePage()));
             },
-            tooltip: 'Profil',
           ),
         ],
       ),
@@ -3190,13 +3315,11 @@ class _HomePageState extends State<HomePage> {
         currentIndex: selectedTab,
         selectedItemColor:
             isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D),
-        unselectedItemColor: const Color(0xFFCCCCCC),
-        backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-        selectedFontSize: 12,
+        unselectedItemColor: Colors.grey.shade400,
+        selectedFontSize: 13,
         unselectedFontSize: 11,
         type: BottomNavigationBarType.fixed,
         elevation: 8,
-        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home_outlined, size: 26),
@@ -3215,6 +3338,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
         onTap: (index) {
+          HapticFeedback.selectionClick();
           setState(() => selectedTab = index);
         },
       ),
@@ -3237,12 +3361,7 @@ class _HomePageState extends State<HomePage> {
                 gradient: LinearGradient(
                   colors: isDark
                       ? [const Color(0xFF2A2A2A), const Color(0xFF1E1E1E)]
-                      : [
-                          const Color(0xFF001A4D),
-                          const Color(0xFF0066CC).withValues(alpha: 0.8)
-                        ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+                      : [const Color(0xFF001A4D), const Color(0xFF0066CC)],
                 ),
               ),
               currentAccountPicture: CircleAvatar(
@@ -3532,7 +3651,7 @@ class _HomePageState extends State<HomePage> {
               size: 24),
           if (badge != null && badge > 0)
             Positioned(
-              right: -6,
+              right: -8,
               top: -6,
               child: Container(
                 padding: const EdgeInsets.all(4),
@@ -3565,7 +3684,10 @@ class _HomePageState extends State<HomePage> {
           color: textColor ?? (isDark ? Colors.white : Colors.black87),
         ),
       ),
-      onTap: onTap,
+      onTap: () {
+        HapticFeedback.selectionClick();
+        onTap();
+      },
     );
   }
 
@@ -3575,6 +3697,7 @@ class _HomePageState extends State<HomePage> {
     return ListView(
       controller: _scrollController,
       children: [
+        // Search Bar
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: TextField(
@@ -3596,68 +3719,85 @@ class _HomePageState extends State<HomePage> {
                               ? Colors.grey.shade600
                               : const Color(0xFF666666)),
                       onPressed: () {
+                        HapticFeedback.lightImpact();
                         searchController.clear();
                         _searchFilms('');
                       },
                     )
                   : null,
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(25),
-                borderSide: BorderSide(
-                    color: isDark
-                        ? Colors.grey.shade800
-                        : const Color(0xFFDDDDDD)),
+                borderRadius: BorderRadius.circular(30),
+                borderSide: BorderSide.none,
               ),
               filled: true,
               fillColor:
                   isDark ? const Color(0xFF1E1E1E) : const Color(0xFFF5F5F5),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 16,
+              ),
             ),
           ),
         ),
+
+        // City Selector
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child:
-              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            const Icon(Icons.location_on, color: Color(0xFFFFB800), size: 24),
-            DropdownButton<String>(
-              value: selectedCity,
-              dropdownColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-              style: TextStyle(color: isDark ? Colors.white : Colors.black),
-              items: ['JAKARTA', 'BANDUNG', 'SURABAYA']
-                  .map((city) =>
-                      DropdownMenuItem(value: city, child: Text(city)))
-                  .toList(),
-              onChanged: (value) {
-                setState(() {
-                  selectedCity = value ?? 'JAKARTA';
-                });
-              },
-              underline: Container(),
-            ),
-          ]),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Icon(Icons.location_on, color: Color(0xFFFFB800), size: 26),
+              DropdownButton<String>(
+                value: selectedCity,
+                dropdownColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                style: TextStyle(
+                  color: isDark ? Colors.white : Colors.black,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 15,
+                ),
+                items: ['JAKARTA', 'BANDUNG', 'SURABAYA']
+                    .map((city) =>
+                        DropdownMenuItem(value: city, child: Text(city)))
+                    .toList(),
+                onChanged: (value) {
+                  HapticFeedback.selectionClick();
+                  setState(() {
+                    selectedCity = value ?? 'JAKARTA';
+                  });
+                },
+                underline: Container(),
+              ),
+            ],
+          ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 20),
+
+        // Banner
         Container(
           margin: const EdgeInsets.symmetric(horizontal: 16),
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF2A2A2A) : const Color(0xFFF0F8FF),
-            borderRadius: BorderRadius.circular(12),
+            gradient: LinearGradient(
+              colors: isDark
+                  ? [const Color(0xFF2A2A2A), const Color(0xFF1E1E1E)]
+                  : [const Color(0xFFF0F8FF), const Color(0xFFE3F2FD)],
+            ),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(
-                color:
-                    isDark ? const Color(0xFFFFB800) : const Color(0xFF0066CC),
-                width: 1),
+              color: isDark ? const Color(0xFFFFB800) : const Color(0xFF0066CC),
+              width: 2,
+            ),
           ),
           child: Row(children: [
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
                 color: const Color(0xFFFFB800),
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(Icons.star, color: Colors.white, size: 24),
+              child: const Icon(Icons.star, color: Colors.white, size: 26),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 14),
             Expanded(
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -3665,10 +3805,10 @@ class _HomePageState extends State<HomePage> {
                     Text('Tandai bioskop favoritmu!',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: 14,
+                          fontSize: 15,
                           color: isDark ? Colors.white : Colors.black,
                         )),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 6),
                     Text('Akses bioskop favorit dengan lebih cepat',
                         style: TextStyle(
                             fontSize: 12,
@@ -3677,27 +3817,33 @@ class _HomePageState extends State<HomePage> {
                                 : const Color(0xFF666666))),
                   ]),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 10),
             ElevatedButton(
-              onPressed: _showCinemaSelectionDialog,
+              onPressed: () {
+                HapticFeedback.mediumImpact();
+                _showCinemaSelectionDialog();
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor:
                     isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D),
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8)),
+                    borderRadius: BorderRadius.circular(10)),
               ),
               child: const Text('Pilih',
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
-                    fontSize: 12,
+                    fontSize: 13,
                   )),
             ),
           ]),
         ),
-        const SizedBox(height: 16),
+
+        const SizedBox(height: 20),
+
+        // Horizontal Cinema List
         SizedBox(
           height: 120,
           child: ListView.builder(
@@ -3707,12 +3853,16 @@ class _HomePageState extends State<HomePage> {
             itemBuilder: (context, index) {
               final cinema = _getSortedCinemas()[index];
               final isFavorite = favoriteCinemas.contains(cinema);
+
               return GestureDetector(
-                onTap: () => _toggleFavoriteCinema(cinema),
+                onTap: () {
+                  HapticFeedback.mediumImpact();
+                  _toggleFavoriteCinema(cinema);
+                },
                 child: Container(
-                  width: 200,
+                  width: 220,
                   margin: const EdgeInsets.only(right: 12),
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
                     border: Border.all(
                       color: isFavorite
@@ -3722,7 +3872,7 @@ class _HomePageState extends State<HomePage> {
                               : const Color(0xFFDDDDDD)),
                       width: isFavorite ? 2 : 1,
                     ),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(12),
                     color: isFavorite
                         ? (isDark
                             ? const Color(0xFF2A2A2A)
@@ -3731,79 +3881,78 @@ class _HomePageState extends State<HomePage> {
                   ),
                   child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: Row(children: [
-                            Container(
-                              padding: const EdgeInsets.all(6),
-                              decoration: BoxDecoration(
-                                color: isFavorite
-                                    ? const Color(0xFFFFB800)
-                                        .withValues(alpha: 0.2)
-                                    : (isDark
-                                        ? Colors.grey.shade800
-                                        : Colors.grey.shade200),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Icon(
-                                isFavorite ? Icons.star : Icons.star_outline,
-                                size: 16,
-                                color: isFavorite
-                                    ? const Color(0xFFFFB800)
-                                    : (isDark
-                                        ? Colors.grey.shade600
-                                        : const Color(0xFFCCCCCC)),
-                              ),
+                        Row(children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: isFavorite
+                                  ? const Color(0xFFFFB800)
+                                  : (isDark
+                                      ? Colors.grey.shade800
+                                      : Colors.grey.shade200),
+                              borderRadius: BorderRadius.circular(8),
                             ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(cinema,
-                                  style: TextStyle(
-                                    fontWeight: isFavorite
-                                        ? FontWeight.bold
-                                        : FontWeight.normal,
-                                    fontSize: 12,
-                                    color: isDark ? Colors.white : Colors.black,
-                                  ),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis),
-                            ),
-                          ]),
-                        ),
-                        if (isFavorite)
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 12),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFFFB800),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: const Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.favorite,
-                                      color: Colors.white, size: 10),
-                                  SizedBox(width: 4),
-                                  Text('Favorit',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.bold,
-                                      )),
-                                ],
-                              ),
+                            child: Icon(
+                              isFavorite ? Icons.star : Icons.star_outline,
+                              size: 18,
+                              color: isFavorite
+                                  ? Colors.white
+                                  : (isDark
+                                      ? Colors.grey.shade600
+                                      : const Color(0xFFCCCCCC)),
                             ),
                           ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(cinema,
+                                style: TextStyle(
+                                  fontWeight: isFavorite
+                                      ? FontWeight.bold
+                                      : FontWeight.w500,
+                                  fontSize: 13,
+                                  color: isDark ? Colors.white : Colors.black,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis),
+                          ),
+                        ]),
+                        if (isFavorite) ...[
+                          const SizedBox(height: 10),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFFB800),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.favorite,
+                                    color: Colors.white, size: 12),
+                                SizedBox(width: 6),
+                                Text('Favorit',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                    )),
+                              ],
+                            ),
+                          ),
+                        ],
                       ]),
                 ),
               );
             },
           ),
         ),
-        const SizedBox(height: 24),
+
+        const SizedBox(height: 28),
+
+        // Film Section Header
         Container(
           key: _filmSectionKey,
           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -3815,14 +3964,14 @@ class _HomePageState extends State<HomePage> {
                     color: isDark
                         ? const Color(0xFFFFB800)
                         : const Color(0xFF001A4D),
-                    size: 22),
-                const SizedBox(width: 8),
+                    size: 24),
+                const SizedBox(width: 10),
                 Text(
                   searchController.text.isEmpty
                       ? 'Sedang Tayang'
                       : 'Hasil Pencarian (${filteredFilms.length})',
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: isDark ? Colors.white : Colors.black,
                   ),
@@ -3831,6 +3980,7 @@ class _HomePageState extends State<HomePage> {
               if (searchController.text.isEmpty)
                 TextButton.icon(
                   onPressed: () {
+                    HapticFeedback.mediumImpact();
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -3839,8 +3989,9 @@ class _HomePageState extends State<HomePage> {
                       ),
                     );
                   },
-                  icon: const Icon(Icons.grid_view, size: 16),
-                  label: const Text('Semua'),
+                  icon: const Icon(Icons.grid_view, size: 18),
+                  label: const Text('Semua',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
                   style: TextButton.styleFrom(
                     foregroundColor: isDark
                         ? const Color(0xFFFFB800)
@@ -3850,49 +4001,54 @@ class _HomePageState extends State<HomePage> {
             ],
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 20),
 
-        // ✅ CAROUSEL FILM DENGAN ANIMASI 3D
+        // Film Carousel
         if (filteredFilms.isEmpty)
           Padding(
-            padding: const EdgeInsets.all(40),
+            padding: const EdgeInsets.all(50),
             child: Column(children: [
-              Icon(Icons.search_off, size: 60, color: Colors.grey.shade300),
-              const SizedBox(height: 16),
+              Icon(Icons.search_off, size: 70, color: Colors.grey.shade300),
+              const SizedBox(height: 20),
               Text('Film tidak ditemukan',
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 18,
                     color: Colors.grey.shade600,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w600,
                   )),
-              const SizedBox(height: 8),
+              const SizedBox(height: 10),
               Text('Coba cari dengan kata kunci lain',
-                  style: TextStyle(fontSize: 13, color: Colors.grey.shade500)),
+                  style: TextStyle(fontSize: 14, color: Colors.grey.shade500)),
             ]),
           )
         else
           SizedBox(
-            height: 480,
+            height: 500,
             child: Stack(
               children: [
                 PageView.builder(
                   controller: _pageController,
                   itemCount: filteredFilms.length,
+                  onPageChanged: (index) {
+                    HapticFeedback.selectionClick();
+                  },
                   itemBuilder: (context, index) {
                     return _buildCarouselFilmCard(filteredFilms[index], index);
                   },
                 ),
-                // Left Button
+
+                // Left Navigation Button
                 if (_currentPage > 0)
                   Positioned(
                     left: 8,
                     top: 0,
-                    bottom: 0,
+                    bottom: 60,
                     child: Center(
                       child: GestureDetector(
                         onTap: () {
+                          HapticFeedback.mediumImpact();
                           _pageController.previousPage(
-                            duration: const Duration(milliseconds: 300),
+                            duration: const Duration(milliseconds: 400),
                             curve: Curves.easeInOut,
                           );
                         },
@@ -3900,12 +4056,12 @@ class _HomePageState extends State<HomePage> {
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
                             color: isDark
-                                ? Colors.black.withValues(alpha: 0.7)
-                                : Colors.white.withValues(alpha: 0.9),
+                                ? Colors.black.withOpacity(0.7)
+                                : Colors.white.withOpacity(0.9),
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.3),
+                                color: Colors.black.withOpacity(0.2),
                                 blurRadius: 8,
                                 offset: const Offset(0, 2),
                               ),
@@ -3913,25 +4069,28 @@ class _HomePageState extends State<HomePage> {
                           ),
                           child: Icon(
                             Icons.chevron_left,
-                            color:
-                                isDark ? Colors.white : const Color(0xFF001A4D),
-                            size: 32,
+                            color: isDark
+                                ? const Color(0xFFFFB800)
+                                : const Color(0xFF001A4D),
+                            size: 28,
                           ),
                         ),
                       ),
                     ),
                   ),
-                // Right Button
+
+                // Right Navigation Button
                 if (_currentPage < filteredFilms.length - 1)
                   Positioned(
                     right: 8,
                     top: 0,
-                    bottom: 0,
+                    bottom: 60,
                     child: Center(
                       child: GestureDetector(
                         onTap: () {
+                          HapticFeedback.mediumImpact();
                           _pageController.nextPage(
-                            duration: const Duration(milliseconds: 300),
+                            duration: const Duration(milliseconds: 400),
                             curve: Curves.easeInOut,
                           );
                         },
@@ -3939,12 +4098,12 @@ class _HomePageState extends State<HomePage> {
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
                             color: isDark
-                                ? Colors.black.withValues(alpha: 0.7)
-                                : Colors.white.withValues(alpha: 0.9),
+                                ? Colors.black.withOpacity(0.7)
+                                : Colors.white.withOpacity(0.9),
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.3),
+                                color: Colors.black.withOpacity(0.2),
                                 blurRadius: 8,
                                 offset: const Offset(0, 2),
                               ),
@@ -3952,201 +4111,309 @@ class _HomePageState extends State<HomePage> {
                           ),
                           child: Icon(
                             Icons.chevron_right,
-                            color:
-                                isDark ? Colors.white : const Color(0xFF001A4D),
-                            size: 32,
+                            color: isDark
+                                ? const Color(0xFFFFB800)
+                                : const Color(0xFF001A4D),
+                            size: 28,
                           ),
                         ),
                       ),
                     ),
                   ),
+
+                // Page Indicator
+                Positioned(
+                  bottom: 15,
+                  left: 0,
+                  right: 0,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(
+                      filteredFilms.length,
+                      (index) {
+                        final isActive = index == _currentPage.round();
+
+                        return AnimatedContainer(
+                          duration: const Duration(milliseconds: 300),
+                          margin: const EdgeInsets.symmetric(horizontal: 4),
+                          width: isActive ? 24 : 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: isActive
+                                ? (isDark
+                                    ? const Color(0xFFFFB800)
+                                    : const Color(0xFF001A4D))
+                                : Colors.grey.shade400,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
+
+        const SizedBox(height: 50),
       ],
     );
   }
 
-  // ✅ CAROUSEL FILM CARD DENGAN ANIMASI SCALE
   Widget _buildCarouselFilmCard(Film film, int index) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    // Calculate scale based on current page position
+    // Simplified parallax calculation
     double scale = 1.0;
+    double opacity = 1.0;
+
     if (_pageController.hasClients) {
-      scale = max(0.85, (1 - ((_currentPage - index).abs() * 0.15)));
+      double page = _currentPage;
+      double diff = (index - page).abs();
+
+      scale = max(0.85, (1 - (diff * 0.15)));
+      opacity = max(0.5, (1 - (diff * 0.5)));
     }
 
-    return TweenAnimationBuilder<double>(
-      duration: const Duration(milliseconds: 350),
-      curve: Curves.easeOutCubic,
-      tween: Tween<double>(begin: scale, end: scale),
-      builder: (context, value, child) {
-        return Transform.scale(
-          scale: value,
-          child: child,
-        );
-      },
-      child: GestureDetector(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => FilmDetailPage(
-                film: film,
-                onUpdate: _loadFilms,
-              ),
-            ),
-          );
-        },
-        child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 20),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.3),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
-                spreadRadius: 2,
-              ),
-            ],
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: Stack(
-              children: [
-                // Film Poster
-                Positioned.fill(
-                  child: Image.network(
-                    film.imageUrl,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        color: const Color(0xFFDDDDDD),
-                        alignment: Alignment.center,
-                        child: const Icon(Icons.movie,
-                            size: 80, color: Colors.white),
-                      );
-                    },
-                  ),
+    return Transform.scale(
+      scale: scale,
+      child: Opacity(
+        opacity: opacity,
+        child: GestureDetector(
+          onTap: () {
+            HapticFeedback.mediumImpact();
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => FilmDetailPage(
+                  film: film,
+                  onUpdate: _loadFilms,
                 ),
+              ),
+            ).then((_) => _updateCartCount());
+          },
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.3),
+                  blurRadius: 15,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: Stack(
+                children: [
+                  // Film Poster
+                  Positioned.fill(
+                    child: Image.network(
+                      film.imageUrl,
+                      fit: BoxFit.cover,
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Container(
+                          color: isDark
+                              ? const Color(0xFF1E1E1E)
+                              : Colors.grey.shade200,
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              value: loadingProgress.expectedTotalBytes != null
+                                  ? loadingProgress.cumulativeBytesLoaded /
+                                      loadingProgress.expectedTotalBytes!
+                                  : null,
+                              color: isDark
+                                  ? const Color(0xFFFFB800)
+                                  : const Color(0xFF001A4D),
+                            ),
+                          ),
+                        );
+                      },
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          color: isDark
+                              ? const Color(0xFF1E1E1E)
+                              : Colors.grey.shade200,
+                          alignment: Alignment.center,
+                          child: Icon(Icons.movie,
+                              size: 80,
+                              color: isDark
+                                  ? Colors.grey.shade700
+                                  : Colors.grey.shade400),
+                        );
+                      },
+                    ),
+                  ),
 
-                // Gradient Overlay
-                Positioned.fill(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.transparent,
-                          Colors.black.withValues(alpha: 0.7),
-                        ],
-                        stops: const [0.5, 1.0],
+                  // Shimmer Effect - Efek Berkilau
+                  Positioned.fill(
+                    child: AnimatedBuilder(
+                      animation: _shimmerController,
+                      builder: (context, child) {
+                        return Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                Colors.white.withOpacity(0.0),
+                                Colors.white.withOpacity(0.1),
+                                Colors.white.withOpacity(0.2),
+                                Colors.white.withOpacity(0.1),
+                                Colors.white.withOpacity(0.0),
+                              ],
+                              stops: [
+                                _shimmerController.value - 0.3,
+                                _shimmerController.value - 0.1,
+                                _shimmerController.value,
+                                _shimmerController.value + 0.1,
+                                _shimmerController.value + 0.3,
+                              ].map((e) => e.clamp(0.0, 1.0)).toList(),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+
+                  // Gradient Overlay
+                  Positioned.fill(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.transparent,
+                            Colors.black.withOpacity(0.7),
+                          ],
+                          stops: const [0.5, 1.0],
+                        ),
                       ),
                     ),
                   ),
-                ),
 
-                // Film Info
-                Positioned(
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          film.title,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 24,
-                            color: Colors.white,
-                            shadows: [
-                              Shadow(
-                                color: Colors.black,
-                                blurRadius: 8,
-                                offset: Offset(0, 2),
+                  // Film Info
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            film.title,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 22,
+                              color: Colors.white,
+                              height: 1.2,
+                              shadows: [
+                                Shadow(
+                                  color: Colors.black,
+                                  blurRadius: 8,
+                                  offset: Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFFB800),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.star,
+                                        size: 16, color: Colors.white),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      film.rating,
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(6),
+                                  border: Border.all(
+                                    color: Colors.white.withOpacity(0.5),
+                                  ),
+                                ),
+                                child: Text(
+                                  film.ageRating,
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
                               ),
                             ],
                           ),
-                        ),
-                        const SizedBox(height: 12),
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 6),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFFFB800),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.star,
-                                      size: 16, color: Colors.white),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    film.rating,
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                    ),
+                          const SizedBox(height: 10),
+                          Text(
+                            film.genre,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.white.withOpacity(0.9),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.4),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.access_time,
+                                    size: 14,
+                                    color: Colors.white.withOpacity(0.9)),
+                                const SizedBox(width: 4),
+                                Text(
+                                  film.duration,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.white.withOpacity(0.9),
                                   ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 6),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.2),
-                                borderRadius: BorderRadius.circular(6),
-                                border: Border.all(
-                                    color: Colors.white.withValues(alpha: 0.5)),
-                              ),
-                              child: Text(
-                                film.ageRating,
-                                style: const TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
                                 ),
-                              ),
+                              ],
                             ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        Text(
-                          film.genre,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.white.withValues(alpha: 0.9),
                           ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          film.duration,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.white.withValues(alpha: 0.8),
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -4159,10 +4426,12 @@ class _HomePageState extends State<HomePage> {
     searchController.dispose();
     _scrollController.dispose();
     _pageController.dispose();
+    _fabController.dispose();
+    _cartController.dispose();
+    _shimmerController.dispose();
     super.dispose();
   }
 }
-
 // ==================== ALL FILMS PAGE ====================
 
 class AllFilmsPage extends StatefulWidget {
@@ -8762,6 +9031,8 @@ class NotificationItem {
 
 // ==================== TICKET DETAIL PAGE (DENGAN DOWNLOAD & SHARE) ====================
 
+// ==================== TICKET DETAIL PAGE (DIPERBAIKI DARK MODE) ====================
+
 class TicketDetailPage extends StatelessWidget {
   final TicketHistory ticket;
 
@@ -8770,19 +9041,22 @@ class TicketDetailPage extends StatelessWidget {
   // ✅ FUNGSI DOWNLOAD E-TICKET
   Future<void> _downloadETicket(BuildContext context) async {
     try {
+      final isDark = Theme.of(context).brightness == Brightness.dark;
+
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (context) => const Center(
-          child: CircularProgressIndicator(color: Color(0xFF001A4D)),
+        builder: (context) => Center(
+          child: CircularProgressIndicator(
+            color: isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D),
+          ),
         ),
       );
 
-      // Simulasi download (dalam production, gunakan package seperti screenshot atau pdf)
       await Future.delayed(const Duration(seconds: 2));
 
       if (context.mounted) {
-        Navigator.pop(context); // Tutup loading
+        Navigator.pop(context);
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -8803,7 +9077,6 @@ class TicketDetailPage extends StatelessWidget {
               label: 'LIHAT',
               textColor: Colors.white,
               onPressed: () {
-                // Buka file manager atau gallery
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('File tersimpan di Downloads/CINEMA1/'),
@@ -8817,7 +9090,7 @@ class TicketDetailPage extends StatelessWidget {
       }
     } catch (e) {
       if (context.mounted) {
-        Navigator.pop(context); // Tutup loading jika ada
+        Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Row(
@@ -8852,15 +9125,16 @@ Booking ID: ${ticket.bookingId}
 Tunjukkan e-ticket ini di bioskop.
       ''';
 
-      // Tampilkan bottom sheet dengan opsi share
+      final isDark = Theme.of(context).brightness == Brightness.dark;
+
       showModalBottomSheet(
         context: context,
         backgroundColor: Colors.transparent,
         builder: (context) => Container(
           padding: const EdgeInsets.all(20),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.only(
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+            borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(20),
               topRight: Radius.circular(20),
             ),
@@ -8872,16 +9146,18 @@ Tunjukkan e-ticket ini di bioskop.
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFDDDDDD),
+                  color:
+                      isDark ? Colors.grey.shade700 : const Color(0xFFDDDDDD),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
               const SizedBox(height: 20),
-              const Text(
+              Text(
                 'Bagikan E-Ticket',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
+                  color: isDark ? Colors.white : Colors.black,
                 ),
               ),
               const SizedBox(height: 20),
@@ -8891,15 +9167,25 @@ Tunjukkan e-ticket ini di bioskop.
                 leading: Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: Colors.blue.withValues(alpha: 0.1),
+                    color: Colors.blue.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(Icons.copy, color: Colors.blue),
                 ),
-                title: const Text('Salin Teks'),
-                subtitle: const Text('Salin detail e-ticket'),
+                title: Text(
+                  'Salin Teks',
+                  style: TextStyle(
+                    color: isDark ? Colors.white : Colors.black,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                subtitle: Text(
+                  'Salin detail e-ticket',
+                  style: TextStyle(
+                    color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+                  ),
+                ),
                 onTap: () {
-                  // Copy ke clipboard (perlu import package flutter/services.dart)
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
@@ -8923,21 +9209,35 @@ Tunjukkan e-ticket ini di bioskop.
                 leading: Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: Colors.green.withValues(alpha: 0.1),
+                    color: Colors.green.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(Icons.image, color: Colors.green),
                 ),
-                title: const Text('Bagikan sebagai Gambar'),
-                subtitle: const Text('Screenshot e-ticket'),
+                title: Text(
+                  'Bagikan sebagai Gambar',
+                  style: TextStyle(
+                    color: isDark ? Colors.white : Colors.black,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                subtitle: Text(
+                  'Screenshot e-ticket',
+                  style: TextStyle(
+                    color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+                  ),
+                ),
                 onTap: () async {
                   Navigator.pop(context);
                   showDialog(
                     context: context,
                     barrierDismissible: false,
-                    builder: (context) => const Center(
-                      child:
-                          CircularProgressIndicator(color: Color(0xFF001A4D)),
+                    builder: (context) => Center(
+                      child: CircularProgressIndicator(
+                        color: isDark
+                            ? const Color(0xFFFFB800)
+                            : const Color(0xFF001A4D),
+                      ),
                     ),
                   );
 
@@ -8967,13 +9267,24 @@ Tunjukkan e-ticket ini di bioskop.
                 leading: Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: Colors.orange.withValues(alpha: 0.1),
+                    color: Colors.orange.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(Icons.qr_code, color: Colors.orange),
                 ),
-                title: const Text('Bagikan QR Code'),
-                subtitle: const Text('Kirim booking ID'),
+                title: Text(
+                  'Bagikan QR Code',
+                  style: TextStyle(
+                    color: isDark ? Colors.white : Colors.black,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                subtitle: Text(
+                  'Kirim booking ID',
+                  style: TextStyle(
+                    color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+                  ),
+                ),
                 onTap: () {
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -9018,32 +9329,42 @@ Tunjukkan e-ticket ini di bioskop.
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
+      backgroundColor: isDark ? const Color(0xFF121212) : Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF001A4D)),
+          icon: Icon(
+            Icons.arrow_back,
+            color: isDark ? Colors.white : const Color(0xFF001A4D),
+          ),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Detail E-Ticket',
           style: TextStyle(
-              color: Color(0xFF001A4D),
-              fontWeight: FontWeight.bold,
-              fontSize: 16),
+            color: isDark ? Colors.white : const Color(0xFF001A4D),
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
         ),
         actions: [
-          // ✅ TOMBOL SHARE
           IconButton(
-            icon: const Icon(Icons.share, color: Color(0xFF001A4D)),
+            icon: Icon(
+              Icons.share,
+              color: isDark ? Colors.white : const Color(0xFF001A4D),
+            ),
             onPressed: () => _shareETicket(context),
             tooltip: 'Bagikan E-Ticket',
           ),
-          // ✅ TOMBOL DOWNLOAD
           IconButton(
-            icon: const Icon(Icons.download, color: Color(0xFF001A4D)),
+            icon: Icon(
+              Icons.download,
+              color: isDark ? Colors.white : const Color(0xFF001A4D),
+            ),
             onPressed: () => _downloadETicket(context),
             tooltip: 'Download E-Ticket',
           ),
@@ -9051,10 +9372,15 @@ Tunjukkan e-ticket ini di bioskop.
       ),
       body: ListView(
         children: [
+          // Status Badge
           Container(
             color: ticket.status == 'active'
-                ? Colors.green.withValues(alpha: 0.1)
-                : Colors.grey.withValues(alpha: 0.1),
+                ? (isDark
+                    ? Colors.green.withOpacity(0.2)
+                    : Colors.green.withOpacity(0.1))
+                : (isDark
+                    ? Colors.grey.withOpacity(0.2)
+                    : Colors.grey.withOpacity(0.1)),
             padding: const EdgeInsets.all(16),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -9065,7 +9391,7 @@ Tunjukkan e-ticket ini di bioskop.
                       : Icons.history,
                   color: ticket.status == 'active'
                       ? Colors.green
-                      : Colors.grey.shade600,
+                      : (isDark ? Colors.grey.shade400 : Colors.grey.shade600),
                   size: 24,
                 ),
                 const SizedBox(width: 12),
@@ -9076,7 +9402,9 @@ Tunjukkan e-ticket ini di bioskop.
                   style: TextStyle(
                     color: ticket.status == 'active'
                         ? Colors.green
-                        : Colors.grey.shade600,
+                        : (isDark
+                            ? Colors.grey.shade400
+                            : Colors.grey.shade600),
                     fontWeight: FontWeight.bold,
                     fontSize: 15,
                   ),
@@ -9084,20 +9412,24 @@ Tunjukkan e-ticket ini di bioskop.
               ],
             ),
           ),
+
           Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
+                // Cinema Info Card
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: isDark
+                        ? const Color(0xFF1E1E1E)
+                        : const Color(0xFFF5F5F5),
                     borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.05),
-                          blurRadius: 8)
-                    ],
+                    border: Border.all(
+                      color: isDark
+                          ? Colors.grey.shade800
+                          : const Color(0xFFDDDDDD),
+                    ),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -9108,27 +9440,41 @@ Tunjukkan e-ticket ini di bioskop.
                           Expanded(
                             child: Row(
                               children: [
-                                const Icon(Icons.location_on,
-                                    color: Color(0xFF001A4D), size: 18),
+                                Icon(
+                                  Icons.location_on,
+                                  color: isDark
+                                      ? const Color(0xFFFFB800)
+                                      : const Color(0xFF001A4D),
+                                  size: 18,
+                                ),
                                 const SizedBox(width: 6),
                                 Expanded(
-                                  child: Text(ticket.cinema,
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 13)),
+                                  child: Text(
+                                    ticket.cinema,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 13,
+                                      color:
+                                          isDark ? Colors.white : Colors.black,
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),
                           ),
                           Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 4),
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
                               color: ticket.cinema.contains('CGV')
                                   ? Colors.red
                                   : ticket.cinema.contains('IMAX')
                                       ? Colors.blue
-                                      : const Color(0xFF001A4D),
+                                      : (isDark
+                                          ? const Color(0xFFFFB800)
+                                          : const Color(0xFF001A4D)),
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(
@@ -9140,133 +9486,220 @@ Tunjukkan e-ticket ini di bioskop.
                                           ? 'IMAX'
                                           : 'CINEMA',
                               style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 10),
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 10,
+                              ),
                             ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 4),
-                      const Row(
+                      Row(
                         children: [
-                          Icon(Icons.movie, color: Color(0xFF666666), size: 14),
-                          SizedBox(width: 6),
-                          Text('REGULAR 2D, AUDI #2',
-                              style: TextStyle(
-                                  fontSize: 11, color: Color(0xFF666666))),
+                          Icon(
+                            Icons.movie,
+                            color: isDark
+                                ? Colors.grey.shade400
+                                : const Color(0xFF666666),
+                            size: 14,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            'REGULAR 2D, AUDI #2',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: isDark
+                                  ? Colors.grey.shade400
+                                  : const Color(0xFF666666),
+                            ),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 12),
                       Row(
                         children: [
-                          const Icon(Icons.calendar_today,
-                              color: Color(0xFF001A4D), size: 14),
+                          Icon(
+                            Icons.calendar_today,
+                            color: isDark
+                                ? const Color(0xFFFFB800)
+                                : const Color(0xFF001A4D),
+                            size: 14,
+                          ),
                           const SizedBox(width: 6),
-                          Text('${ticket.date}, ${ticket.time}',
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 13)),
+                          Text(
+                            '${ticket.date}, ${ticket.time}',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                              color: isDark ? Colors.white : Colors.black,
+                            ),
+                          ),
                         ],
                       ),
                       const Divider(height: 24),
                       Row(
                         children: [
-                          const Icon(Icons.event_seat,
-                              color: Color(0xFF666666), size: 16),
+                          Icon(
+                            Icons.event_seat,
+                            color: isDark
+                                ? Colors.grey.shade400
+                                : const Color(0xFF666666),
+                            size: 16,
+                          ),
                           const SizedBox(width: 6),
-                          Text('${ticket.seats.length} TIKET',
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 12,
-                                  color: Color(0xFF666666))),
+                          Text(
+                            '${ticket.seats.length} TIKET',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                              color: isDark
+                                  ? Colors.grey.shade400
+                                  : const Color(0xFF666666),
+                            ),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 8),
-                      Text(ticket.seats.join(', '),
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                              color: Color(0xFF001A4D))),
+                      Text(
+                        ticket.seats.join(', '),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: isDark
+                              ? const Color(0xFFFFB800)
+                              : const Color(0xFF001A4D),
+                        ),
+                      ),
                       const SizedBox(height: 16),
-                      const Divider(),
+                      Divider(
+                        color: isDark
+                            ? Colors.grey.shade800
+                            : Colors.grey.shade300,
+                      ),
                       const SizedBox(height: 8),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Row(
+                          Row(
                             children: [
-                              Icon(Icons.account_balance_wallet,
-                                  color: Color(0xFF001A4D), size: 18),
-                              SizedBox(width: 6),
-                              Text('TOTAL BAYAR',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 12)),
+                              Icon(
+                                Icons.account_balance_wallet,
+                                color: isDark
+                                    ? const Color(0xFFFFB800)
+                                    : const Color(0xFF001A4D),
+                                size: 18,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                'TOTAL BAYAR',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                  color: isDark ? Colors.white : Colors.black,
+                                ),
+                              ),
                             ],
                           ),
-                          Text('Rp${ticket.totalAmount}',
-                              style: const TextStyle(
-                                  color: Color(0xFF0066CC),
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18)),
+                          Text(
+                            'Rp${ticket.totalAmount}',
+                            style: const TextStyle(
+                              color: Color(0xFF0066CC),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                            ),
+                          ),
                         ],
                       ),
                     ],
                   ),
                 ),
+
                 const SizedBox(height: 20),
+
+                // QR Code Card
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
                     borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.05),
-                          blurRadius: 8)
-                    ],
+                    border: Border.all(
+                      color: isDark
+                          ? Colors.grey.shade800
+                          : const Color(0xFFDDDDDD),
+                    ),
                   ),
                   child: Column(
                     children: [
-                      const Row(
+                      Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.qr_code_2,
-                              color: Color(0xFF001A4D), size: 22),
-                          SizedBox(width: 8),
-                          Text('E-TICKET QR CODE',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 15)),
+                          Icon(
+                            Icons.qr_code_2,
+                            color: isDark
+                                ? const Color(0xFFFFB800)
+                                : const Color(0xFF001A4D),
+                            size: 22,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'E-TICKET QR CODE',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                              color: isDark ? Colors.white : Colors.black,
+                            ),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 8),
-                      const Text('Tunjukkan QR code ini di bioskop',
-                          style: TextStyle(
-                              fontSize: 12, color: Color(0xFF666666))),
+                      Text(
+                        'Tunjukkan QR code ini di bioskop',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: isDark
+                              ? Colors.grey.shade400
+                              : const Color(0xFF666666),
+                        ),
+                      ),
                       const SizedBox(height: 20),
                       Container(
                         width: 200,
                         height: 200,
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF5F5F5),
+                          color:
+                              isDark ? Colors.white : const Color(0xFFF5F5F5),
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: const Color(0xFFDDDDDD)),
+                          border: Border.all(
+                            color: isDark
+                                ? Colors.grey.shade300
+                                : const Color(0xFFDDDDDD),
+                          ),
                         ),
                         child: Image.network(
                           'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${ticket.bookingId}',
                           fit: BoxFit.contain,
-                          errorBuilder: (context, error, stackTrace) =>
-                              const Center(
+                          errorBuilder: (context, error, stackTrace) => Center(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.qr_code,
-                                    size: 80, color: Color(0xFFCCCCCC)),
-                                SizedBox(height: 8),
-                                Text('QR CODE',
-                                    style: TextStyle(
-                                        fontSize: 14,
-                                        color: Color(0xFFCCCCCC))),
+                                Icon(
+                                  Icons.qr_code,
+                                  size: 80,
+                                  color: isDark
+                                      ? Colors.grey.shade700
+                                      : const Color(0xFFCCCCCC),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'QR CODE',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: isDark
+                                        ? Colors.grey.shade700
+                                        : const Color(0xFFCCCCCC),
+                                  ),
+                                ),
                               ],
                             ),
                           ),
@@ -9276,37 +9709,65 @@ Tunjukkan e-ticket ini di bioskop.
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Icon(Icons.confirmation_number,
-                              color: Color(0xFF666666), size: 14),
+                          Icon(
+                            Icons.confirmation_number,
+                            color: isDark
+                                ? Colors.grey.shade400
+                                : const Color(0xFF666666),
+                            size: 14,
+                          ),
                           const SizedBox(width: 6),
-                          Text('Booking ID: ${ticket.bookingId}',
-                              style: const TextStyle(
-                                  fontSize: 11,
-                                  color: Color(0xFF666666),
-                                  fontWeight: FontWeight.bold)),
+                          Text(
+                            'Booking ID: ${ticket.bookingId}',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: isDark
+                                  ? Colors.grey.shade400
+                                  : const Color(0xFF666666),
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ],
                       ),
                     ],
                   ),
                 ),
+
                 const SizedBox(height: 20),
+
+                // Info Card
                 Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF0F8FF),
+                    color: isDark
+                        ? const Color(0xFF2A2A2A)
+                        : const Color(0xFFF0F8FF),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: const Color(0xFF0066CC)),
+                    border: Border.all(
+                      color: isDark
+                          ? const Color(0xFFFFB800)
+                          : const Color(0xFF0066CC),
+                    ),
                   ),
-                  child: const Row(
+                  child: Row(
                     children: [
-                      Icon(Icons.info_outline,
-                          color: Color(0xFF0066CC), size: 20),
-                      SizedBox(width: 12),
+                      Icon(
+                        Icons.info_outline,
+                        color: isDark
+                            ? const Color(0xFFFFB800)
+                            : const Color(0xFF0066CC),
+                        size: 20,
+                      ),
+                      const SizedBox(width: 12),
                       Expanded(
                         child: Text(
                           'Simpan e-ticket ini dan tunjukkan saat memasuki bioskop. Screenshot atau foto juga dapat digunakan.',
-                          style:
-                              TextStyle(fontSize: 11, color: Color(0xFF666666)),
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: isDark
+                                ? Colors.grey.shade300
+                                : const Color(0xFF666666),
+                          ),
                         ),
                       ),
                     ],
@@ -9319,39 +9780,61 @@ Tunjukkan e-ticket ini di bioskop.
       ),
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(16),
-        decoration: const BoxDecoration(
-          color: Colors.white,
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
           boxShadow: [
             BoxShadow(
-                color: Colors.black12, blurRadius: 4, offset: Offset(0, -2))
+              color: Colors.black.withOpacity(isDark ? 0.3 : 0.12),
+              blurRadius: 4,
+              offset: const Offset(0, -2),
+            ),
           ],
         ),
         child: SafeArea(
           child: Row(
             children: [
-              // ✅ TOMBOL DOWNLOAD
               Expanded(
                 child: OutlinedButton.icon(
                   onPressed: () => _downloadETicket(context),
-                  icon: const Icon(Icons.download, size: 18),
-                  label: const Text('DOWNLOAD'),
+                  icon: Icon(
+                    Icons.download,
+                    size: 18,
+                    color: isDark
+                        ? const Color(0xFFFFB800)
+                        : const Color(0xFF001A4D),
+                  ),
+                  label: Text(
+                    'DOWNLOAD',
+                    style: TextStyle(
+                      color: isDark
+                          ? const Color(0xFFFFB800)
+                          : const Color(0xFF001A4D),
+                    ),
+                  ),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFF001A4D),
-                    side: const BorderSide(color: Color(0xFF001A4D), width: 2),
+                    side: BorderSide(
+                      color: isDark
+                          ? const Color(0xFFFFB800)
+                          : const Color(0xFF001A4D),
+                      width: 2,
+                    ),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
                 ),
               ),
               const SizedBox(width: 12),
-              // ✅ TOMBOL SHARE
               Expanded(
                 child: ElevatedButton.icon(
                   onPressed: () => _shareETicket(context),
                   icon: const Icon(Icons.share, size: 18, color: Colors.white),
-                  label: const Text('BAGIKAN',
-                      style: TextStyle(color: Colors.white)),
+                  label: const Text(
+                    'BAGIKAN',
+                    style: TextStyle(color: Colors.white),
+                  ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF001A4D),
+                    backgroundColor: isDark
+                        ? const Color(0xFFFFB800)
+                        : const Color(0xFF001A4D),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
                 ),
@@ -10936,14 +11419,29 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
               size: 24,
             ),
             const SizedBox(width: 8),
-            Text(title),
+            Text(
+              title,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ],
         ),
-        content: Text(message),
+        content: Text(
+          message,
+          style: const TextStyle(
+            fontWeight: FontWeight.w500,
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('OK'),
+            child: const Text(
+              'OK',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
         ],
       ),
@@ -11007,8 +11505,8 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                           'admin',
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
+                            fontSize: 32,
+                            fontWeight: FontWeight.w900,
                             color: Color(0xFF001A4D),
                             letterSpacing: 1.2,
                           ),
@@ -11019,10 +11517,10 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                     const Text(
                       'Cinema Management System',
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 13,
                         color: Color(0xFF666666),
                         letterSpacing: 1.5,
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ],
@@ -11034,8 +11532,8 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
               const Text(
                 'Login Admin',
                 style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 28,
+                  fontWeight: FontWeight.w900,
                   color: Color(0xFF001A4D),
                 ),
                 textAlign: TextAlign.center,
@@ -11047,9 +11545,10 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
               const Text(
                 'USERNAME',
                 style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.grey,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF666666),
+                  letterSpacing: 0.5,
                 ),
               ),
               const SizedBox(height: 8),
@@ -11058,8 +11557,17 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                 textInputAction: TextInputAction.next,
                 autocorrect: false,
                 enableSuggestions: false,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 15,
+                  color: Colors.black,
+                ),
                 decoration: InputDecoration(
                   hintText: 'Masukkan username admin',
+                  hintStyle: const TextStyle(
+                    fontWeight: FontWeight.w400,
+                    color: Colors.black,
+                  ),
                   prefixIcon: const Icon(Icons.admin_panel_settings,
                       color: Color(0xFFFFB800)),
                   border: OutlineInputBorder(
@@ -11089,9 +11597,10 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
               const Text(
                 'PASSWORD',
                 style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.grey,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF666666),
+                  letterSpacing: 0.5,
                 ),
               ),
               const SizedBox(height: 8),
@@ -11101,8 +11610,17 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                 textInputAction: TextInputAction.done,
                 autocorrect: false,
                 enableSuggestions: false,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 15,
+                  color: Colors.black,
+                ),
                 decoration: InputDecoration(
                   hintText: 'Masukkan Password',
+                  hintStyle: const TextStyle(
+                    fontWeight: FontWeight.w400,
+                    color: Colors.black,
+                  ),
                   prefixIcon: const Icon(Icons.lock, color: Color(0xFFFFB800)),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
@@ -11163,9 +11681,10 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                     : const Text(
                         'Login sebagai Admin',
                         style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 17,
+                          fontWeight: FontWeight.w900,
                           color: Colors.white,
+                          letterSpacing: 0.5,
                         ),
                       ),
               ),
@@ -11176,7 +11695,14 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text('Bukan admin? '),
+                  const Text(
+                    'Bukan admin? ',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 14,
+                      color: Colors.black,
+                    ),
+                  ),
                   GestureDetector(
                     onTap: () {
                       Navigator.pushReplacement(
@@ -11189,8 +11715,9 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                       'Login sebagai User',
                       style: TextStyle(
                         color: Color(0xFF001A4D),
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w900,
                         decoration: TextDecoration.underline,
+                        fontSize: 14,
                       ),
                     ),
                   ),
@@ -11218,6 +11745,7 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                 style: const TextStyle(
                   fontSize: 10,
                   color: Color(0xFF666666),
+                  fontWeight: FontWeight.w600,
                 ),
               ),
               const SizedBox(height: 2),
@@ -11250,6 +11778,7 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                 style: const TextStyle(
                   fontSize: 10,
                   color: Color(0xFF666666),
+                  fontWeight: FontWeight.w600,
                 ),
               ),
               const SizedBox(height: 2),
@@ -12895,8 +13424,10 @@ class _AdminFilmManagementTabState extends State<AdminFilmManagementTab> {
                     child: TextField(
                       controller: searchController,
                       onChanged: _searchFilms,
+                      style: const TextStyle(color: Colors.black),
                       decoration: InputDecoration(
                         hintText: 'Cari film...',
+                        hintStyle: const TextStyle(color: Colors.black54),
                         prefixIcon: const Icon(Icons.search),
                         suffixIcon: searchController.text.isNotEmpty
                             ? IconButton(
@@ -12948,6 +13479,7 @@ class _AdminFilmManagementTabState extends State<AdminFilmManagementTab> {
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 14,
+                      color: Colors.black,
                     ),
                   ),
                 ],
@@ -13120,6 +13652,7 @@ class _AdminFilmManagementTabState extends State<AdminFilmManagementTab> {
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 13,
+                    color: Colors.black,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -13252,8 +13785,13 @@ class _AdminTicketManagementTabState extends State<AdminTicketManagementTab> {
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
                 value: selectedUser,
+                style: const TextStyle(
+                  color: Colors.black, // ✅ DIUBAH KE BLACK
+                  fontSize: 14,
+                ),
                 decoration: InputDecoration(
                   labelText: 'Filter by User',
+                  labelStyle: const TextStyle(color: Colors.black),
                   prefixIcon:
                       const Icon(Icons.person, color: Color(0xFFFFB800)),
                   border: OutlineInputBorder(
@@ -13262,10 +13800,13 @@ class _AdminTicketManagementTabState extends State<AdminTicketManagementTab> {
                 ),
                 items: [
                   const DropdownMenuItem(
-                      value: 'all', child: Text('Semua User')),
+                      value: 'all',
+                      child: Text('Semua User',
+                          style: TextStyle(color: Colors.black))),
                   ...users.map((user) => DropdownMenuItem(
                         value: user,
-                        child: Text(user),
+                        child: Text(user,
+                            style: const TextStyle(color: Colors.black)),
                       )),
                 ],
                 onChanged: (value) {
@@ -13285,6 +13826,7 @@ class _AdminTicketManagementTabState extends State<AdminTicketManagementTab> {
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 14,
+                      color: Colors.black,
                     ),
                   ),
                 ],
@@ -13430,7 +13972,7 @@ class _AdminTicketManagementTabState extends State<AdminTicketManagementTab> {
                     style: TextStyle(
                       color: ticket.status == 'active'
                           ? Colors.white
-                          : Colors.grey.shade700,
+                          : Colors.black,
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
                     ),
@@ -13470,6 +14012,7 @@ class _AdminTicketManagementTabState extends State<AdminTicketManagementTab> {
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
+                          color: Colors.black,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -13478,13 +14021,13 @@ class _AdminTicketManagementTabState extends State<AdminTicketManagementTab> {
                       Row(
                         children: [
                           const Icon(Icons.location_on,
-                              size: 12, color: Color(0xFF666666)),
+                              size: 12, color: Colors.black54),
                           const SizedBox(width: 4),
                           Expanded(
                             child: Text(
                               ticket.cinema,
                               style: const TextStyle(
-                                  fontSize: 11, color: Color(0xFF666666)),
+                                  fontSize: 11, color: Colors.black54),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -13495,12 +14038,16 @@ class _AdminTicketManagementTabState extends State<AdminTicketManagementTab> {
                       Row(
                         children: [
                           const Icon(Icons.calendar_today,
-                              size: 12, color: Color(0xFF666666)),
+                              size: 12, color: Colors.black54),
                           const SizedBox(width: 4),
                           Text(
                             '${ticket.date}, ${ticket.time}',
                             style: const TextStyle(
-                                fontSize: 12, fontWeight: FontWeight.bold),
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: Colors
+                                  .black, // ✅ color harus di dalam TextStyle
+                            ),
                           ),
                         ],
                       ),
@@ -13831,6 +14378,7 @@ class _AdminProfileTabState extends State<AdminProfileTab> {
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
+                            color: Colors.black,
                           ),
                         ),
                       ],
@@ -13884,6 +14432,7 @@ class _AdminProfileTabState extends State<AdminProfileTab> {
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
+                            color: Colors.black,
                           ),
                         ),
                       ],
@@ -14095,6 +14644,7 @@ class _AdminChatManagementTabState extends State<AdminChatManagementTab> {
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 18,
+                            color: Colors.black,
                           ),
                         ),
                         Text(
@@ -14239,6 +14789,7 @@ class _AdminChatManagementTabState extends State<AdminChatManagementTab> {
                       ? FontWeight.bold
                       : FontWeight.w600,
                   fontSize: 15,
+                  color: Colors.black,
                 ),
               ),
             ),
@@ -14279,7 +14830,7 @@ class _AdminChatManagementTabState extends State<AdminChatManagementTab> {
                     lastMessage?.text ?? 'Belum ada pesan',
                     style: TextStyle(
                       fontSize: 13,
-                      color: Colors.grey.shade700,
+                      color: Colors.black,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -14292,7 +14843,7 @@ class _AdminChatManagementTabState extends State<AdminChatManagementTab> {
               _formatTime(conversation.lastMessageTime),
               style: TextStyle(
                 fontSize: 11,
-                color: Colors.grey.shade500,
+                color: Colors.black,
               ),
             ),
           ],
@@ -14522,14 +15073,14 @@ class _AdminChatDetailPageState extends State<AdminChatDetailPage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(Icons.chat_bubble_outline,
-                            size: 80, color: Colors.grey.shade300),
+                            size: 80, color: Colors.black),
                         const SizedBox(height: 16),
                         Text(
                           'Belum ada pesan',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: Colors.grey.shade600,
+                            color: Colors.black,
                           ),
                         ),
                       ],
@@ -16709,7 +17260,7 @@ class _ChatCSPageState extends State<ChatCSPage> {
                   Text(
                     'Admin',
                     style: TextStyle(
-                      color: Colors.grey.shade700,
+                      color: Colors.black,
                       fontSize: 11,
                       fontWeight: FontWeight.bold,
                     ),
@@ -16732,9 +17283,7 @@ class _ChatCSPageState extends State<ChatCSPage> {
                 Text(
                   _formatTime(message.timestamp),
                   style: TextStyle(
-                    color: message.isFromUser
-                        ? Colors.white70
-                        : Colors.grey.shade500,
+                    color: message.isFromUser ? Colors.white70 : Colors.black,
                     fontSize: 10,
                   ),
                 ),
