@@ -23,6 +23,8 @@ dependencies:
   collection: ^1.18.0
   shared_preferences: ^2.2.3  # TAMBAHKAN INI
   local_auth: ^2.1.8  
+  shimmer: ^3.0.0
+  
 
 dev_dependencies:
   flutter_test:
