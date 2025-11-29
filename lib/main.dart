@@ -333,7 +333,7 @@ class _SecurityVerificationPageState extends State<SecurityVerificationPage> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: const Color(0xFFFFB800).withValues(alpha: 0.1),
+                color: const Color(0xFFFFB800).withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
@@ -1235,7 +1235,7 @@ class _WatchlistPageState extends State<WatchlistPage> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Colors.red.withValues(alpha: 0.1),
+                    color: Colors.red.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(color: Colors.red),
                   ),
@@ -1345,7 +1345,7 @@ class _WatchlistPageState extends State<WatchlistPage> {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.1),
+              color: Colors.black.withOpacity(isDark ? 0.3 : 0.1),
               blurRadius: 8,
               offset: const Offset(0, 4),
             ),
@@ -1416,7 +1416,7 @@ class _WatchlistPageState extends State<WatchlistPage> {
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.3),
+                              color: Colors.black.withOpacity(0.3),
                               blurRadius: 4,
                             ),
                           ],
@@ -1464,7 +1464,7 @@ class _WatchlistPageState extends State<WatchlistPage> {
                       color: (isDark
                               ? const Color(0xFFFFB800)
                               : const Color(0xFF001A4D))
-                          .withValues(alpha: 0.1),
+                          .withOpacity(0.1),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
@@ -1661,6 +1661,7 @@ class ChatService {
   static Function(String userId)? onNewMessageForUser;
 
   // User kirim pesan
+  // User kirim pesan (DI DALAM CLASS ChatService)
   static void sendMessageFromUser({
     required String userId,
     required String userName,
@@ -1678,11 +1679,10 @@ class ChatService {
       );
     }
 
-    // Baris 1268-1274
     final newMessage = ChatMessageData(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       text: message,
-      isFromUser: true, // ✅ User yang mengirim
+      isFromUser: true,
       timestamp: DateTime.now(),
       isRead: false,
     );
@@ -1703,7 +1703,6 @@ class ChatService {
       },
     );
 
-    // Trigger callback
     if (onNewMessageForAdmin != null) {
       onNewMessageForAdmin!(userId);
     }
@@ -1717,6 +1716,17 @@ class ChatService {
     print('Time: ${DateTime.now()}');
     print('═══════════════════════════════════════');
     print('');
+
+    // ✅ AUTO REPLY DARI ADMIN
+    Future.delayed(const Duration(seconds: 1), () {
+      final autoReply = AutoReplyService.getAutoReply(message);
+      if (autoReply != null) {
+        sendMessageFromAdmin(
+          userId: userId,
+          message: autoReply,
+        );
+      }
+    });
   }
 
   // Admin kirim pesan
@@ -1870,13 +1880,13 @@ class OverlayNotificationManager {
                 gradient: LinearGradient(
                   colors: [
                     const Color(0xFFFFB800),
-                    const Color(0xFFFFB800).withValues(alpha: 0.9),
+                    const Color(0xFFFFB800).withOpacity(0.9),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.3),
+                    color: Colors.black.withOpacity(0.3),
                     blurRadius: 20,
                     offset: const Offset(0, 10),
                     spreadRadius: 2,
@@ -1888,7 +1898,7 @@ class OverlayNotificationManager {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.3),
+                      color: Colors.white.withOpacity(0.3),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
@@ -1937,7 +1947,7 @@ class OverlayNotificationManager {
                         Text(
                           notification.message,
                           style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.9),
+                            color: Colors.white.withOpacity(0.9),
                             fontSize: 12,
                           ),
                           maxLines: 2,
@@ -1952,7 +1962,7 @@ class OverlayNotificationManager {
                     child: Container(
                       padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.3),
+                        color: Colors.white.withOpacity(0.3),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
@@ -2073,8 +2083,7 @@ class _LoginPageState extends State<LoginPage> {
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color:
-                          Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
+                      color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -2097,7 +2106,7 @@ class _LoginPageState extends State<LoginPage> {
                                 color: (isDark
                                         ? const Color(0xFFFFB800)
                                         : const Color(0xfffcfdfe))
-                                    .withValues(alpha: 0.3),
+                                    .withOpacity(0.3),
                                 blurRadius: 8,
                                 offset: const Offset(0, 4),
                               ),
@@ -2327,8 +2336,8 @@ class _LoginPageState extends State<LoginPage> {
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      const Color(0xFFFFB800).withValues(alpha: 0.1),
-                      const Color(0xFFFFB800).withValues(alpha: 0.05),
+                      const Color(0xFFFFB800).withOpacity(0.1),
+                      const Color(0xFFFFB800).withOpacity(0.05),
                     ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
@@ -4726,7 +4735,7 @@ class _AllFilmsPageState extends State<AllFilmsPage> {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.1),
+              color: Colors.black.withOpacity(isDark ? 0.3 : 0.1),
               blurRadius: 8,
               offset: const Offset(0, 4),
             ),
@@ -4823,7 +4832,7 @@ class _AllFilmsPageState extends State<AllFilmsPage> {
                       color: (isDark
                               ? const Color(0xFFFFB800)
                               : const Color(0xFF001A4D))
-                          .withValues(alpha: 0.1),
+                          .withOpacity(0.1),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
@@ -4870,13 +4879,13 @@ class _Film3DCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.25),
+              color: Colors.black.withOpacity(0.25),
               blurRadius: 20,
               offset: const Offset(0, 10),
               spreadRadius: 2,
             ),
             BoxShadow(
-              color: const Color(0xFF001A4D).withValues(alpha: 0.1),
+              color: const Color(0xFF001A4D).withOpacity(0.1),
               blurRadius: 30,
               offset: const Offset(0, 15),
             ),
@@ -4907,7 +4916,7 @@ class _Film3DCard extends StatelessWidget {
                     end: Alignment.bottomCenter,
                     colors: [
                       Colors.transparent,
-                      Colors.black.withValues(alpha: 0.7),
+                      Colors.black.withOpacity(0.7),
                     ],
                     stops: const [0.5, 1.0],
                   ),
@@ -4968,10 +4977,10 @@ class _Film3DCard extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.2),
+                          color: Colors.white.withOpacity(0.2),
                           borderRadius: BorderRadius.circular(4),
-                          border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.5)),
+                          border:
+                              Border.all(color: Colors.white.withOpacity(0.5)),
                         ),
                         child: Text(
                           film.ageRating,
@@ -4990,7 +4999,7 @@ class _Film3DCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: 12,
-                        color: Colors.white.withValues(alpha: 0.9),
+                        color: Colors.white.withOpacity(0.9),
                       ),
                     ),
                   ],
@@ -5242,7 +5251,7 @@ class _FilmDetailPageState extends State<FilmDetailPage>
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.3),
+                          color: Colors.black.withOpacity(0.3),
                           blurRadius: 8,
                           spreadRadius: 2,
                         ),
@@ -5290,8 +5299,8 @@ class _FilmDetailPageState extends State<FilmDetailPage>
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                           colors: [
-                            Colors.black.withValues(alpha: 0.3),
-                            Colors.black.withValues(alpha: 0.7),
+                            Colors.black.withOpacity(0.3),
+                            Colors.black.withOpacity(0.7),
                           ],
                         ),
                       ),
@@ -5309,7 +5318,7 @@ class _FilmDetailPageState extends State<FilmDetailPage>
                             border: Border.all(color: Colors.white, width: 3),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.3),
+                                color: Colors.black.withOpacity(0.3),
                                 blurRadius: 10,
                                 spreadRadius: 2,
                               ),
@@ -5718,7 +5727,7 @@ class _FilmDetailPageState extends State<FilmDetailPage>
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
+              color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
               blurRadius: 10,
               offset: const Offset(0, 2)),
         ],
@@ -6431,7 +6440,7 @@ class _SeatSelectionPageWithAPIState extends State<SeatSelectionPageWithAPI> {
               color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.1),
+                  color: Colors.black.withOpacity(isDark ? 0.3 : 0.1),
                   blurRadius: 8,
                   offset: const Offset(0, -2),
                 ),
@@ -6726,7 +6735,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
       body: Column(
         children: [
           Container(
-            color: Colors.red.withValues(alpha: 0.1),
+            color: Colors.red.withOpacity(0.1),
             padding: const EdgeInsets.all(12),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -6764,7 +6773,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
           color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
           boxShadow: [
             BoxShadow(
-                color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.12),
+                color: Colors.black.withOpacity(isDark ? 0.3 : 0.12),
                 blurRadius: 4,
                 offset: const Offset(0, -2))
           ],
@@ -6829,7 +6838,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
+              color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
               blurRadius: 8,
               offset: const Offset(0, 2))
         ],
@@ -6883,7 +6892,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         color: (isDark
                                 ? const Color(0xFFFFB800)
                                 : const Color(0xFF001A4D))
-                            .withValues(alpha: 0.1),
+                            .withOpacity(0.1),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
@@ -6956,7 +6965,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
+              color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
               blurRadius: 8,
               offset: const Offset(0, 2))
         ],
@@ -7076,7 +7085,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
+              color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
               blurRadius: 8,
               offset: const Offset(0, 2))
         ],
@@ -7336,7 +7345,7 @@ class _PaymentConfirmPageState extends State<PaymentConfirmPage> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.green.withValues(alpha: 0.1),
+                color: Colors.green.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
@@ -7568,7 +7577,7 @@ class _PaymentConfirmPageState extends State<PaymentConfirmPage> {
         body: ListView(
           children: [
             Container(
-              color: Colors.red.withValues(alpha: 0.1),
+              color: Colors.red.withOpacity(0.1),
               padding: const EdgeInsets.all(12),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -7596,8 +7605,8 @@ class _PaymentConfirmPageState extends State<PaymentConfirmPage> {
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
-                            color: Colors.black
-                                .withValues(alpha: isDark ? 0.3 : 0.05),
+                            color:
+                                Colors.black.withOpacity(isDark ? 0.3 : 0.05),
                             blurRadius: 8)
                       ],
                     ),
@@ -7699,8 +7708,8 @@ class _PaymentConfirmPageState extends State<PaymentConfirmPage> {
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
-                            color: Colors.black
-                                .withValues(alpha: isDark ? 0.3 : 0.05),
+                            color:
+                                Colors.black.withOpacity(isDark ? 0.3 : 0.05),
                             blurRadius: 8)
                       ],
                     ),
@@ -8130,7 +8139,7 @@ class _TicketSuccessPageState extends State<TicketSuccessPage> {
       body: ListView(
         children: [
           Container(
-            color: Colors.green.withValues(alpha: 0.1),
+            color: Colors.green.withOpacity(0.1),
             padding: const EdgeInsets.all(16),
             child: const Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -8416,7 +8425,7 @@ class _TicketSuccessPageState extends State<TicketSuccessPage> {
           color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.12),
+              color: Colors.black.withOpacity(isDark ? 0.3 : 0.12),
               blurRadius: 4,
               offset: const Offset(0, -2),
             ),
@@ -8694,7 +8703,7 @@ class _TicketHistoryPageState extends State<TicketHistoryPage>
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
+            color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -8820,7 +8829,7 @@ class _TicketHistoryPageState extends State<TicketHistoryPage>
                               color: (isDark
                                       ? const Color(0xFFFFB800)
                                       : const Color(0xFF001A4D))
-                                  .withValues(alpha: 0.1),
+                                  .withOpacity(0.1),
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(
@@ -10224,8 +10233,8 @@ class _ProfilePageState extends State<ProfilePage> {
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
-                          Colors.black.withValues(alpha: 0.3),
-                          Colors.black.withValues(alpha: 0.7)
+                          Colors.black.withOpacity(0.3),
+                          Colors.black.withOpacity(0.7)
                         ],
                       ),
                     ),
@@ -10235,7 +10244,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     right: 16,
                     child: Container(
                       decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.3),
+                        color: Colors.black.withOpacity(0.3),
                         shape: BoxShape.circle,
                       ),
                       child: IconButton(
@@ -10269,7 +10278,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                   width: 4),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.2),
+                                  color: Colors.black.withOpacity(0.2),
                                   blurRadius: 10,
                                   offset: const Offset(0, 5),
                                 ),
@@ -10378,7 +10387,7 @@ class _ProfilePageState extends State<ProfilePage> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
+              color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
               blurRadius: 8,
               offset: const Offset(0, 2))
         ],
@@ -10468,7 +10477,7 @@ class _ProfilePageState extends State<ProfilePage> {
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
           color: (isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D))
-              .withValues(alpha: 0.1),
+              .withOpacity(0.1),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Icon(icon,
@@ -10502,7 +10511,7 @@ class _ProfilePageState extends State<ProfilePage> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
+              color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
               blurRadius: 8,
               offset: const Offset(0, 2))
         ],
@@ -10579,7 +10588,7 @@ class _ProfilePageState extends State<ProfilePage> {
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
           color: (isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D))
-              .withValues(alpha: 0.1),
+              .withOpacity(0.1),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Icon(icon,
@@ -10953,12 +10962,12 @@ class _NotificationPageState extends State<NotificationPage> {
                   ? (isDark ? Colors.grey.shade800 : const Color(0xFFDDDDDD))
                   : (isDark
                       ? const Color(0xFFFFB800)
-                      : const Color(0xFF0066CC).withValues(alpha: 0.3)),
+                      : const Color(0xFF0066CC).withOpacity(0.3)),
               width: notification.isRead ? 1 : 2,
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
+                color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -10972,7 +10981,7 @@ class _NotificationPageState extends State<NotificationPage> {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: typeColor.withValues(alpha: 0.1),
+                    color: typeColor.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(typeIcon, color: typeColor, size: 24),
@@ -11176,7 +11185,7 @@ class IconTestPage extends StatelessWidget {
         leading: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: const Color(0xFF001A4D).withValues(alpha: 0.1),
+            color: const Color(0xFF001A4D).withOpacity(0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(icon, color: const Color(0xFF001A4D), size: 24),
@@ -11469,7 +11478,7 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                   border: Border.all(color: const Color(0xFFFFB800), width: 2),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
+                      color: Colors.black.withOpacity(0.05),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -11487,8 +11496,7 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                             borderRadius: BorderRadius.circular(12),
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xFFFFB800)
-                                    .withValues(alpha: 0.3),
+                                color: const Color(0xFFFFB800).withOpacity(0.3),
                                 blurRadius: 8,
                                 offset: const Offset(0, 4),
                               ),
@@ -12125,13 +12133,13 @@ class AdminOverviewTab extends StatelessWidget {
             gradient: LinearGradient(
               colors: [
                 const Color(0xFFFFB800),
-                const Color(0xFFFFB800).withValues(alpha: 0.7),
+                const Color(0xFFFFB800).withOpacity(0.7),
               ],
             ),
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFFFFB800).withValues(alpha: 0.3),
+                color: const Color(0xFFFFB800).withOpacity(0.3),
                 blurRadius: 15,
                 offset: const Offset(0, 5),
               ),
@@ -12142,7 +12150,7 @@ class AdminOverviewTab extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
+                  color: Colors.white.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(
@@ -12179,7 +12187,7 @@ class AdminOverviewTab extends StatelessWidget {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.2),
+                        color: Colors.white.withOpacity(0.2),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Row(
@@ -12257,7 +12265,7 @@ class AdminOverviewTab extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
+                color: Colors.black.withOpacity(0.05),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -12271,7 +12279,7 @@ class AdminOverviewTab extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFFB800).withValues(alpha: 0.1),
+                      color: const Color(0xFFFFB800).withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Icon(
@@ -12326,7 +12334,7 @@ class AdminOverviewTab extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
+                color: Colors.black.withOpacity(0.05),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -12340,7 +12348,7 @@ class AdminOverviewTab extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Colors.green.withValues(alpha: 0.1),
+                      color: Colors.green.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Icon(
@@ -12375,7 +12383,7 @@ class AdminOverviewTab extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
+                color: Colors.black.withOpacity(0.05),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -12392,7 +12400,7 @@ class AdminOverviewTab extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: Colors.blue.withValues(alpha: 0.1),
+                          color: Colors.blue.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: const Icon(
@@ -12465,7 +12473,7 @@ class AdminOverviewTab extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withOpacity(0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -12481,7 +12489,7 @@ class AdminOverviewTab extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
+                  color: color.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(icon, color: color, size: 24),
@@ -12491,7 +12499,7 @@ class AdminOverviewTab extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Colors.green.withValues(alpha: 0.1),
+                    color: Colors.green.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
@@ -12565,7 +12573,7 @@ class AdminOverviewTab extends StatelessWidget {
             Container(
               height: 8,
               decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
+                color: color.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
@@ -12629,7 +12637,7 @@ class AdminOverviewTab extends StatelessWidget {
                   Container(
                     height: 24,
                     decoration: BoxDecoration(
-                      color: Colors.green.withValues(alpha: 0.1),
+                      color: Colors.green.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
@@ -12673,8 +12681,8 @@ class AdminOverviewTab extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
           color: ticket.status == 'active'
-              ? Colors.green.withValues(alpha: 0.3)
-              : Colors.grey.withValues(alpha: 0.3),
+              ? Colors.green.withOpacity(0.3)
+              : Colors.grey.withOpacity(0.3),
         ),
       ),
       child: Row(
@@ -12785,7 +12793,7 @@ class AdminOverviewTab extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withOpacity(0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -12802,7 +12810,7 @@ class AdminOverviewTab extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFFB800).withValues(alpha: 0.1),
+                      color: const Color(0xFFFFB800).withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Icon(
@@ -12825,7 +12833,7 @@ class AdminOverviewTab extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFFB800).withValues(alpha: 0.1),
+                  color: const Color(0xFFFFB800).withOpacity(0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
@@ -12896,14 +12904,13 @@ class AdminOverviewTab extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: rank <= 3
-              ? [rankColor.withValues(alpha: 0.1), Colors.white]
+              ? [rankColor.withOpacity(0.1), Colors.white]
               : [const Color(0xFFF5F5F5), const Color(0xFFF5F5F5)],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: rank <= 3
-              ? rankColor.withValues(alpha: 0.3)
-              : const Color(0xFFEEEEEE),
+          color:
+              rank <= 3 ? rankColor.withOpacity(0.3) : const Color(0xFFEEEEEE),
           width: rank <= 3 ? 2 : 1,
         ),
       ),
@@ -12915,13 +12922,13 @@ class AdminOverviewTab extends StatelessWidget {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: rank <= 3
-                    ? [rankColor, rankColor.withValues(alpha: 0.7)]
+                    ? [rankColor, rankColor.withOpacity(0.7)]
                     : [const Color(0xFF001A4D), const Color(0xFF0066CC)],
               ),
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: rankColor.withValues(alpha: 0.3),
+                  color: rankColor.withOpacity(0.3),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -12980,10 +12987,10 @@ class AdminOverviewTab extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             decoration: BoxDecoration(
-              color: const Color(0xFF0066CC).withValues(alpha: 0.1),
+              color: const Color(0xFF0066CC).withOpacity(0.1),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: const Color(0xFF0066CC).withValues(alpha: 0.3),
+                color: const Color(0xFF0066CC).withOpacity(0.3),
               ),
             ),
             child: Row(
@@ -13533,7 +13540,7 @@ class _AdminFilmManagementTabState extends State<AdminFilmManagementTab> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
+            color: Colors.black.withOpacity(0.1),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -13606,7 +13613,7 @@ class _AdminFilmManagementTabState extends State<AdminFilmManagementTab> {
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.3),
+                                color: Colors.black.withOpacity(0.3),
                                 blurRadius: 4,
                               ),
                             ],
@@ -13625,7 +13632,7 @@ class _AdminFilmManagementTabState extends State<AdminFilmManagementTab> {
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.3),
+                                color: Colors.black.withOpacity(0.3),
                                 blurRadius: 4,
                               ),
                             ],
@@ -13670,7 +13677,7 @@ class _AdminFilmManagementTabState extends State<AdminFilmManagementTab> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF001A4D).withValues(alpha: 0.1),
+                    color: const Color(0xFF001A4D).withOpacity(0.1),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
@@ -13916,7 +13923,7 @@ class _AdminTicketManagementTabState extends State<AdminTicketManagementTab> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withOpacity(0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -13963,7 +13970,7 @@ class _AdminTicketManagementTabState extends State<AdminTicketManagementTab> {
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: ticket.status == 'active'
-                        ? Colors.white.withValues(alpha: 0.2)
+                        ? Colors.white.withOpacity(0.2)
                         : Colors.grey.shade400,
                     borderRadius: BorderRadius.circular(4),
                   ),
@@ -14247,7 +14254,7 @@ class _AdminProfileTabState extends State<AdminProfileTab> {
             gradient: LinearGradient(
               colors: [
                 const Color(0xFFFFB800),
-                const Color(0xFFFFB800).withValues(alpha: 0.7),
+                const Color(0xFFFFB800).withOpacity(0.7),
               ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -14264,7 +14271,7 @@ class _AdminProfileTabState extends State<AdminProfileTab> {
                       border: Border.all(color: Colors.white, width: 4),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.2),
+                          color: Colors.black.withOpacity(0.2),
                           blurRadius: 10,
                           offset: const Offset(0, 5),
                         ),
@@ -14324,7 +14331,7 @@ class _AdminProfileTabState extends State<AdminProfileTab> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
+                  color: Colors.white.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(
@@ -14359,7 +14366,7 @@ class _AdminProfileTabState extends State<AdminProfileTab> {
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
+                      color: Colors.black.withOpacity(0.05),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -14413,7 +14420,7 @@ class _AdminProfileTabState extends State<AdminProfileTab> {
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
+                      color: Colors.black.withOpacity(0.05),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -14512,7 +14519,7 @@ class _AdminProfileTabState extends State<AdminProfileTab> {
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: const Color(0xFFFFB800).withValues(alpha: 0.1),
+            color: const Color(0xFFFFB800).withOpacity(0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(icon, color: const Color(0xFFFFB800), size: 20),
@@ -14545,7 +14552,7 @@ class _AdminProfileTabState extends State<AdminProfileTab> {
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: const Color(0xFFFFB800).withValues(alpha: 0.1),
+            color: const Color(0xFFFFB800).withOpacity(0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(icon, color: const Color(0xFFFFB800), size: 20),
@@ -14736,7 +14743,7 @@ class _AdminChatManagementTabState extends State<AdminChatManagementTab> {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withOpacity(0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -14750,7 +14757,7 @@ class _AdminChatManagementTabState extends State<AdminChatManagementTab> {
               width: 50,
               height: 50,
               decoration: BoxDecoration(
-                color: const Color(0xFF001A4D).withValues(alpha: 0.1),
+                color: const Color(0xFF001A4D).withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
               child: Center(
@@ -14796,7 +14803,7 @@ class _AdminChatManagementTabState extends State<AdminChatManagementTab> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: const Color(0xFFFFB800).withValues(alpha: 0.1),
+                color: const Color(0xFFFFB800).withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: const Color(0xFFFFB800)),
               ),
@@ -15123,7 +15130,7 @@ class _AdminChatDetailPageState extends State<AdminChatDetailPage> {
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
+                  color: Colors.black.withOpacity(0.05),
                   blurRadius: 8,
                   offset: const Offset(0, -2),
                 ),
@@ -15135,8 +15142,10 @@ class _AdminChatDetailPageState extends State<AdminChatDetailPage> {
                   Expanded(
                     child: TextField(
                       controller: _messageController,
+                      style: const TextStyle(color: Colors.black),
                       decoration: InputDecoration(
                         hintText: 'Ketik balasan...',
+                        hintStyle: const TextStyle(color: Colors.black),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(25),
                           borderSide:
@@ -15197,7 +15206,7 @@ class _AdminChatDetailPageState extends State<AdminChatDetailPage> {
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
+              color: Colors.black.withOpacity(0.05),
               blurRadius: 4,
               offset: const Offset(0, 2),
             ),
@@ -15225,7 +15234,7 @@ class _AdminChatDetailPageState extends State<AdminChatDetailPage> {
             Text(
               message.text,
               style: TextStyle(
-                color: message.isFromUser ? Colors.black87 : Colors.white,
+                color: message.isFromUser ? Colors.black : Colors.black,
                 fontSize: 14,
                 height: 1.4,
               ),
@@ -15267,7 +15276,7 @@ class _AdminChatDetailPageState extends State<AdminChatDetailPage> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: const Color(0xFFFFB800).withValues(alpha: 0.1),
+          color: const Color(0xFFFFB800).withOpacity(0.1),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: const Color(0xFFFFB800)),
         ),
@@ -15685,12 +15694,12 @@ class _AdminNotificationPageState extends State<AdminNotificationPage> {
             border: Border.all(
               color: notification.isRead
                   ? const Color(0xFFDDDDDD)
-                  : Colors.orange.withValues(alpha: 0.3),
+                  : Colors.orange.withOpacity(0.3),
               width: notification.isRead ? 1 : 2,
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
+                color: Colors.black.withOpacity(0.05),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -15704,7 +15713,7 @@ class _AdminNotificationPageState extends State<AdminNotificationPage> {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: typeColor.withValues(alpha: 0.1),
+                    color: typeColor.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(typeIcon, color: typeColor, size: 24),
@@ -16065,7 +16074,7 @@ class _SettingsPageState extends State<SettingsPage> {
               trailing: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.green.withValues(alpha: 0.1),
+                  color: Colors.green.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: Colors.green),
                 ),
@@ -16109,7 +16118,7 @@ class _SettingsPageState extends State<SettingsPage> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.12),
+            color: Colors.black.withOpacity(isDark ? 0.3 : 0.12),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -16747,7 +16756,7 @@ class HelpPage extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
+            color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -16764,7 +16773,7 @@ class HelpPage extends StatelessWidget {
             decoration: BoxDecoration(
               color:
                   (isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D))
-                      .withValues(alpha: 0.1),
+                      .withOpacity(0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(icon,
@@ -16809,18 +16818,18 @@ class HelpPage extends StatelessWidget {
           colors: isDark
               ? [
                   const Color(0xFFFFB800),
-                  const Color(0xFFFFB800).withValues(alpha: 0.7),
+                  const Color(0xFFFFB800).withOpacity(0.7),
                 ]
               : [
                   const Color(0xFF001A4D),
-                  const Color(0xFF0066CC).withValues(alpha: 0.8),
+                  const Color(0xFF0066CC).withOpacity(0.8),
                 ],
         ),
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
             color: (isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D))
-                .withValues(alpha: 0.3),
+                .withOpacity(0.3),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -16888,7 +16897,7 @@ class HelpPage extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
+              color: Colors.white.withOpacity(0.2),
               shape: BoxShape.circle,
             ),
             child: Icon(icon, color: Colors.white, size: 24),
@@ -16953,6 +16962,8 @@ class HelpPage extends StatelessWidget {
 }
 // ==================== CHAT CS PAGE (UPDATED) ====================
 
+// ==================== CHAT CS PAGE (UPDATED WITH QUICK BUBBLES) ====================
+
 class ChatCSPage extends StatefulWidget {
   const ChatCSPage({Key? key}) : super(key: key);
 
@@ -16966,13 +16977,46 @@ class _ChatCSPageState extends State<ChatCSPage> {
   ChatConversation? _conversation;
   Timer? _refreshTimer;
 
+  // Quick reply bubbles
+  final List<Map<String, dynamic>> quickReplies = [
+    {
+      'icon': Icons.movie,
+      'label': 'Film Tayang',
+      'message': 'Film apa saja yang sedang tayang?'
+    },
+    {
+      'icon': Icons.event_seat,
+      'label': 'Kursi Tersedia',
+      'message': 'Apakah masih ada kursi tersedia untuk film [nama film]?'
+    },
+    {
+      'icon': Icons.schedule,
+      'label': 'Jadwal Film',
+      'message': 'Kapan jadwal tayang film [nama film]?'
+    },
+    {
+      'icon': Icons.location_on,
+      'label': 'Lokasi Bioskop',
+      'message': 'Dimana saja lokasi bioskop CINEMA 1?'
+    },
+    {
+      'icon': Icons.payment,
+      'label': 'Cara Bayar',
+      'message': 'Bagaimana cara pembayaran tiket?'
+    },
+    {
+      'icon': Icons.help,
+      'label': 'Bantuan Lain',
+      'message': 'Saya butuh bantuan untuk masalah lain'
+    },
+  ];
+
   @override
   void initState() {
     super.initState();
     _loadConversation();
     _startAutoRefresh();
 
-    // Setup callback untuk notifikasi pesan baru
     ChatService.onNewMessageForUser = (userId) {
       if (userId == AuthService.getCurrentUsername() && mounted) {
         _loadConversation();
@@ -17022,6 +17066,22 @@ class _ChatCSPageState extends State<ChatCSPage> {
     _scrollToBottom();
   }
 
+  void _sendQuickMessage(String message) {
+    final userId = AuthService.getCurrentUsername();
+    final userProfile = AuthService.getCurrentUserProfile();
+
+    if (userId == null || userProfile == null) return;
+
+    ChatService.sendMessageFromUser(
+      userId: userId,
+      userName: userProfile.name,
+      message: message,
+    );
+
+    _loadConversation();
+    _scrollToBottom();
+  }
+
   void _scrollToBottom() {
     Future.delayed(const Duration(milliseconds: 100), () {
       if (_scrollController.hasClients) {
@@ -17036,12 +17096,15 @@ class _ChatCSPageState extends State<ChatCSPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final messages = _conversation?.messages ?? [];
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
+      backgroundColor:
+          isDark ? const Color(0xFF121212) : const Color(0xFFF5F5F5),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF001A4D),
+        backgroundColor:
+            isDark ? const Color(0xFF1E1E1E) : const Color(0xFF001A4D),
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
@@ -17055,11 +17118,17 @@ class _ChatCSPageState extends State<ChatCSPage> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 shape: BoxShape.circle,
-                border: Border.all(color: const Color(0xFFFFB800), width: 2),
+                border: Border.all(
+                  color: isDark
+                      ? const Color(0xFFFFB800)
+                      : const Color(0xFFFFB800),
+                  width: 2,
+                ),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.support_agent,
-                color: Color(0xFF001A4D),
+                color:
+                    isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D),
                 size: 22,
               ),
             ),
@@ -17130,23 +17199,42 @@ class _ChatCSPageState extends State<ChatCSPage> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.chat_bubble_outline,
-                            size: 80, color: Colors.grey.shade300),
+                        Icon(
+                          Icons.chat_bubble_outline,
+                          size: 80,
+                          color: isDark
+                              ? Colors.grey.shade700
+                              : Colors.grey.shade300,
+                        ),
                         const SizedBox(height: 16),
                         Text(
                           'Belum ada percakapan',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: Colors.grey.shade600,
+                            color: isDark
+                                ? Colors.grey.shade400
+                                : Colors.grey.shade600,
                           ),
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Kirim pesan untuk memulai chat dengan admin',
+                          'Pilih topik di bawah atau kirim pesan',
                           style: TextStyle(
-                              fontSize: 13, color: Colors.grey.shade500),
+                            fontSize: 13,
+                            color: isDark
+                                ? Colors.grey.shade500
+                                : Colors.grey.shade500,
+                          ),
                           textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 24),
+                        Icon(
+                          Icons.arrow_downward,
+                          size: 30,
+                          color: isDark
+                              ? const Color(0xFFFFB800)
+                              : const Color(0xFFFFB800),
                         ),
                       ],
                     ),
@@ -17156,19 +17244,77 @@ class _ChatCSPageState extends State<ChatCSPage> {
                     padding: const EdgeInsets.all(16),
                     itemCount: messages.length,
                     itemBuilder: (context, index) {
-                      return _buildMessageBubble(messages[index]);
+                      return _buildMessageBubble(messages[index], isDark);
                     },
                   ),
+          ),
+
+          // Quick Reply Bubbles
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+                  blurRadius: 4,
+                  offset: const Offset(0, -1),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      Icons.lightbulb_outline,
+                      size: 16,
+                      color:
+                          isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      'Pertanyaan Cepat',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: isDark
+                            ? Colors.grey.shade400
+                            : Colors.grey.shade600,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                SizedBox(
+                  height: 45,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: quickReplies.length,
+                    itemBuilder: (context, index) {
+                      final item = quickReplies[index];
+                      return _buildQuickReplyBubble(
+                        icon: item['icon'],
+                        label: item['label'],
+                        onTap: () => _sendQuickMessage(item['message']),
+                        isDark: isDark,
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
 
           // Input Area
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
+                  color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
                   blurRadius: 8,
                   offset: const Offset(0, -2),
                 ),
@@ -17180,15 +17326,44 @@ class _ChatCSPageState extends State<ChatCSPage> {
                   Expanded(
                     child: TextField(
                       controller: _messageController,
+                      style: TextStyle(
+                          color: isDark ? Colors.white : Colors.black),
                       decoration: InputDecoration(
                         hintText: 'Ketik pesan...',
+                        hintStyle: TextStyle(
+                          color: isDark
+                              ? Colors.grey.shade600
+                              : Colors.grey.shade400,
+                        ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(25),
-                          borderSide:
-                              const BorderSide(color: Color(0xFFDDDDDD)),
+                          borderSide: BorderSide(
+                            color: isDark
+                                ? Colors.grey.shade800
+                                : const Color(0xFFDDDDDD),
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25),
+                          borderSide: BorderSide(
+                            color: isDark
+                                ? Colors.grey.shade800
+                                : const Color(0xFFDDDDDD),
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25),
+                          borderSide: BorderSide(
+                            color: isDark
+                                ? const Color(0xFFFFB800)
+                                : const Color(0xFF001A4D),
+                            width: 2,
+                          ),
                         ),
                         filled: true,
-                        fillColor: const Color(0xFFF5F5F5),
+                        fillColor: isDark
+                            ? const Color(0xFF2A2A2A)
+                            : const Color(0xFFF5F5F5),
                         contentPadding: const EdgeInsets.symmetric(
                           horizontal: 20,
                           vertical: 12,
@@ -17199,8 +17374,10 @@ class _ChatCSPageState extends State<ChatCSPage> {
                   ),
                   const SizedBox(width: 8),
                   Container(
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF001A4D),
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? const Color(0xFFFFB800)
+                          : const Color(0xFF001A4D),
                       shape: BoxShape.circle,
                     ),
                     child: IconButton(
@@ -17218,7 +17395,68 @@ class _ChatCSPageState extends State<ChatCSPage> {
     );
   }
 
-  Widget _buildMessageBubble(ChatMessageData message) {
+  Widget _buildQuickReplyBubble({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+    required bool isDark,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.only(right: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: isDark
+                ? [
+                    const Color(0xFFFFB800),
+                    const Color(0xFFFFB800).withOpacity(0.8),
+                  ]
+                : [
+                    const Color(0xFF001A4D),
+                    const Color(0xFF001A4D).withOpacity(0.8),
+                  ],
+          ),
+          borderRadius: BorderRadius.circular(25),
+          border: Border.all(
+            color: isDark ? const Color(0xFFFFB800) : const Color(0xFFFFB800),
+            width: 1.5,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color:
+                  (isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D))
+                      .withOpacity(0.3),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              color: isDark ? Colors.white : const Color(0xFFFFB800),
+              size: 16,
+            ),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMessageBubble(ChatMessageData message, bool isDark) {
     return Align(
       alignment:
           message.isFromUser ? Alignment.centerRight : Alignment.centerLeft,
@@ -17229,7 +17467,9 @@ class _ChatCSPageState extends State<ChatCSPage> {
           maxWidth: MediaQuery.of(context).size.width * 0.75,
         ),
         decoration: BoxDecoration(
-          color: message.isFromUser ? const Color(0xFF001A4D) : Colors.white,
+          color: message.isFromUser
+              ? (isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D))
+              : (isDark ? const Color(0xFF2A2A2A) : Colors.white),
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(16),
             topRight: const Radius.circular(16),
@@ -17242,7 +17482,7 @@ class _ChatCSPageState extends State<ChatCSPage> {
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
+              color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
               blurRadius: 4,
               offset: const Offset(0, 2),
             ),
@@ -17254,13 +17494,20 @@ class _ChatCSPageState extends State<ChatCSPage> {
             if (!message.isFromUser)
               Row(
                 children: [
-                  const Icon(Icons.admin_panel_settings,
-                      size: 14, color: Color(0xFFFFB800)),
+                  Icon(
+                    Icons.admin_panel_settings,
+                    size: 14,
+                    color: isDark
+                        ? const Color(0xFFFFB800)
+                        : const Color(0xFFFFB800),
+                  ),
                   const SizedBox(width: 4),
                   Text(
                     'Admin',
                     style: TextStyle(
-                      color: Colors.black,
+                      color: isDark
+                          ? const Color(0xFFFFB800)
+                          : const Color(0xFFFFB800),
                       fontSize: 11,
                       fontWeight: FontWeight.bold,
                     ),
@@ -17271,7 +17518,9 @@ class _ChatCSPageState extends State<ChatCSPage> {
             Text(
               message.text,
               style: TextStyle(
-                color: message.isFromUser ? Colors.white : Colors.black87,
+                color: message.isFromUser
+                    ? Colors.white
+                    : (isDark ? Colors.white : Colors.black),
                 fontSize: 14,
                 height: 1.4,
               ),
@@ -17283,7 +17532,11 @@ class _ChatCSPageState extends State<ChatCSPage> {
                 Text(
                   _formatTime(message.timestamp),
                   style: TextStyle(
-                    color: message.isFromUser ? Colors.white70 : Colors.black,
+                    color: message.isFromUser
+                        ? Colors.white70
+                        : (isDark
+                            ? Colors.grey.shade500
+                            : Colors.grey.shade500),
                     fontSize: 10,
                   ),
                 ),
@@ -17319,18 +17572,26 @@ class _ChatCSPageState extends State<ChatCSPage> {
   }
 
   void _clearChat() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Row(
+        backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        title: Row(
           children: [
-            Icon(Icons.warning, color: Colors.orange, size: 22),
-            SizedBox(width: 8),
-            Text('Hapus Percakapan'),
+            const Icon(Icons.warning, color: Colors.orange, size: 22),
+            const SizedBox(width: 8),
+            Text(
+              'Hapus Percakapan',
+              style: TextStyle(color: isDark ? Colors.white : Colors.black),
+            ),
           ],
         ),
-        content: const Text(
-            'Apakah Anda yakin ingin menghapus semua percakapan dengan admin?'),
+        content: Text(
+          'Apakah Anda yakin ingin menghapus semua percakapan dengan admin?',
+          style: TextStyle(color: isDark ? Colors.white70 : Colors.black87),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -17413,4 +17674,94 @@ class ChatMessage {
     required this.isUser,
     required this.timestamp,
   });
+}
+
+// ==================== AUTO REPLY SERVICE ====================
+
+class AutoReplyService {
+  static final Map<String, String> _autoReplies = {
+    // Salam
+    'halo': 'Halo! Selamat datang di CINEMA 1. Ada yang bisa saya bantu? 😊',
+    'hai':
+        'Hai! Terima kasih sudah menghubungi kami. Bagaimana saya bisa membantu Anda?',
+    'pagi':
+        'Selamat pagi! Senang bisa membantu Anda hari ini. Ada yang bisa saya bantu?',
+    'siang': 'Selamat siang! Ada yang bisa saya bantu?',
+    'sore': 'Selamat sore! Bagaimana saya bisa membantu Anda?',
+    'malam': 'Selamat malam! Ada yang bisa saya bantu?',
+
+    // Film
+    'film':
+        'Kami memiliki berbagai film yang sedang tayang! Anda bisa cek daftar lengkapnya di menu utama aplikasi.',
+    'film tayang':
+        'Film yang sedang tayang bisa Anda lihat di halaman utama aplikasi kami.',
+    'jadwal':
+        'Untuk melihat jadwal film, silakan pilih film yang Anda inginkan di halaman utama.',
+    'jadwal film':
+        'Jadwal lengkap film dapat dilihat setelah Anda memilih film di menu utama.',
+
+    // Tiket
+    'tiket':
+        'Untuk memesan tiket, silakan pilih film, lalu pilih jadwal dan kursi yang diinginkan.',
+    'beli tiket':
+        'Pemesanan tiket sangat mudah! Pilih film → Pilih jadwal → Pilih kursi → Bayar',
+    'pesan tiket':
+        'Untuk memesan tiket: 1) Pilih film 2) Pilih bioskop & jadwal 3) Pilih kursi 4) Lakukan pembayaran',
+    'cara pesan':
+        'Cara pesan tiket: Pilih film di halaman utama → Pilih jadwal → Pilih kursi → Checkout → Bayar',
+
+    // Pembayaran
+    'bayar':
+        'Kami menerima pembayaran melalui DANA, GoPay, ShopeePay, dan OVO.',
+    'pembayaran':
+        'Metode pembayaran yang tersedia: DANA, GoPay, ShopeePay, OVO',
+    'cara bayar':
+        'Anda bisa membayar menggunakan DANA, GoPay, ShopeePay, atau OVO. Pilih metode yang Anda inginkan saat checkout.',
+    'metode bayar': 'Metode pembayaran: DANA, GoPay, ShopeePay, OVO',
+
+    // Kursi
+    'kursi':
+        'Anda bisa memilih kursi setelah memilih jadwal film. Kursi yang tersedia akan ditampilkan.',
+    'pilih kursi':
+        'Setelah memilih jadwal, Anda akan diarahkan ke halaman pemilihan kursi.',
+    'kursi tersedia':
+        'Ketersediaan kursi dapat dilihat setelah Anda memilih jadwal tayang.',
+
+    // Lokasi
+    'lokasi':
+        'CINEMA 1 memiliki beberapa lokasi bioskop. Silakan cek daftar bioskop di aplikasi.',
+    'bioskop':
+        'Kami memiliki beberapa lokasi bioskop partner. Cek menu bioskop di aplikasi untuk melihat lokasi lengkap.',
+    'dimana': 'Lokasi bioskop dapat dilihat saat Anda memilih jadwal film.',
+
+    // Bantuan
+    'bantuan':
+        'Saya siap membantu! Silakan beritahu saya apa yang Anda butuhkan.',
+    'help': 'Ada yang bisa saya bantu? Silakan tanyakan apa saja!',
+    'tolong': 'Tentu, saya akan membantu Anda. Apa yang bisa saya bantu?',
+
+    // Terima kasih
+    'terima kasih':
+        'Sama-sama! Senang bisa membantu. Jangan ragu untuk menghubungi kami lagi! 😊',
+    'thanks': 'You\'re welcome! Selamat menonton! 🎬',
+    'makasih': 'Sama-sama! Semoga Anda puas dengan layanan kami.',
+
+    // Default
+    'default':
+        'Terima kasih telah menghubungi CINEMA 1. Admin kami akan segera membalas pesan Anda. Untuk bantuan lebih cepat, Anda bisa menggunakan menu Bantuan di aplikasi.',
+  };
+
+  static String? getAutoReply(String message) {
+    final lowerMessage = message.toLowerCase().trim();
+
+    // Cek exact match dulu
+    for (var entry in _autoReplies.entries) {
+      if (entry.key != 'default' && lowerMessage.contains(entry.key)) {
+        return entry.value;
+      }
+    }
+
+    // Kalau tidak ada yang match, return default
+    return _autoReplies['default'];
+  }
 }
