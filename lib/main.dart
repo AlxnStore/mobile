@@ -159,9 +159,7 @@ class _TixIDAppState extends State<TixIDApp> {
         primaryColor: const Color(0xfffafafb),
         useMaterial3: true,
         fontFamily: null,
-        iconTheme: const IconThemeData(
-          color: Color(0xFF001A4D),
-        ),
+        iconTheme: const IconThemeData(color: Color(0xFF001A4D)),
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color(0xFF001A4D),
           primary: const Color(0xFF001A4D),
@@ -174,9 +172,7 @@ class _TixIDAppState extends State<TixIDApp> {
         primaryColor: const Color(0xFF1a1a1a),
         useMaterial3: true,
         fontFamily: null,
-        iconTheme: const IconThemeData(
-          color: Color(0xFFFFB800),
-        ),
+        iconTheme: const IconThemeData(color: Color(0xFFFFB800)),
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color(0xFFFFB800),
           primary: const Color(0xFFFFB800),
@@ -228,9 +224,7 @@ class _SecurityCheckPageState extends State<SecurityCheckPage> {
       // Go directly to login
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(
-          builder: (context) => const LoginPage(),
-        ),
+        MaterialPageRoute(builder: (context) => const LoginPage()),
       );
     }
   }
@@ -346,19 +340,12 @@ class _SecurityVerificationPageState extends State<SecurityVerificationPage> {
                 color: const Color(0xFFFFB800).withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
-                Icons.lock,
-                size: 60,
-                color: Color(0xFFFFB800),
-              ),
+              child: const Icon(Icons.lock, size: 60, color: Color(0xFFFFB800)),
             ),
             const SizedBox(height: 20),
             const Text(
               'Masukkan PIN Anda',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 40),
             // PIN Dots
@@ -386,10 +373,7 @@ class _SecurityVerificationPageState extends State<SecurityVerificationPage> {
                 padding: const EdgeInsets.only(top: 16),
                 child: Text(
                   'PIN salah, coba lagi',
-                  style: TextStyle(
-                    color: Colors.red.shade700,
-                    fontSize: 14,
-                  ),
+                  style: TextStyle(color: Colors.red.shade700, fontSize: 14),
                 ),
               ),
             const Spacer(),
@@ -442,10 +426,7 @@ class _SecurityVerificationPageState extends State<SecurityVerificationPage> {
                             ? Colors.grey.shade800
                             : Colors.grey.shade200,
                       ),
-                      child: const Icon(
-                        Icons.backspace_outlined,
-                        size: 24,
-                      ),
+                      child: const Icon(Icons.backspace_outlined, size: 24),
                     ),
                   );
                 } else {
@@ -524,11 +505,7 @@ class CinemaLocation {
   final String type;
   final List<String> times;
 
-  CinemaLocation({
-    required this.name,
-    required this.type,
-    required this.times,
-  });
+  CinemaLocation({required this.name, required this.type, required this.times});
 }
 
 class PaymentMethod {
@@ -874,8 +851,9 @@ class TicketHistoryService {
     if (currentUser == null) return [];
 
     return _history
-        .where((ticket) =>
-            ticket.status == 'active' && ticket.userId == currentUser)
+        .where(
+          (ticket) => ticket.status == 'active' && ticket.userId == currentUser,
+        )
         .toList();
   }
 
@@ -885,7 +863,8 @@ class TicketHistoryService {
 
     return _history
         .where(
-            (ticket) => ticket.status == 'used' && ticket.userId == currentUser)
+          (ticket) => ticket.status == 'used' && ticket.userId == currentUser,
+        )
         .toList();
   }
 
@@ -1051,16 +1030,18 @@ class SeatService {
 
       // 2. Insert ke tabel bookings (BATCH)
       final bookingData = seatIds
-          .map((seatId) => {
-                'film_id': filmId,
-                'cinema': cinema,
-                'date': date,
-                'time': time,
-                'seat_id': int.parse(seatId),
-                'user_id': userId,
-                'status': 'booked',
-                'created_at': DateTime.now().toIso8601String(),
-              })
+          .map(
+            (seatId) => {
+              'film_id': filmId,
+              'cinema': cinema,
+              'date': date,
+              'time': time,
+              'seat_id': int.parse(seatId),
+              'user_id': userId,
+              'status': 'booked',
+              'created_at': DateTime.now().toIso8601String(),
+            },
+          )
           .toList();
 
       await supabase.from('bookings').insert(bookingData);
@@ -1231,8 +1212,9 @@ class _WatchlistPageState extends State<WatchlistPage> {
           ],
         ),
         content: Text(
-            'Apakah Anda yakin ingin menghapus "${film.title}" dari watchlist?',
-            style: TextStyle(color: isDark ? Colors.white70 : Colors.black87)),
+          'Apakah Anda yakin ingin menghapus "${film.title}" dari watchlist?',
+          style: TextStyle(color: isDark ? Colors.white70 : Colors.black87),
+        ),
         actions: [
           TextButton.icon(
             onPressed: () => Navigator.pop(context),
@@ -1248,8 +1230,11 @@ class _WatchlistPageState extends State<WatchlistPage> {
                 SnackBar(
                   content: Row(
                     children: [
-                      const Icon(Icons.check_circle,
-                          color: Colors.white, size: 20),
+                      const Icon(
+                        Icons.check_circle,
+                        color: Colors.white,
+                        size: 20,
+                      ),
                       const SizedBox(width: 8),
                       Text('${film.title} dihapus dari watchlist'),
                     ],
@@ -1278,9 +1263,10 @@ class _WatchlistPageState extends State<WatchlistPage> {
         backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back,
-              color:
-                  isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D)),
+          icon: Icon(
+            Icons.arrow_back,
+            color: isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D),
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Row(
@@ -1303,8 +1289,10 @@ class _WatchlistPageState extends State<WatchlistPage> {
               padding: const EdgeInsets.only(right: 16),
               child: Center(
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.red.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(20),
@@ -1326,17 +1314,20 @@ class _WatchlistPageState extends State<WatchlistPage> {
       body: isLoading
           ? Center(
               child: CircularProgressIndicator(
-                  color: isDark
-                      ? const Color(0xFFFFB800)
-                      : const Color(0xFF001A4D)),
+                color:
+                    isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D),
+              ),
             )
           : watchlistFilms.isEmpty
               ? Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.favorite_border,
-                          size: 80, color: Colors.grey.shade300),
+                      Icon(
+                        Icons.favorite_border,
+                        size: 80,
+                        color: Colors.grey.shade300,
+                      ),
                       const SizedBox(height: 16),
                       Text(
                         'Watchlist Kosong',
@@ -1358,14 +1349,18 @@ class _WatchlistPageState extends State<WatchlistPage> {
                           Navigator.pop(context);
                         },
                         icon: const Icon(Icons.movie, color: Colors.white),
-                        label: const Text('Jelajahi Film',
-                            style: TextStyle(color: Colors.white)),
+                        label: const Text(
+                          'Jelajahi Film',
+                          style: TextStyle(color: Colors.white),
+                        ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: isDark
                               ? const Color(0xFFFFB800)
                               : const Color(0xFF001A4D),
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 24, vertical: 12),
+                            horizontal: 24,
+                            vertical: 12,
+                          ),
                         ),
                       ),
                     ],
@@ -1403,10 +1398,8 @@ class _WatchlistPageState extends State<WatchlistPage> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => FilmDetailPage(
-              film: film,
-              onUpdate: _loadWatchlist,
-            ),
+            builder: (context) =>
+                FilmDetailPage(film: film, onUpdate: _loadWatchlist),
           ),
         ).then((_) => _loadWatchlist());
       },
@@ -1442,8 +1435,11 @@ class _WatchlistPageState extends State<WatchlistPage> {
                         return Container(
                           color: const Color(0xFFDDDDDD),
                           alignment: Alignment.center,
-                          child: const Icon(Icons.movie,
-                              size: 40, color: Colors.white),
+                          child: const Icon(
+                            Icons.movie,
+                            size: 40,
+                            color: Colors.white,
+                          ),
                         );
                       },
                     ),
@@ -1453,7 +1449,9 @@ class _WatchlistPageState extends State<WatchlistPage> {
                     right: 8,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 6, vertical: 4),
+                        horizontal: 6,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: const Color(0xFFFFB800),
                         borderRadius: BorderRadius.circular(4),
@@ -1492,8 +1490,11 @@ class _WatchlistPageState extends State<WatchlistPage> {
                             ),
                           ],
                         ),
-                        child: const Icon(Icons.favorite,
-                            size: 16, color: Colors.white),
+                        child: const Icon(
+                          Icons.favorite,
+                          size: 16,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ),
@@ -1529,8 +1530,10 @@ class _WatchlistPageState extends State<WatchlistPage> {
                   ),
                   const SizedBox(height: 4),
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
                       color: (isDark
                               ? const Color(0xFFFFB800)
@@ -1597,8 +1600,9 @@ class NotificationService {
 
   static void markAsRead(String notificationId) {
     try {
-      final notification =
-          _notifications.firstWhere((n) => n.id == notificationId);
+      final notification = _notifications.firstWhere(
+        (n) => n.id == notificationId,
+      );
       notification.isRead = true;
     } catch (e) {
       print('Notification not found: $notificationId');
@@ -1663,8 +1667,9 @@ class AdminNotificationService {
 
   static void markAsRead(String notificationId) {
     try {
-      final notification =
-          _notifications.firstWhere((n) => n.id == notificationId);
+      final notification = _notifications.firstWhere(
+        (n) => n.id == notificationId,
+      );
       notification.isRead = true;
     } catch (e) {
       print('Notification not found: $notificationId');
@@ -1792,10 +1797,7 @@ class ChatService {
     Future.delayed(const Duration(seconds: 1), () {
       final autoReply = AutoReplyService.getAutoReply(message);
       if (autoReply != null) {
-        sendMessageFromAdmin(
-          userId: userId,
-          message: autoReply,
-        );
+        sendMessageFromAdmin(userId: userId, message: autoReply);
       }
     });
   }
@@ -1829,9 +1831,7 @@ class ChatService {
       title: '💬 Balasan dari Admin',
       message: message.length > 50 ? '${message.substring(0, 50)}...' : message,
       type: 'info',
-      data: {
-        'messageId': newMessage.id,
-      },
+      data: {'messageId': newMessage.id},
     );
 
     // Trigger callback
@@ -1858,8 +1858,9 @@ class ChatService {
   // Get semua conversations (untuk admin)
   static List<ChatConversation> getAllConversations() {
     final conversations = _conversations.values.toList();
-    conversations
-        .sort((a, b) => b.lastMessageTime.compareTo(a.lastMessageTime));
+    conversations.sort(
+      (a, b) => b.lastMessageTime.compareTo(a.lastMessageTime),
+    );
     return conversations;
   }
 
@@ -2116,10 +2117,14 @@ class _LoginPageState extends State<LoginPage> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-        title: Text(title,
-            style: TextStyle(color: isDark ? Colors.white : Colors.black)),
-        content: Text(message,
-            style: TextStyle(color: isDark ? Colors.white70 : Colors.black87)),
+        title: Text(
+          title,
+          style: TextStyle(color: isDark ? Colors.white : Colors.black),
+        ),
+        content: Text(
+          message,
+          style: TextStyle(color: isDark ? Colors.white70 : Colors.black87),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -2252,28 +2257,29 @@ class _LoginPageState extends State<LoginPage> {
                 decoration: InputDecoration(
                   hintText: 'Masukkan username',
                   hintStyle: TextStyle(
-                      color:
-                          isDark ? Colors.grey.shade600 : Colors.grey.shade400),
+                    color: isDark ? Colors.grey.shade600 : Colors.grey.shade400,
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide(
-                        color: isDark
-                            ? Colors.grey.shade700
-                            : Colors.grey.shade300),
+                      color:
+                          isDark ? Colors.grey.shade700 : Colors.grey.shade300,
+                    ),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide(
-                        color: isDark
-                            ? Colors.grey.shade700
-                            : Colors.grey.shade300),
+                      color:
+                          isDark ? Colors.grey.shade700 : Colors.grey.shade300,
+                    ),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide(
-                        color: isDark
-                            ? const Color(0xFFFFB800)
-                            : const Color(0xFF001A4D)),
+                      color: isDark
+                          ? const Color(0xFFFFB800)
+                          : const Color(0xFF001A4D),
+                    ),
                   ),
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 16,
@@ -2303,28 +2309,29 @@ class _LoginPageState extends State<LoginPage> {
                 decoration: InputDecoration(
                   hintText: 'Masukkan Password',
                   hintStyle: TextStyle(
-                      color:
-                          isDark ? Colors.grey.shade600 : Colors.grey.shade400),
+                    color: isDark ? Colors.grey.shade600 : Colors.grey.shade400,
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide(
-                        color: isDark
-                            ? Colors.grey.shade700
-                            : Colors.grey.shade300),
+                      color:
+                          isDark ? Colors.grey.shade700 : Colors.grey.shade300,
+                    ),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide(
-                        color: isDark
-                            ? Colors.grey.shade700
-                            : Colors.grey.shade300),
+                      color:
+                          isDark ? Colors.grey.shade700 : Colors.grey.shade300,
+                    ),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide(
-                        color: isDark
-                            ? const Color(0xFFFFB800)
-                            : const Color(0xFF001A4D)),
+                      color: isDark
+                          ? const Color(0xFFFFB800)
+                          : const Color(0xFF001A4D),
+                    ),
                   ),
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 16,
@@ -2414,10 +2421,7 @@ class _LoginPageState extends State<LoginPage> {
                     end: Alignment.bottomRight,
                   ),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: const Color(0xFFFFB800),
-                    width: 2,
-                  ),
+                  border: Border.all(color: const Color(0xFFFFB800), width: 2),
                 ),
                 child: OutlinedButton.icon(
                   onPressed: () {
@@ -2457,15 +2461,19 @@ class _LoginPageState extends State<LoginPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('Belum punya akun? ',
-                      style: TextStyle(
-                          color: isDark ? Colors.grey.shade400 : Colors.black)),
+                  Text(
+                    'Belum punya akun? ',
+                    style: TextStyle(
+                      color: isDark ? Colors.grey.shade400 : Colors.black,
+                    ),
+                  ),
                   GestureDetector(
                     onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const RegisterPage()),
+                          builder: (context) => const RegisterPage(),
+                        ),
                       );
                     },
                     child: Text(
@@ -2568,10 +2576,14 @@ class _RegisterPageState extends State<RegisterPage> {
       barrierDismissible: false,
       builder: (context) => AlertDialog(
         backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-        title: Text(title,
-            style: TextStyle(color: isDark ? Colors.white : Colors.black)),
-        content: Text(message,
-            style: TextStyle(color: isDark ? Colors.white70 : Colors.black87)),
+        title: Text(
+          title,
+          style: TextStyle(color: isDark ? Colors.white : Colors.black),
+        ),
+        content: Text(
+          message,
+          style: TextStyle(color: isDark ? Colors.white70 : Colors.black87),
+        ),
         actions: [
           TextButton(
             onPressed: () {
@@ -2594,9 +2606,10 @@ class _RegisterPageState extends State<RegisterPage> {
         backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back,
-              color:
-                  isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D)),
+          icon: Icon(
+            Icons.arrow_back,
+            color: isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D),
+          ),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
@@ -2653,28 +2666,29 @@ class _RegisterPageState extends State<RegisterPage> {
                 decoration: InputDecoration(
                   hintText: 'Masukkan username',
                   hintStyle: TextStyle(
-                      color:
-                          isDark ? Colors.grey.shade600 : Colors.grey.shade400),
+                    color: isDark ? Colors.grey.shade600 : Colors.grey.shade400,
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide(
-                        color: isDark
-                            ? Colors.grey.shade700
-                            : Colors.grey.shade300),
+                      color:
+                          isDark ? Colors.grey.shade700 : Colors.grey.shade300,
+                    ),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide(
-                        color: isDark
-                            ? Colors.grey.shade700
-                            : Colors.grey.shade300),
+                      color:
+                          isDark ? Colors.grey.shade700 : Colors.grey.shade300,
+                    ),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide(
-                        color: isDark
-                            ? const Color(0xFFFFB800)
-                            : const Color(0xFF001A4D)),
+                      color: isDark
+                          ? const Color(0xFFFFB800)
+                          : const Color(0xFF001A4D),
+                    ),
                   ),
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 16,
@@ -2701,28 +2715,29 @@ class _RegisterPageState extends State<RegisterPage> {
                 decoration: InputDecoration(
                   hintText: 'Masukkan password',
                   hintStyle: TextStyle(
-                      color:
-                          isDark ? Colors.grey.shade600 : Colors.grey.shade400),
+                    color: isDark ? Colors.grey.shade600 : Colors.grey.shade400,
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide(
-                        color: isDark
-                            ? Colors.grey.shade700
-                            : Colors.grey.shade300),
+                      color:
+                          isDark ? Colors.grey.shade700 : Colors.grey.shade300,
+                    ),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide(
-                        color: isDark
-                            ? Colors.grey.shade700
-                            : Colors.grey.shade300),
+                      color:
+                          isDark ? Colors.grey.shade700 : Colors.grey.shade300,
+                    ),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide(
-                        color: isDark
-                            ? const Color(0xFFFFB800)
-                            : const Color(0xFF001A4D)),
+                      color: isDark
+                          ? const Color(0xFFFFB800)
+                          : const Color(0xFF001A4D),
+                    ),
                   ),
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 16,
@@ -2762,28 +2777,29 @@ class _RegisterPageState extends State<RegisterPage> {
                 decoration: InputDecoration(
                   hintText: 'Konfirmasi password',
                   hintStyle: TextStyle(
-                      color:
-                          isDark ? Colors.grey.shade600 : Colors.grey.shade400),
+                    color: isDark ? Colors.grey.shade600 : Colors.grey.shade400,
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide(
-                        color: isDark
-                            ? Colors.grey.shade700
-                            : Colors.grey.shade300),
+                      color:
+                          isDark ? Colors.grey.shade700 : Colors.grey.shade300,
+                    ),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide(
-                        color: isDark
-                            ? Colors.grey.shade700
-                            : Colors.grey.shade300),
+                      color:
+                          isDark ? Colors.grey.shade700 : Colors.grey.shade300,
+                    ),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide(
-                        color: isDark
-                            ? const Color(0xFFFFB800)
-                            : const Color(0xFF001A4D)),
+                      color: isDark
+                          ? const Color(0xFFFFB800)
+                          : const Color(0xFF001A4D),
+                    ),
                   ),
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 16,
@@ -2840,9 +2856,12 @@ class _RegisterPageState extends State<RegisterPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('Sudah punya akun? ',
-                      style: TextStyle(
-                          color: isDark ? Colors.grey.shade400 : Colors.black)),
+                  Text(
+                    'Sudah punya akun? ',
+                    style: TextStyle(
+                      color: isDark ? Colors.grey.shade400 : Colors.black,
+                    ),
+                  ),
                   GestureDetector(
                     onTap: () => Navigator.of(context).pop(),
                     child: Text(
@@ -2919,10 +2938,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     selectedTab = widget.initialTab;
     _loadFilms();
 
-    _pageController = PageController(
-      viewportFraction: 0.85,
-      initialPage: 0,
-    );
+    _pageController = PageController(viewportFraction: 0.85, initialPage: 0);
 
     _pageController.addListener(() {
       setState(() {
@@ -2952,18 +2968,24 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
     _cartBounceAnimation = TweenSequence<double>([
       TweenSequenceItem(
-        tween: Tween<double>(begin: 1.0, end: 1.3)
-            .chain(CurveTween(curve: Curves.easeOut)),
+        tween: Tween<double>(
+          begin: 1.0,
+          end: 1.3,
+        ).chain(CurveTween(curve: Curves.easeOut)),
         weight: 33,
       ),
       TweenSequenceItem(
-        tween: Tween<double>(begin: 1.3, end: 0.9)
-            .chain(CurveTween(curve: Curves.easeInOut)),
+        tween: Tween<double>(
+          begin: 1.3,
+          end: 0.9,
+        ).chain(CurveTween(curve: Curves.easeInOut)),
         weight: 34,
       ),
       TweenSequenceItem(
-        tween: Tween<double>(begin: 0.9, end: 1.0)
-            .chain(CurveTween(curve: Curves.easeOut)),
+        tween: Tween<double>(
+          begin: 0.9,
+          end: 1.0,
+        ).chain(CurveTween(curve: Curves.easeOut)),
         weight: 33,
       ),
     ]).animate(_cartController);
@@ -3001,9 +3023,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         filteredFilms = FilmService.getAllFilms();
       } else {
         filteredFilms = FilmService.getAllFilms()
-            .where((film) =>
-                film.title.toLowerCase().contains(query.toLowerCase()) ||
-                film.genre.toLowerCase().contains(query.toLowerCase()))
+            .where(
+              (film) =>
+                  film.title.toLowerCase().contains(query.toLowerCase()) ||
+                  film.genre.toLowerCase().contains(query.toLowerCase()),
+            )
             .toList();
       }
     });
@@ -3092,155 +3116,177 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             ),
           ],
         ),
-        child: Column(children: [
-          const SizedBox(height: 12),
-          Container(
-            width: 50,
-            height: 5,
-            decoration: BoxDecoration(
-              color: isDark ? Colors.grey.shade700 : const Color(0xFFDDDDDD),
-              borderRadius: BorderRadius.circular(3),
+        child: Column(
+          children: [
+            const SizedBox(height: 12),
+            Container(
+              width: 50,
+              height: 5,
+              decoration: BoxDecoration(
+                color: isDark ? Colors.grey.shade700 : const Color(0xFFDDDDDD),
+                borderRadius: BorderRadius.circular(3),
+              ),
             ),
-          ),
-          const SizedBox(height: 20),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(children: [
-              const Icon(Icons.location_on, color: Color(0xFFFFB800), size: 28),
-              const SizedBox(width: 12),
-              Text('Pilih Bioskop Favorit',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: isDark ? Colors.white : Colors.black,
-                  )),
-            ]),
-          ),
-          const SizedBox(height: 8),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Text('Tandai bioskop favorit untuk akses lebih cepat',
+            const SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.location_on,
+                    color: Color(0xFFFFB800),
+                    size: 28,
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    'Pilih Bioskop Favorit',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: isDark ? Colors.white : Colors.black,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Text(
+                'Tandai bioskop favorit untuk akses lebih cepat',
                 style: TextStyle(
                   fontSize: 13,
                   color:
                       isDark ? Colors.grey.shade400 : const Color(0xFF666666),
-                )),
-          ),
-          const SizedBox(height: 20),
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: cinemas.length,
-              itemBuilder: (context, index) {
-                final cinema = cinemas[index];
-                final isFavorite = favoriteCinemas.contains(cinema);
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Expanded(
+              child: ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                itemCount: cinemas.length,
+                itemBuilder: (context, index) {
+                  final cinema = cinemas[index];
+                  final isFavorite = favoriteCinemas.contains(cinema);
 
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: isFavorite
-                          ? const Color(0xFFFFB800)
-                          : (isDark
-                              ? Colors.grey.shade700
-                              : const Color(0xFFDDDDDD)),
-                      width: isFavorite ? 2 : 1,
-                    ),
-                    borderRadius: BorderRadius.circular(16),
-                    color: isFavorite
-                        ? (isDark
-                            ? const Color(0xFF2A2A2A)
-                            : const Color(0xFFFFF8E1))
-                        : (isDark ? const Color(0xFF1E1E1E) : Colors.white),
-                  ),
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    leading: Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: isFavorite
-                            ? const Color(0xFFFFB800).withOpacity(0.2)
-                            : (isDark
-                                ? Colors.grey.shade800
-                                : const Color(0xFFEEEEEE)),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Icon(
-                        isFavorite ? Icons.star : Icons.star_outline,
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    decoration: BoxDecoration(
+                      border: Border.all(
                         color: isFavorite
                             ? const Color(0xFFFFB800)
                             : (isDark
-                                ? Colors.grey.shade600
-                                : const Color(0xFFCCCCCC)),
-                        size: 24,
+                                ? Colors.grey.shade700
+                                : const Color(0xFFDDDDDD)),
+                        width: isFavorite ? 2 : 1,
                       ),
+                      borderRadius: BorderRadius.circular(16),
+                      color: isFavorite
+                          ? (isDark
+                              ? const Color(0xFF2A2A2A)
+                              : const Color(0xFFFFF8E1))
+                          : (isDark ? const Color(0xFF1E1E1E) : Colors.white),
                     ),
-                    title: Text(cinema,
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      leading: Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: isFavorite
+                              ? const Color(0xFFFFB800).withOpacity(0.2)
+                              : (isDark
+                                  ? Colors.grey.shade800
+                                  : const Color(0xFFEEEEEE)),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(
+                          isFavorite ? Icons.star : Icons.star_outline,
+                          color: isFavorite
+                              ? const Color(0xFFFFB800)
+                              : (isDark
+                                  ? Colors.grey.shade600
+                                  : const Color(0xFFCCCCCC)),
+                          size: 24,
+                        ),
+                      ),
+                      title: Text(
+                        cinema,
                         style: TextStyle(
                           fontWeight:
                               isFavorite ? FontWeight.bold : FontWeight.w500,
                           fontSize: 14,
                           color: isDark ? Colors.white : Colors.black,
-                        )),
-                    trailing: isFavorite
-                        ? Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFFFB800),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: const Text('Favorit',
+                        ),
+                      ),
+                      trailing: isFavorite
+                          ? Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFFB800),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: const Text(
+                                'Favorit',
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 11,
                                   fontWeight: FontWeight.bold,
-                                )),
-                          )
-                        : null,
-                    onTap: () => _toggleFavoriteCinema(cinema),
-                  ),
-                );
-              },
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              border: Border(
-                  top: BorderSide(
-                      color: isDark
-                          ? Colors.grey.shade800
-                          : const Color(0xFFDDDDDD))),
-              color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-            ),
-            child: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  HapticFeedback.mediumImpact();
-                  Navigator.pop(context);
+                                ),
+                              ),
+                            )
+                          : null,
+                      onTap: () => _toggleFavoriteCinema(cinema),
+                    ),
+                  );
                 },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF001A4D),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                border: Border(
+                  top: BorderSide(
+                    color:
+                        isDark ? Colors.grey.shade800 : const Color(0xFFDDDDDD),
+                  ),
                 ),
-                child: const Text('SELESAI',
+                color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+              ),
+              child: SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    HapticFeedback.mediumImpact();
+                    Navigator.pop(context);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF001A4D),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    'SELESAI',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 1,
-                    )),
+                    ),
+                  ),
+                ),
               ),
             ),
-          ),
-        ]),
+          ],
+        ),
       ),
     );
   }
@@ -3256,35 +3302,45 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
         elevation: 2,
         leading: IconButton(
-          icon: Icon(Icons.menu,
-              color: isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D),
-              size: 28),
+          icon: Icon(
+            Icons.menu,
+            color: isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D),
+            size: 28,
+          ),
           onPressed: () {
             HapticFeedback.lightImpact();
             _scaffoldKey.currentState?.openDrawer();
           },
         ),
-        title: Row(children: [
-          Icon(Icons.movie,
+        title: Row(
+          children: [
+            Icon(
+              Icons.movie,
               color: isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D),
-              size: 26),
-          const SizedBox(width: 10),
-          Text('cinema 1',
+              size: 26,
+            ),
+            const SizedBox(width: 10),
+            Text(
+              'cinema 1',
               style: TextStyle(
                 color: isDark ? Colors.white : const Color(0xFF001A4D),
                 fontWeight: FontWeight.bold,
                 fontSize: 21,
-              )),
-        ]),
+              ),
+            ),
+          ],
+        ),
         actions: [
           Stack(
             children: [
               IconButton(
-                icon: Icon(Icons.shopping_cart_outlined,
-                    color: isDark
-                        ? const Color(0xFFFFB800)
-                        : const Color(0xFF001A4D),
-                    size: 26),
+                icon: Icon(
+                  Icons.shopping_cart_outlined,
+                  color: isDark
+                      ? const Color(0xFFFFB800)
+                      : const Color(0xFF001A4D),
+                  size: 26,
+                ),
                 onPressed: () {
                   HapticFeedback.mediumImpact();
                   setState(() => selectedTab = 1);
@@ -3328,11 +3384,13 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           Stack(
             children: [
               IconButton(
-                icon: Icon(Icons.notifications_outlined,
-                    color: isDark
-                        ? const Color(0xFFFFB800)
-                        : const Color(0xFF001A4D),
-                    size: 26),
+                icon: Icon(
+                  Icons.notifications_outlined,
+                  color: isDark
+                      ? const Color(0xFFFFB800)
+                      : const Color(0xFF001A4D),
+                  size: 26,
+                ),
                 onPressed: () {
                   HapticFeedback.lightImpact();
                   Navigator.push(
@@ -3344,7 +3402,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 },
               ),
               if (NotificationService.getUnreadCount(
-                      AuthService.getCurrentUsername() ?? '') >
+                    AuthService.getCurrentUsername() ?? '',
+                  ) >
                   0)
                 Positioned(
                   right: 6,
@@ -3373,14 +3432,17 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             ],
           ),
           IconButton(
-            icon: Icon(Icons.account_circle_outlined,
-                color:
-                    isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D),
-                size: 26),
+            icon: Icon(
+              Icons.account_circle_outlined,
+              color: isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D),
+              size: 26,
+            ),
             onPressed: () {
               HapticFeedback.lightImpact();
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const ProfilePage()));
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ProfilePage()),
+              );
             },
           ),
         ],
@@ -3454,24 +3516,30 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           height: 80,
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) {
-                            return Icon(Icons.person,
-                                size: 40,
-                                color: isDark
-                                    ? const Color(0xFFFFB800)
-                                    : const Color(0xFF001A4D));
+                            return Icon(
+                              Icons.person,
+                              size: 40,
+                              color: isDark
+                                  ? const Color(0xFFFFB800)
+                                  : const Color(0xFF001A4D),
+                            );
                           },
                         ),
                       )
-                    : Icon(Icons.person,
+                    : Icon(
+                        Icons.person,
                         size: 40,
                         color: isDark
                             ? const Color(0xFFFFB800)
-                            : const Color(0xFF001A4D)),
+                            : const Color(0xFF001A4D),
+                      ),
               ),
               accountName: Text(
                 userProfile?.name ?? 'Pengguna',
-                style:
-                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
               ),
               accountEmail: Text(
                 userProfile?.phoneNumber ?? '',
@@ -3486,20 +3554,23 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     isDark ? const Color(0xFF1E1E1E) : const Color(0xFFF0F8FF),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                    color: isDark
-                        ? const Color(0xFFFFB800)
-                        : const Color(0xFF0066CC)),
+                  color: isDark
+                      ? const Color(0xFFFFB800)
+                      : const Color(0xFF0066CC),
+                ),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   Column(
                     children: [
-                      Icon(Icons.confirmation_number,
-                          color: isDark
-                              ? const Color(0xFFFFB800)
-                              : const Color(0xFF0066CC),
-                          size: 28),
+                      Icon(
+                        Icons.confirmation_number,
+                        color: isDark
+                            ? const Color(0xFFFFB800)
+                            : const Color(0xFF0066CC),
+                        size: 28,
+                      ),
                       const SizedBox(height: 8),
                       Text(
                         '${activeTickets.length}',
@@ -3514,10 +3585,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       Text(
                         'Tiket Aktif',
                         style: TextStyle(
-                            fontSize: 11,
-                            color: isDark
-                                ? Colors.grey.shade400
-                                : const Color(0xFF666666)),
+                          fontSize: 11,
+                          color: isDark
+                              ? Colors.grey.shade400
+                              : const Color(0xFF666666),
+                        ),
                       ),
                     ],
                   ),
@@ -3529,11 +3601,13 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   ),
                   Column(
                     children: [
-                      Icon(Icons.history,
-                          color: isDark
-                              ? Colors.grey.shade400
-                              : const Color(0xFF666666),
-                          size: 28),
+                      Icon(
+                        Icons.history,
+                        color: isDark
+                            ? Colors.grey.shade400
+                            : const Color(0xFF666666),
+                        size: 28,
+                      ),
                       const SizedBox(height: 8),
                       Text(
                         '${TicketHistoryService.getUsedTickets().length}',
@@ -3548,10 +3622,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       Text(
                         'Riwayat',
                         style: TextStyle(
-                            fontSize: 11,
-                            color: isDark
-                                ? Colors.grey.shade400
-                                : const Color(0xFF666666)),
+                          fontSize: 11,
+                          color: isDark
+                              ? Colors.grey.shade400
+                              : const Color(0xFF666666),
+                        ),
                       ),
                     ],
                   ),
@@ -3580,7 +3655,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               icon: Icons.notifications,
               title: 'Notifikasi',
               badge: NotificationService.getUnreadCount(
-                  AuthService.getCurrentUsername() ?? ''),
+                AuthService.getCurrentUsername() ?? '',
+              ),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
@@ -3605,13 +3681,15 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               icon: Icons.favorite,
               title: 'Watchlist',
               badge: WatchlistService.getWatchlistCount(
-                  AuthService.getCurrentUsername() ?? ''),
+                AuthService.getCurrentUsername() ?? '',
+              ),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => const WatchlistPage()),
+                    builder: (context) => const WatchlistPage(),
+                  ),
                 );
               },
             ),
@@ -3679,14 +3757,18 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           Navigator.pushAndRemoveUntil(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const LoginPage()),
+                              builder: (context) => const LoginPage(),
+                            ),
                             (route) => false,
                           );
                         },
                         style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red),
-                        child: const Text('Keluar',
-                            style: TextStyle(color: Colors.white)),
+                          backgroundColor: Colors.red,
+                        ),
+                        child: const Text(
+                          'Keluar',
+                          style: TextStyle(color: Colors.white),
+                        ),
                       ),
                     ],
                   ),
@@ -3725,10 +3807,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       leading: Stack(
         clipBehavior: Clip.none,
         children: [
-          Icon(icon,
-              color: iconColor ??
-                  (isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D)),
-              size: 24),
+          Icon(
+            icon,
+            color: iconColor ??
+                (isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D)),
+            size: 24,
+          ),
           if (badge != null && badge > 0)
             Positioned(
               right: -8,
@@ -3739,10 +3823,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   color: Colors.red,
                   shape: BoxShape.circle,
                 ),
-                constraints: const BoxConstraints(
-                  minWidth: 18,
-                  minHeight: 18,
-                ),
+                constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
                 child: Text(
                   badge > 99 ? '99+' : badge.toString(),
                   style: const TextStyle(
@@ -3787,17 +3868,20 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             decoration: InputDecoration(
               hintText: 'Cari film di cinema 1',
               hintStyle: TextStyle(
-                  color:
-                      isDark ? Colors.grey.shade600 : const Color(0xFF666666)),
-              prefixIcon: Icon(Icons.search,
-                  color:
-                      isDark ? Colors.grey.shade600 : const Color(0xFF666666)),
+                color: isDark ? Colors.grey.shade600 : const Color(0xFF666666),
+              ),
+              prefixIcon: Icon(
+                Icons.search,
+                color: isDark ? Colors.grey.shade600 : const Color(0xFF666666),
+              ),
               suffixIcon: searchController.text.isNotEmpty
                   ? IconButton(
-                      icon: Icon(Icons.close,
-                          color: isDark
-                              ? Colors.grey.shade600
-                              : const Color(0xFF666666)),
+                      icon: Icon(
+                        Icons.close,
+                        color: isDark
+                            ? Colors.grey.shade600
+                            : const Color(0xFF666666),
+                      ),
                       onPressed: () {
                         HapticFeedback.lightImpact();
                         searchController.clear();
@@ -3836,8 +3920,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   fontSize: 15,
                 ),
                 items: ['JAKARTA', 'BANDUNG', 'SURABAYA']
-                    .map((city) =>
-                        DropdownMenuItem(value: city, child: Text(city)))
+                    .map(
+                      (city) =>
+                          DropdownMenuItem(value: city, child: Text(city)),
+                    )
                     .toList(),
                 onChanged: (value) {
                   HapticFeedback.selectionClick();
@@ -3868,57 +3954,71 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               width: 2,
             ),
           ),
-          child: Row(children: [
-            Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFB800),
-                borderRadius: BorderRadius.circular(12),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFB800),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.star, color: Colors.white, size: 26),
               ),
-              child: const Icon(Icons.star, color: Colors.white, size: 26),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Tandai bioskop favoritmu!',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15,
-                          color: isDark ? Colors.white : Colors.black,
-                        )),
+                    Text(
+                      'Tandai bioskop favoritmu!',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                        color: isDark ? Colors.white : Colors.black,
+                      ),
+                    ),
                     const SizedBox(height: 6),
-                    Text('Akses bioskop favorit dengan lebih cepat',
-                        style: TextStyle(
-                            fontSize: 12,
-                            color: isDark
-                                ? Colors.grey.shade400
-                                : const Color(0xFF666666))),
-                  ]),
-            ),
-            const SizedBox(width: 10),
-            ElevatedButton(
-              onPressed: () {
-                HapticFeedback.mediumImpact();
-                _showCinemaSelectionDialog();
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor:
-                    isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10)),
+                    Text(
+                      'Akses bioskop favorit dengan lebih cepat',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isDark
+                            ? Colors.grey.shade400
+                            : const Color(0xFF666666),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              child: const Text('Pilih',
+              const SizedBox(width: 10),
+              ElevatedButton(
+                onPressed: () {
+                  HapticFeedback.mediumImpact();
+                  _showCinemaSelectionDialog();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: isDark
+                      ? const Color(0xFFFFB800)
+                      : const Color(0xFF001A4D),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 18,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: const Text(
+                  'Pilih',
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
                     fontSize: 13,
-                  )),
-            ),
-          ]),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
 
         const SizedBox(height: 20),
@@ -3960,10 +4060,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         : (isDark ? const Color(0xFF1E1E1E) : Colors.white),
                   ),
                   child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Row(children: [
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Row(
+                        children: [
                           Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
@@ -3986,44 +4087,55 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           ),
                           const SizedBox(width: 10),
                           Expanded(
-                            child: Text(cinema,
-                                style: TextStyle(
-                                  fontWeight: isFavorite
-                                      ? FontWeight.bold
-                                      : FontWeight.w500,
-                                  fontSize: 13,
-                                  color: isDark ? Colors.white : Colors.black,
-                                ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis),
-                          ),
-                        ]),
-                        if (isFavorite) ...[
-                          const SizedBox(height: 10),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFFFB800),
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: const Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(Icons.favorite,
-                                    color: Colors.white, size: 12),
-                                SizedBox(width: 6),
-                                Text('Favorit',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.bold,
-                                    )),
-                              ],
+                            child: Text(
+                              cinema,
+                              style: TextStyle(
+                                fontWeight: isFavorite
+                                    ? FontWeight.bold
+                                    : FontWeight.w500,
+                                fontSize: 13,
+                                color: isDark ? Colors.white : Colors.black,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],
-                      ]),
+                      ),
+                      if (isFavorite) ...[
+                        const SizedBox(height: 10),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFFB800),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.favorite,
+                                color: Colors.white,
+                                size: 12,
+                              ),
+                              SizedBox(width: 6),
+                              Text(
+                                'Favorit',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
                 ),
               );
             },
@@ -4039,24 +4151,28 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(children: [
-                Icon(Icons.local_movies,
+              Row(
+                children: [
+                  Icon(
+                    Icons.local_movies,
                     color: isDark
                         ? const Color(0xFFFFB800)
                         : const Color(0xFF001A4D),
-                    size: 24),
-                const SizedBox(width: 10),
-                Text(
-                  searchController.text.isEmpty
-                      ? 'Sedang Tayang'
-                      : 'Hasil Pencarian (${filteredFilms.length})',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: isDark ? Colors.white : Colors.black,
+                    size: 24,
                   ),
-                ),
-              ]),
+                  const SizedBox(width: 10),
+                  Text(
+                    searchController.text.isEmpty
+                        ? 'Sedang Tayang'
+                        : 'Hasil Pencarian (${filteredFilms.length})',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: isDark ? Colors.white : Colors.black,
+                    ),
+                  ),
+                ],
+              ),
               if (searchController.text.isEmpty)
                 TextButton.icon(
                   onPressed: () {
@@ -4070,8 +4186,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     );
                   },
                   icon: const Icon(Icons.grid_view, size: 18),
-                  label: const Text('Semua',
-                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  label: const Text(
+                    'Semua',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   style: TextButton.styleFrom(
                     foregroundColor: isDark
                         ? const Color(0xFFFFB800)
@@ -4087,19 +4205,25 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         if (filteredFilms.isEmpty)
           Padding(
             padding: const EdgeInsets.all(50),
-            child: Column(children: [
-              Icon(Icons.search_off, size: 70, color: Colors.grey.shade300),
-              const SizedBox(height: 20),
-              Text('Film tidak ditemukan',
+            child: Column(
+              children: [
+                Icon(Icons.search_off, size: 70, color: Colors.grey.shade300),
+                const SizedBox(height: 20),
+                Text(
+                  'Film tidak ditemukan',
                   style: TextStyle(
                     fontSize: 18,
                     color: Colors.grey.shade600,
                     fontWeight: FontWeight.w600,
-                  )),
-              const SizedBox(height: 10),
-              Text('Coba cari dengan kata kunci lain',
-                  style: TextStyle(fontSize: 14, color: Colors.grey.shade500)),
-            ]),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  'Coba cari dengan kata kunci lain',
+                  style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
+                ),
+              ],
+            ),
           )
         else
           SizedBox(
@@ -4208,27 +4332,24 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   right: 0,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(
-                      filteredFilms.length,
-                      (index) {
-                        final isActive = index == _currentPage.round();
+                    children: List.generate(filteredFilms.length, (index) {
+                      final isActive = index == _currentPage.round();
 
-                        return AnimatedContainer(
-                          duration: const Duration(milliseconds: 300),
-                          margin: const EdgeInsets.symmetric(horizontal: 4),
-                          width: isActive ? 24 : 8,
-                          height: 8,
-                          decoration: BoxDecoration(
-                            color: isActive
-                                ? (isDark
-                                    ? const Color(0xFFFFB800)
-                                    : const Color(0xFF001A4D))
-                                : Colors.grey.shade400,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                        );
-                      },
-                    ),
+                      return AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        margin: const EdgeInsets.symmetric(horizontal: 4),
+                        width: isActive ? 24 : 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          color: isActive
+                              ? (isDark
+                                  ? const Color(0xFFFFB800)
+                                  : const Color(0xFF001A4D))
+                              : Colors.grey.shade400,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      );
+                    }),
                   ),
                 ),
               ],
@@ -4265,10 +4386,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => FilmDetailPage(
-                  film: film,
-                  onUpdate: _loadFilms,
-                ),
+                builder: (context) =>
+                    FilmDetailPage(film: film, onUpdate: _loadFilms),
               ),
             ).then((_) => _updateCartCount());
           },
@@ -4318,11 +4437,13 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                               ? const Color(0xFF1E1E1E)
                               : Colors.grey.shade200,
                           alignment: Alignment.center,
-                          child: Icon(Icons.movie,
-                              size: 80,
-                              color: isDark
-                                  ? Colors.grey.shade700
-                                  : Colors.grey.shade400),
+                          child: Icon(
+                            Icons.movie,
+                            size: 80,
+                            color: isDark
+                                ? Colors.grey.shade700
+                                : Colors.grey.shade400,
+                          ),
                         );
                       },
                     ),
@@ -4410,15 +4531,20 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             children: [
                               Container(
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 10, vertical: 6),
+                                  horizontal: 10,
+                                  vertical: 6,
+                                ),
                                 decoration: BoxDecoration(
                                   color: const Color(0xFFFFB800),
                                   borderRadius: BorderRadius.circular(6),
                                 ),
                                 child: Row(
                                   children: [
-                                    const Icon(Icons.star,
-                                        size: 16, color: Colors.white),
+                                    const Icon(
+                                      Icons.star,
+                                      size: 16,
+                                      color: Colors.white,
+                                    ),
                                     const SizedBox(width: 4),
                                     Text(
                                       film.rating,
@@ -4434,7 +4560,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                               const SizedBox(width: 10),
                               Container(
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 10, vertical: 6),
+                                  horizontal: 10,
+                                  vertical: 6,
+                                ),
                                 decoration: BoxDecoration(
                                   color: Colors.white.withOpacity(0.2),
                                   borderRadius: BorderRadius.circular(6),
@@ -4466,7 +4594,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           const SizedBox(height: 8),
                           Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 4),
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
                               color: Colors.black.withOpacity(0.4),
                               borderRadius: BorderRadius.circular(4),
@@ -4474,9 +4604,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.access_time,
-                                    size: 14,
-                                    color: Colors.white.withOpacity(0.9)),
+                                Icon(
+                                  Icons.access_time,
+                                  size: 14,
+                                  color: Colors.white.withOpacity(0.9),
+                                ),
                                 const SizedBox(width: 4),
                                 Text(
                                   film.duration,
@@ -4555,12 +4687,12 @@ class _AllFilmsPageState extends State<AllFilmsPage> {
     setState(() {
       filteredFilms = films.where((film) {
         final matchesSearch = searchController.text.isEmpty ||
-            film.title
-                .toLowerCase()
-                .contains(searchController.text.toLowerCase()) ||
-            film.genre
-                .toLowerCase()
-                .contains(searchController.text.toLowerCase());
+            film.title.toLowerCase().contains(
+                  searchController.text.toLowerCase(),
+                ) ||
+            film.genre.toLowerCase().contains(
+                  searchController.text.toLowerCase(),
+                );
 
         final matchesGenre = selectedGenre == 'Semua' ||
             film.genre.toLowerCase().contains(selectedGenre.toLowerCase());
@@ -4581,8 +4713,10 @@ class _AllFilmsPageState extends State<AllFilmsPage> {
         backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back,
-              color: isDark ? Colors.white : const Color(0xFF001A4D)),
+          icon: Icon(
+            Icons.arrow_back,
+            color: isDark ? Colors.white : const Color(0xFF001A4D),
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -4607,19 +4741,22 @@ class _AllFilmsPageState extends State<AllFilmsPage> {
               decoration: InputDecoration(
                 hintText: 'Cari film...',
                 hintStyle: TextStyle(
-                    color: isDark
-                        ? Colors.grey.shade600
-                        : const Color(0xFF666666)),
-                prefixIcon: Icon(Icons.search,
-                    color: isDark
-                        ? Colors.grey.shade600
-                        : const Color(0xFF666666)),
+                  color:
+                      isDark ? Colors.grey.shade600 : const Color(0xFF666666),
+                ),
+                prefixIcon: Icon(
+                  Icons.search,
+                  color:
+                      isDark ? Colors.grey.shade600 : const Color(0xFF666666),
+                ),
                 suffixIcon: searchController.text.isNotEmpty
                     ? IconButton(
-                        icon: Icon(Icons.close,
-                            color: isDark
-                                ? Colors.grey.shade600
-                                : const Color(0xFF666666)),
+                        icon: Icon(
+                          Icons.close,
+                          color: isDark
+                              ? Colors.grey.shade600
+                              : const Color(0xFF666666),
+                        ),
                         onPressed: () {
                           searchController.clear();
                           _filterFilms();
@@ -4629,9 +4766,9 @@ class _AllFilmsPageState extends State<AllFilmsPage> {
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(25),
                   borderSide: BorderSide(
-                      color: isDark
-                          ? Colors.grey.shade800
-                          : const Color(0xFFDDDDDD)),
+                    color:
+                        isDark ? Colors.grey.shade800 : const Color(0xFFDDDDDD),
+                  ),
                 ),
                 filled: true,
                 fillColor:
@@ -4664,8 +4801,10 @@ class _AllFilmsPageState extends State<AllFilmsPage> {
                   },
                   child: Container(
                     margin: const EdgeInsets.only(right: 8, top: 8, bottom: 8),
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
                     decoration: BoxDecoration(
                       color: isSelected
                           ? (isDark
@@ -4708,11 +4847,13 @@ class _AllFilmsPageState extends State<AllFilmsPage> {
             color: isDark ? const Color(0xFF121212) : const Color(0xFFF5F5F5),
             child: Row(
               children: [
-                Icon(Icons.movie,
-                    color: isDark
-                        ? const Color(0xFFFFB800)
-                        : const Color(0xFF001A4D),
-                    size: 20),
+                Icon(
+                  Icons.movie,
+                  color: isDark
+                      ? const Color(0xFFFFB800)
+                      : const Color(0xFF001A4D),
+                  size: 20,
+                ),
                 const SizedBox(width: 8),
                 Text(
                   'Menampilkan ${filteredFilms.length} film',
@@ -4733,8 +4874,11 @@ class _AllFilmsPageState extends State<AllFilmsPage> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.search_off,
-                            size: 80, color: Colors.grey.shade300),
+                        Icon(
+                          Icons.search_off,
+                          size: 80,
+                          color: Colors.grey.shade300,
+                        ),
                         const SizedBox(height: 16),
                         Text(
                           'Film tidak ditemukan',
@@ -4748,7 +4892,9 @@ class _AllFilmsPageState extends State<AllFilmsPage> {
                         Text(
                           'Coba cari dengan kata kunci lain',
                           style: TextStyle(
-                              fontSize: 13, color: Colors.grey.shade500),
+                            fontSize: 13,
+                            color: Colors.grey.shade500,
+                          ),
                         ),
                       ],
                     ),
@@ -4832,8 +4978,11 @@ class _AllFilmsPageState extends State<AllFilmsPage> {
                         return Container(
                           color: const Color(0xFFDDDDDD),
                           alignment: Alignment.center,
-                          child: const Icon(Icons.movie,
-                              size: 40, color: Colors.white),
+                          child: const Icon(
+                            Icons.movie,
+                            size: 40,
+                            color: Colors.white,
+                          ),
                         );
                       },
                     ),
@@ -4843,7 +4992,9 @@ class _AllFilmsPageState extends State<AllFilmsPage> {
                     right: 8,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 6, vertical: 4),
+                        horizontal: 6,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: const Color(0xFFFFB800),
                         borderRadius: BorderRadius.circular(4),
@@ -4897,8 +5048,10 @@ class _AllFilmsPageState extends State<AllFilmsPage> {
                   ),
                   const SizedBox(height: 4),
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
                       color: (isDark
                               ? const Color(0xFFFFB800)
@@ -4964,120 +5117,138 @@ class _Film3DCard extends StatelessWidget {
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(16),
-          child: Stack(children: [
-            Positioned.fill(
-              child: Image.network(
-                film.imageUrl,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    color: const Color(0xFFDDDDDD),
-                    alignment: Alignment.center,
-                    child:
-                        const Icon(Icons.movie, size: 60, color: Colors.white),
-                  );
-                },
+          child: Stack(
+            children: [
+              Positioned.fill(
+                child: Image.network(
+                  film.imageUrl,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      color: const Color(0xFFDDDDDD),
+                      alignment: Alignment.center,
+                      child: const Icon(
+                        Icons.movie,
+                        size: 60,
+                        color: Colors.white,
+                      ),
+                    );
+                  },
+                ),
               ),
-            ),
-            Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.transparent,
-                      Colors.black.withOpacity(0.7),
-                    ],
-                    stops: const [0.5, 1.0],
+              Positioned.fill(
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.transparent,
+                        Colors.black.withOpacity(0.7),
+                      ],
+                      stops: const [0.5, 1.0],
+                    ),
                   ),
                 ),
               ),
-            ),
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      film.title,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        color: Colors.white,
-                        shadows: [
-                          Shadow(
-                            color: Colors.black,
-                            blurRadius: 4,
-                            offset: Offset(0, 2),
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        film.title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: Colors.white,
+                          shadows: [
+                            Shadow(
+                              color: Colors.black,
+                              blurRadius: 4,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFFB800),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  Icons.star,
+                                  size: 14,
+                                  color: Colors.white,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  film.rating,
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.5),
+                              ),
+                            ),
+                            child: Text(
+                              film.ageRating,
+                              style: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
                           ),
                         ],
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    Row(children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFFB800),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Row(children: [
-                          const Icon(Icons.star, size: 14, color: Colors.white),
-                          const SizedBox(width: 4),
-                          Text(
-                            film.rating,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ]),
-                      ),
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(4),
-                          border:
-                              Border.all(color: Colors.white.withOpacity(0.5)),
-                        ),
-                        child: Text(
-                          film.ageRating,
-                          style: const TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
+                      const SizedBox(height: 6),
+                      Text(
+                        film.genre,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.white.withOpacity(0.9),
                         ),
                       ),
-                    ]),
-                    const SizedBox(height: 6),
-                    Text(
-                      film.genre,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.white.withOpacity(0.9),
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ]),
+            ],
+          ),
         ),
       ),
     );
@@ -5088,11 +5259,8 @@ class FilmDetailPage extends StatefulWidget {
   final Film film;
   final VoidCallback onUpdate;
 
-  const FilmDetailPage({
-    Key? key,
-    required this.film,
-    required this.onUpdate,
-  }) : super(key: key);
+  const FilmDetailPage({Key? key, required this.film, required this.onUpdate})
+      : super(key: key);
 
   @override
   State<FilmDetailPage> createState() => _FilmDetailPageState();
@@ -5100,7 +5268,7 @@ class FilmDetailPage extends StatefulWidget {
 
 class _FilmDetailPageState extends State<FilmDetailPage>
     with SingleTickerProviderStateMixin {
-  String selectedSchedule = '13 Okt';
+  String selectedSchedule = '11 Des';
   String selectedCinema = 'Semua';
   String selectedTime = '';
   String selectedCinemaLocation = '';
@@ -5112,44 +5280,51 @@ class _FilmDetailPageState extends State<FilmDetailPage>
   bool isInWatchlist = false;
 
   final List<Schedule> schedules = [
-    Schedule(date: '24 Nov', day: 'Sen', times: []),
-    Schedule(date: '25 Nov', day: 'Sel', times: []),
-    Schedule(date: '26 Nov', day: 'Rab', times: []),
-    Schedule(date: '27 Nov', day: 'Kam', times: []),
-    Schedule(date: '28 Nov', day: 'Jum', times: []),
-    Schedule(date: '29 Nov', day: 'Sab', times: []),
-    Schedule(date: '30 Nov', day: 'Min', times: []),
+    Schedule(date: '8 Des', day: 'Sen', times: []),
+    Schedule(date: '9 Des', day: 'Sel', times: []),
+    Schedule(date: '10 Des', day: 'Rab', times: []),
+    Schedule(date: '11 Des', day: 'Kam', times: []),
+    Schedule(date: '12 Des', day: 'Jum', times: []),
+    Schedule(date: '13 Des', day: 'Sab', times: []),
+    Schedule(date: '34 Des', day: 'Min', times: []),
   ];
 
   final List<CinemaLocation> cinemas = [
     CinemaLocation(
-        name: 'AEON MALL JGC CGV',
-        type: 'CGV',
-        times: ['10:00', '13:00', '16:00', '19:00']),
+      name: 'AEON MALL JGC CGV',
+      type: 'CGV',
+      times: ['10:00', '13:00', '16:00', '19:00'],
+    ),
     CinemaLocation(
-        name: 'AEON MALL TANJUNG BARAT XXI',
-        type: 'XXI',
-        times: ['11:00', '14:00', '17:00', '20:00']),
+      name: 'AEON MALL TANJUNG BARAT XXI',
+      type: 'XXI',
+      times: ['11:00', '14:00', '17:00', '20:00'],
+    ),
     CinemaLocation(
-        name: 'AGORA MALL IMAX',
-        type: 'IMAX',
-        times: ['12:00', '15:00', '18:00', '21:00']),
+      name: 'AGORA MALL IMAX',
+      type: 'IMAX',
+      times: ['12:00', '15:00', '18:00', '21:00'],
+    ),
     CinemaLocation(
-        name: 'AGORA MALL PREMIERE',
-        type: 'XXI',
-        times: ['10:30', '13:30', '16:30', '19:30']),
+      name: 'AGORA MALL PREMIERE',
+      type: 'XXI',
+      times: ['10:30', '13:30', '16:30', '19:30'],
+    ),
     CinemaLocation(
-        name: 'CGV GRAND INDONESIA',
-        type: 'CGV',
-        times: ['11:30', '14:30', '17:30', '20:30']),
+      name: 'CGV GRAND INDONESIA',
+      type: 'CGV',
+      times: ['11:30', '14:30', '17:30', '20:30'],
+    ),
     CinemaLocation(
-        name: 'CINEPOLIS PLAZA SENAYAN',
-        type: 'CINEPOLIS',
-        times: ['10:15', '13:15', '16:15', '19:15']),
+      name: 'CINEPOLIS PLAZA SENAYAN',
+      type: 'CINEPOLIS',
+      times: ['10:15', '13:15', '16:15', '19:15'],
+    ),
     CinemaLocation(
-        name: 'XXI PLAZA INDONESIA',
-        type: 'XXI',
-        times: ['12:30', '15:30', '18:30', '21:30']),
+      name: 'XXI PLAZA INDONESIA',
+      type: 'XXI',
+      times: ['12:30', '15:30', '18:30', '21:30'],
+    ),
   ];
 
   String? _extractYoutubeId(String url) {
@@ -5235,8 +5410,11 @@ class _FilmDetailPageState extends State<FilmDetailPage>
           SnackBar(
             content: Row(
               children: [
-                const Icon(Icons.remove_circle_outline,
-                    color: Colors.white, size: 20),
+                const Icon(
+                  Icons.remove_circle_outline,
+                  color: Colors.white,
+                  size: 20,
+                ),
                 const SizedBox(width: 8),
                 Text('${widget.film.title} dihapus dari watchlist'),
               ],
@@ -5328,8 +5506,11 @@ class _FilmDetailPageState extends State<FilmDetailPage>
                         ),
                       ],
                     ),
-                    child:
-                        const Icon(Icons.close, color: Colors.white, size: 20),
+                    child: const Icon(
+                      Icons.close,
+                      color: Colors.white,
+                      size: 20,
+                    ),
                   ),
                   onPressed: () {
                     _toggleTrailer();
@@ -5358,8 +5539,11 @@ class _FilmDetailPageState extends State<FilmDetailPage>
                               ? const Color(0xFF1E1E1E)
                               : const Color(0xFF001A4D),
                           alignment: Alignment.center,
-                          child: const Icon(Icons.movie,
-                              size: 100, color: Colors.white),
+                          child: const Icon(
+                            Icons.movie,
+                            size: 100,
+                            color: Colors.white,
+                          ),
                         );
                       },
                     ),
@@ -5395,8 +5579,11 @@ class _FilmDetailPageState extends State<FilmDetailPage>
                               ),
                             ],
                           ),
-                          child: const Icon(Icons.play_arrow,
-                              color: Colors.white, size: 40),
+                          child: const Icon(
+                            Icons.play_arrow,
+                            color: Colors.white,
+                            size: 40,
+                          ),
                         ),
                       ),
                     ),
@@ -5426,8 +5613,11 @@ class _FilmDetailPageState extends State<FilmDetailPage>
                               height: 170,
                               color: const Color(0xFFDDDDDD),
                               alignment: Alignment.center,
-                              child: const Icon(Icons.movie,
-                                  size: 40, color: Colors.white),
+                              child: const Icon(
+                                Icons.movie,
+                                size: 40,
+                                color: Colors.white,
+                              ),
                             );
                           },
                         ),
@@ -5449,13 +5639,22 @@ class _FilmDetailPageState extends State<FilmDetailPage>
                             _buildInfoRow('Genre', widget.film.genre, isDark),
                             const SizedBox(height: 4),
                             _buildInfoRow(
-                                'Durasi', widget.film.duration, isDark),
+                              'Durasi',
+                              widget.film.duration,
+                              isDark,
+                            ),
                             const SizedBox(height: 4),
                             _buildInfoRow(
-                                'Sutradara', widget.film.director, isDark),
+                              'Sutradara',
+                              widget.film.director,
+                              isDark,
+                            ),
                             const SizedBox(height: 4),
                             _buildInfoRow(
-                                'Rating Usia', widget.film.ageRating, isDark),
+                              'Rating Usia',
+                              widget.film.ageRating,
+                              isDark,
+                            ),
                           ],
                         ),
                       ),
@@ -5464,8 +5663,10 @@ class _FilmDetailPageState extends State<FilmDetailPage>
                 ),
                 Container(
                   color: isDark ? const Color(0xFF121212) : Colors.white,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -5485,8 +5686,11 @@ class _FilmDetailPageState extends State<FilmDetailPage>
                               const SizedBox(width: 8),
                               ...List.generate(
                                 5,
-                                (index) => const Icon(Icons.star,
-                                    color: Color(0xFFFFB800), size: 20),
+                                (index) => const Icon(
+                                  Icons.star,
+                                  color: Color(0xFFFFB800),
+                                  size: 20,
+                                ),
                               ),
                             ],
                           ),
@@ -5494,10 +5698,11 @@ class _FilmDetailPageState extends State<FilmDetailPage>
                           Text(
                             '5.984 Vote ▸',
                             style: TextStyle(
-                                color: isDark
-                                    ? Colors.grey.shade500
-                                    : const Color(0xFF999999),
-                                fontSize: 12),
+                              color: isDark
+                                  ? Colors.grey.shade500
+                                  : const Color(0xFF999999),
+                              fontSize: 12,
+                            ),
                           ),
                         ],
                       ),
@@ -5507,7 +5712,9 @@ class _FilmDetailPageState extends State<FilmDetailPage>
                             onTap: _toggleWatchlist,
                             child: Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 8),
+                                horizontal: 16,
+                                vertical: 8,
+                              ),
                               decoration: BoxDecoration(
                                 color: isInWatchlist
                                     ? Colors.red
@@ -5549,10 +5756,11 @@ class _FilmDetailPageState extends State<FilmDetailPage>
                           Text(
                             '$watchlistCount Orang',
                             style: TextStyle(
-                                color: isDark
-                                    ? Colors.grey.shade500
-                                    : const Color(0xFF999999),
-                                fontSize: 11),
+                              color: isDark
+                                  ? Colors.grey.shade500
+                                  : const Color(0xFF999999),
+                              fontSize: 11,
+                            ),
                           ),
                         ],
                       ),
@@ -5592,10 +5800,10 @@ class _FilmDetailPageState extends State<FilmDetailPage>
                           child: Text(
                             'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
                             style: TextStyle(
-                                fontSize: 14,
-                                height: 1.6,
-                                color:
-                                    isDark ? Colors.white70 : Colors.black87),
+                              fontSize: 14,
+                              height: 1.6,
+                              color: isDark ? Colors.white70 : Colors.black87,
+                            ),
                           ),
                         ),
                       ),
@@ -5617,18 +5825,23 @@ class _FilmDetailPageState extends State<FilmDetailPage>
       children: [
         SizedBox(
           width: 80,
-          child: Text(label,
-              style: TextStyle(
-                  color:
-                      isDark ? Colors.grey.shade500 : const Color(0xFF999999),
-                  fontSize: 12)),
+          child: Text(
+            label,
+            style: TextStyle(
+              color: isDark ? Colors.grey.shade500 : const Color(0xFF999999),
+              fontSize: 12,
+            ),
+          ),
         ),
         Expanded(
-          child: Text(value,
-              style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: isDark ? Colors.white : Colors.black)),
+          child: Text(
+            value,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: isDark ? Colors.white : Colors.black,
+            ),
+          ),
         ),
       ],
     );
@@ -5755,7 +5968,8 @@ class _FilmDetailPageState extends State<FilmDetailPage>
           color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-              color: isDark ? Colors.grey.shade700 : const Color(0xFFDDDDDD)),
+            color: isDark ? Colors.grey.shade700 : const Color(0xFFDDDDDD),
+          ),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -5765,23 +5979,31 @@ class _FilmDetailPageState extends State<FilmDetailPage>
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(label,
-                      style: TextStyle(
-                          fontSize: 10,
-                          color: isDark
-                              ? Colors.grey.shade400
-                              : const Color(0xFF999999))),
-                  Text(value,
-                      style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: isDark ? Colors.white : Colors.black),
-                      overflow: TextOverflow.ellipsis),
+                  Text(
+                    label,
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: isDark
+                          ? Colors.grey.shade400
+                          : const Color(0xFF999999),
+                    ),
+                  ),
+                  Text(
+                    value,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: isDark ? Colors.white : Colors.black,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ],
               ),
             ),
-            Icon(Icons.arrow_drop_down,
-                color: isDark ? Colors.grey.shade400 : const Color(0xFF999999)),
+            Icon(
+              Icons.arrow_drop_down,
+              color: isDark ? Colors.grey.shade400 : const Color(0xFF999999),
+            ),
           ],
         ),
       ),
@@ -5798,9 +6020,10 @@ class _FilmDetailPageState extends State<FilmDetailPage>
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 2)),
+            color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
         ],
       ),
       child: Column(
@@ -5810,22 +6033,28 @@ class _FilmDetailPageState extends State<FilmDetailPage>
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
-                Icon(Icons.star_outline,
-                    size: 24,
-                    color: isDark
-                        ? Colors.grey.shade600
-                        : const Color(0xFFCCCCCC)),
+                Icon(
+                  Icons.star_outline,
+                  size: 24,
+                  color:
+                      isDark ? Colors.grey.shade600 : const Color(0xFFCCCCCC),
+                ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: Text(cinema.name,
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                          color: isDark ? Colors.white : Colors.black)),
+                  child: Text(
+                    cinema.name,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                      color: isDark ? Colors.white : Colors.black,
+                    ),
+                  ),
                 ),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: isDark
                         ? const Color(0xFFFFB800)
@@ -5858,18 +6087,23 @@ class _FilmDetailPageState extends State<FilmDetailPage>
               children: [
                 Row(
                   children: [
-                    Icon(Icons.theater_comedy,
+                    Icon(
+                      Icons.theater_comedy,
+                      color: isDark
+                          ? Colors.grey.shade400
+                          : const Color(0xFF666666),
+                      size: 16,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Layar besar, suara hebat!',
+                      style: TextStyle(
+                        fontSize: 12,
                         color: isDark
                             ? Colors.grey.shade400
                             : const Color(0xFF666666),
-                        size: 16),
-                    const SizedBox(width: 8),
-                    Text('Layar besar, suara hebat!',
-                        style: TextStyle(
-                            fontSize: 12,
-                            color: isDark
-                                ? Colors.grey.shade400
-                                : const Color(0xFF666666))),
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 12),
@@ -5894,21 +6128,27 @@ class _FilmDetailPageState extends State<FilmDetailPage>
                       },
                       child: Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 8),
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
                         decoration: BoxDecoration(
                           color:
                               isDark ? const Color(0xFF1E1E1E) : Colors.white,
                           border: Border.all(
-                              color: isDark
-                                  ? Colors.grey.shade700
-                                  : const Color(0xFFDDDDDD)),
+                            color: isDark
+                                ? Colors.grey.shade700
+                                : const Color(0xFFDDDDDD),
+                          ),
                           borderRadius: BorderRadius.circular(6),
                         ),
-                        child: Text(time,
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 12,
-                                color: isDark ? Colors.white : Colors.black)),
+                        child: Text(
+                          time,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                            color: isDark ? Colors.white : Colors.black,
+                          ),
+                        ),
                       ),
                     );
                   }).toList(),
@@ -5948,25 +6188,32 @@ class _FilmDetailPageState extends State<FilmDetailPage>
               ),
             ),
             const SizedBox(height: 20),
-            Text('Pilih Bioskop',
-                style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: isDark ? Colors.white : Colors.black)),
+            Text(
+              'Pilih Bioskop',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: isDark ? Colors.white : Colors.black,
+              ),
+            ),
             const SizedBox(height: 20),
             ListTile(
-              leading: Icon(Icons.check_circle_outline,
-                  color: isDark
-                      ? const Color(0xFFFFB800)
-                      : const Color(0xFF001A4D)),
-              title: Text('Semua Bioskop',
-                  style:
-                      TextStyle(color: isDark ? Colors.white : Colors.black)),
+              leading: Icon(
+                Icons.check_circle_outline,
+                color:
+                    isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D),
+              ),
+              title: Text(
+                'Semua Bioskop',
+                style: TextStyle(color: isDark ? Colors.white : Colors.black),
+              ),
               trailing: selectedCinema == 'Semua'
-                  ? Icon(Icons.check,
+                  ? Icon(
+                      Icons.check,
                       color: isDark
                           ? const Color(0xFFFFB800)
-                          : const Color(0xFF001A4D))
+                          : const Color(0xFF001A4D),
+                    )
                   : null,
               onTap: () {
                 setState(() => selectedCinema = 'Semua');
@@ -5975,14 +6222,17 @@ class _FilmDetailPageState extends State<FilmDetailPage>
             ),
             ListTile(
               leading: const Icon(Icons.local_movies, color: Colors.red),
-              title: Text('CGV',
-                  style:
-                      TextStyle(color: isDark ? Colors.white : Colors.black)),
+              title: Text(
+                'CGV',
+                style: TextStyle(color: isDark ? Colors.white : Colors.black),
+              ),
               trailing: selectedCinema == 'CGV'
-                  ? Icon(Icons.check,
+                  ? Icon(
+                      Icons.check,
                       color: isDark
                           ? const Color(0xFFFFB800)
-                          : const Color(0xFF001A4D))
+                          : const Color(0xFF001A4D),
+                    )
                   : null,
               onTap: () {
                 setState(() => selectedCinema = 'CGV');
@@ -5990,18 +6240,22 @@ class _FilmDetailPageState extends State<FilmDetailPage>
               },
             ),
             ListTile(
-              leading: Icon(Icons.local_movies,
-                  color: isDark
-                      ? const Color(0xFFFFB800)
-                      : const Color(0xFF001A4D)),
-              title: Text('XXI',
-                  style:
-                      TextStyle(color: isDark ? Colors.white : Colors.black)),
+              leading: Icon(
+                Icons.local_movies,
+                color:
+                    isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D),
+              ),
+              title: Text(
+                'XXI',
+                style: TextStyle(color: isDark ? Colors.white : Colors.black),
+              ),
               trailing: selectedCinema == 'XXI'
-                  ? Icon(Icons.check,
+                  ? Icon(
+                      Icons.check,
                       color: isDark
                           ? const Color(0xFFFFB800)
-                          : const Color(0xFF001A4D))
+                          : const Color(0xFF001A4D),
+                    )
                   : null,
               onTap: () {
                 setState(() => selectedCinema = 'XXI');
@@ -6010,14 +6264,17 @@ class _FilmDetailPageState extends State<FilmDetailPage>
             ),
             ListTile(
               leading: const Icon(Icons.local_movies, color: Colors.blue),
-              title: Text('IMAX',
-                  style:
-                      TextStyle(color: isDark ? Colors.white : Colors.black)),
+              title: Text(
+                'IMAX',
+                style: TextStyle(color: isDark ? Colors.white : Colors.black),
+              ),
               trailing: selectedCinema == 'IMAX'
-                  ? Icon(Icons.check,
+                  ? Icon(
+                      Icons.check,
                       color: isDark
                           ? const Color(0xFFFFB800)
-                          : const Color(0xFF001A4D))
+                          : const Color(0xFF001A4D),
+                    )
                   : null,
               onTap: () {
                 setState(() => selectedCinema = 'IMAX');
@@ -6026,14 +6283,17 @@ class _FilmDetailPageState extends State<FilmDetailPage>
             ),
             ListTile(
               leading: const Icon(Icons.local_movies, color: Colors.orange),
-              title: Text('CINEPOLIS',
-                  style:
-                      TextStyle(color: isDark ? Colors.white : Colors.black)),
+              title: Text(
+                'CINEPOLIS',
+                style: TextStyle(color: isDark ? Colors.white : Colors.black),
+              ),
               trailing: selectedCinema == 'CINEPOLIS'
-                  ? Icon(Icons.check,
+                  ? Icon(
+                      Icons.check,
                       color: isDark
                           ? const Color(0xFFFFB800)
-                          : const Color(0xFF001A4D))
+                          : const Color(0xFF001A4D),
+                    )
                   : null,
               onTap: () {
                 setState(() => selectedCinema = 'CINEPOLIS');
@@ -6102,6 +6362,8 @@ class _SeatSelectionPageWithAPIState extends State<SeatSelectionPageWithAPI> {
   @override
   void initState() {
     super.initState();
+    // Pastikan cache kursi tidak membawa data user sebelumnya
+    SeatService.clearCache();
     _initializeAndLoadSeats();
   }
 
@@ -6127,21 +6389,35 @@ class _SeatSelectionPageWithAPIState extends State<SeatSelectionPageWithAPI> {
   }
 
   Future<void> _loadSeats() async {
-    final seats = await SeatService.getSeats(
-      filmId: widget.film.id,
-      cinema: widget.cinema,
-      date: widget.date,
-      time: widget.time,
-    );
+    try {
+      final seats = await SeatService.getSeats(
+        filmId: widget.film.id,
+        cinema: widget.cinema,
+        date: widget.date,
+        time: widget.time,
+      );
 
-    if (mounted) {
+      if (!mounted) return;
+
       setState(() {
         seatsData.clear();
         for (var seat in seats) {
-          seatsData[seat['seatNumber']] = seat;
+          final seatNumber =
+              seat['seat_number']?.toString().trim().toUpperCase();
+          if (seatNumber == null) continue;
+          seatsData[seatNumber] = seat;
         }
         isLoading = false;
       });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Gagal memuat kursi: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -6166,7 +6442,7 @@ class _SeatSelectionPageWithAPIState extends State<SeatSelectionPageWithAPI> {
     }
 
     if (seatData['status'] == 'selected' &&
-        seatData['userId'] != widget.userId) {
+        seatData['user_id'] != widget.userId) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Row(
@@ -6199,6 +6475,9 @@ class _SeatSelectionPageWithAPIState extends State<SeatSelectionPageWithAPI> {
   Color getSeatColor(String seatNumber) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final seatData = seatsData[seatNumber];
+    final seatStatus =
+        (seatData?['status'] ?? '').toString().trim().toLowerCase();
+    final seatUserId = seatData?['user_id']?.toString().trim();
 
     if (seatData == null) {
       return isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D);
@@ -6208,12 +6487,11 @@ class _SeatSelectionPageWithAPIState extends State<SeatSelectionPageWithAPI> {
       return isDark ? const Color(0xFF0066CC) : const Color(0xFF0066CC);
     }
 
-    if (seatData['status'] == 'booked') {
-      return isDark ? Colors.grey.shade700 : const Color(0xFFCCCCCC);
+    if (seatStatus == 'booked') {
+      return isDark ? Colors.grey.shade700 : const Color(0xFFB0B0B0);
     }
 
-    if (seatData['status'] == 'selected' &&
-        seatData['userId'] != widget.userId) {
+    if (seatStatus == 'selected' && seatUserId != widget.userId) {
       return isDark ? Colors.grey.shade800 : const Color(0xFFEEEEEE);
     }
 
@@ -6231,16 +6509,18 @@ class _SeatSelectionPageWithAPIState extends State<SeatSelectionPageWithAPI> {
           backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
           elevation: 0,
           leading: IconButton(
-            icon: Icon(Icons.arrow_back,
-                color:
-                    isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D)),
+            icon: Icon(
+              Icons.arrow_back,
+              color: isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D),
+            ),
             onPressed: () => Navigator.pop(context),
           ),
           title: Text(
             'Memuat kursi...',
             style: TextStyle(
-                color: isDark ? Colors.white : const Color(0xFF001A4D),
-                fontSize: 14),
+              color: isDark ? Colors.white : const Color(0xFF001A4D),
+              fontSize: 14,
+            ),
           ),
         ),
         body: Center(
@@ -6248,19 +6528,23 @@ class _SeatSelectionPageWithAPIState extends State<SeatSelectionPageWithAPI> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               CircularProgressIndicator(
-                  color: isDark
-                      ? const Color(0xFFFFB800)
-                      : const Color(0xFF001A4D)),
+                color:
+                    isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D),
+              ),
               const SizedBox(height: 16),
-              Text('Memuat data kursi...',
-                  style: TextStyle(
-                      fontSize: 14,
-                      color: isDark
-                          ? Colors.grey.shade400
-                          : const Color(0xFF666666))),
+              Text(
+                'Memuat data kursi...',
+                style: TextStyle(
+                  fontSize: 14,
+                  color:
+                      isDark ? Colors.grey.shade400 : const Color(0xFF666666),
+                ),
+              ),
               const SizedBox(height: 8),
-              Text('Harap tunggu',
-                  style: TextStyle(fontSize: 12, color: Colors.grey.shade500)),
+              Text(
+                'Harap tunggu',
+                style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+              ),
             ],
           ),
         ),
@@ -6274,9 +6558,10 @@ class _SeatSelectionPageWithAPIState extends State<SeatSelectionPageWithAPI> {
           backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
           elevation: 0,
           leading: IconButton(
-            icon: Icon(Icons.arrow_back,
-                color:
-                    isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D)),
+            icon: Icon(
+              Icons.arrow_back,
+              color: isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D),
+            ),
             onPressed: () => Navigator.pop(context),
           ),
         ),
@@ -6286,14 +6571,19 @@ class _SeatSelectionPageWithAPIState extends State<SeatSelectionPageWithAPI> {
             children: [
               Icon(Icons.error_outline, size: 64, color: Colors.grey.shade400),
               const SizedBox(height: 16),
-              Text('Gagal memuat data kursi',
-                  style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: isDark ? Colors.white : Colors.black)),
+              Text(
+                'Gagal memuat data kursi',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? Colors.white : Colors.black,
+                ),
+              ),
               const SizedBox(height: 8),
-              Text('Periksa koneksi internet Anda',
-                  style: TextStyle(fontSize: 14, color: Colors.grey.shade600)),
+              Text(
+                'Periksa koneksi internet Anda',
+                style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+              ),
               const SizedBox(height: 24),
               ElevatedButton.icon(
                 onPressed: () {
@@ -6303,14 +6593,18 @@ class _SeatSelectionPageWithAPIState extends State<SeatSelectionPageWithAPI> {
                   _initializeAndLoadSeats();
                 },
                 icon: const Icon(Icons.refresh, color: Colors.white),
-                label: const Text('Coba Lagi',
-                    style: TextStyle(color: Colors.white)),
+                label: const Text(
+                  'Coba Lagi',
+                  style: TextStyle(color: Colors.white),
+                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: isDark
                       ? const Color(0xFFFFB800)
                       : const Color(0xFF001A4D),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
                 ),
               ),
             ],
@@ -6326,9 +6620,10 @@ class _SeatSelectionPageWithAPIState extends State<SeatSelectionPageWithAPI> {
         backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back,
-              color:
-                  isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D)),
+          icon: Icon(
+            Icons.arrow_back,
+            color: isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D),
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Column(
@@ -6347,17 +6642,18 @@ class _SeatSelectionPageWithAPIState extends State<SeatSelectionPageWithAPI> {
             Text(
               '${widget.date} | ${widget.time}',
               style: TextStyle(
-                  color:
-                      isDark ? Colors.grey.shade400 : const Color(0xFF666666),
-                  fontSize: 10),
+                color: isDark ? Colors.grey.shade400 : const Color(0xFF666666),
+                fontSize: 10,
+              ),
             ),
           ],
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.access_time,
-                color:
-                    isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D)),
+            icon: Icon(
+              Icons.access_time,
+              color: isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D),
+            ),
             onPressed: () {
               showDialog(
                 context: context,
@@ -6366,21 +6662,28 @@ class _SeatSelectionPageWithAPIState extends State<SeatSelectionPageWithAPI> {
                       isDark ? const Color(0xFF1E1E1E) : Colors.white,
                   title: Row(
                     children: [
-                      Icon(Icons.access_time,
-                          color: isDark
-                              ? const Color(0xFFFFB800)
-                              : const Color(0xFF001A4D),
-                          size: 22),
+                      Icon(
+                        Icons.access_time,
+                        color: isDark
+                            ? const Color(0xFFFFB800)
+                            : const Color(0xFF001A4D),
+                        size: 22,
+                      ),
                       const SizedBox(width: 8),
-                      Text('Waktu Pemesanan',
-                          style: TextStyle(
-                              color: isDark ? Colors.white : Colors.black)),
+                      Text(
+                        'Waktu Pemesanan',
+                        style: TextStyle(
+                          color: isDark ? Colors.white : Colors.black,
+                        ),
+                      ),
                     ],
                   ),
                   content: Text(
-                      'Kursi yang dipilih akan direservasi selama 10 menit.',
-                      style: TextStyle(
-                          color: isDark ? Colors.white70 : Colors.black87)),
+                    'Kursi yang dipilih akan direservasi selama 10 menit.',
+                    style: TextStyle(
+                      color: isDark ? Colors.white70 : Colors.black87,
+                    ),
+                  ),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(context),
@@ -6403,20 +6706,23 @@ class _SeatSelectionPageWithAPIState extends State<SeatSelectionPageWithAPI> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     _buildLegend(
-                        isDark
-                            ? const Color(0xFFFFB800)
-                            : const Color(0xFF001A4D),
-                        'Tersedia',
-                        isDark),
+                      isDark
+                          ? const Color(0xFFFFB800)
+                          : const Color(0xFF001A4D),
+                      'Tersedia',
+                      isDark,
+                    ),
                     _buildLegend(
-                        isDark ? Colors.grey.shade700 : const Color(0xFFCCCCCC),
-                        'Tidak Tersedia',
-                        isDark),
+                      isDark ? Colors.grey.shade700 : const Color(0xFFB0B0B0),
+                      'Sudah Dipesan',
+                      isDark,
+                    ),
                     _buildLegend(const Color(0xFF0066CC), 'Pilihanmu', isDark),
                     _buildLegend(
-                        isDark ? Colors.grey.shade800 : const Color(0xFFEEEEEE),
-                        'Dipilih Lain',
-                        isDark),
+                      isDark ? Colors.grey.shade800 : const Color(0xFFEEEEEE),
+                      'Dipilih Lain',
+                      isDark,
+                    ),
                   ],
                 ),
                 const SizedBox(height: 20),
@@ -6425,9 +6731,10 @@ class _SeatSelectionPageWithAPIState extends State<SeatSelectionPageWithAPI> {
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   decoration: BoxDecoration(
                     border: Border.all(
-                        color: isDark
-                            ? Colors.grey.shade700
-                            : const Color(0xFFDDDDDD)),
+                      color: isDark
+                          ? Colors.grey.shade700
+                          : const Color(0xFFDDDDDD),
+                    ),
                     borderRadius: BorderRadius.circular(8),
                     color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
                   ),
@@ -6453,50 +6760,62 @@ class _SeatSelectionPageWithAPIState extends State<SeatSelectionPageWithAPI> {
                       padding: const EdgeInsets.symmetric(vertical: 4),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: List.generate(
-                          seatLayout[rowIndex].length,
-                          (seatIndex) {
-                            String seat = seatLayout[rowIndex][seatIndex];
-                            if (seat.isEmpty) {
-                              return const SizedBox(width: 32, height: 32);
-                            }
+                        children: List.generate(seatLayout[rowIndex].length, (
+                          seatIndex,
+                        ) {
+                          String seat = seatLayout[rowIndex][seatIndex];
+                          if (seat.isEmpty) {
+                            return const SizedBox(width: 32, height: 32);
+                          }
 
-                            final seatData = seatsData[seat];
-                            bool isBooked = seatData?['status'] == 'booked';
-                            bool isSelectedByOther =
-                                seatData?['status'] == 'selected' &&
-                                    seatData?['userId'] != widget.userId;
+                          final seatData = seatsData[seat];
+                          final seatStatus = (seatData?['status'] ?? '')
+                              .toString()
+                              .trim()
+                              .toLowerCase();
+                          final seatUserId =
+                              seatData?['user_id']?.toString().trim();
+                          bool isBooked = seatStatus == 'booked';
+                          bool isSelectedByOther = seatStatus == 'selected' &&
+                              seatUserId != null &&
+                              seatUserId != widget.userId;
 
-                            return GestureDetector(
-                              onTap: isBooked || isSelectedByOther
-                                  ? null
-                                  : () => _toggleSeat(seat),
-                              child: Container(
-                                width: 32,
-                                height: 32,
-                                margin:
-                                    const EdgeInsets.symmetric(horizontal: 2),
-                                decoration: BoxDecoration(
-                                  color: getSeatColor(seat),
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                                alignment: Alignment.center,
-                                child: Text(
-                                  seat.length > 2 ? seat.substring(0, 2) : seat,
-                                  style: TextStyle(
-                                    color: selectedSeats.contains(seat)
-                                        ? Colors.white
-                                        : (isBooked || isSelectedByOther
-                                            ? const Color(0xFF999999)
-                                            : Colors.white),
-                                    fontSize: 8,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                          return GestureDetector(
+                            onTap: isBooked || isSelectedByOther
+                                ? null
+                                : () => _toggleSeat(seat),
+                            child: Container(
+                              width: 32,
+                              height: 32,
+                              margin: const EdgeInsets.symmetric(horizontal: 2),
+                              decoration: BoxDecoration(
+                                color: isBooked
+                                    ? (isDark
+                                        ? Colors.grey.shade700
+                                        : const Color(0xFFB0B0B0))
+                                    : (isSelectedByOther
+                                        ? (isDark
+                                            ? Colors.grey.shade800
+                                            : const Color(0xFFEEEEEE))
+                                        : getSeatColor(seat)),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              alignment: Alignment.center,
+                              child: Text(
+                                seat.length > 2 ? seat.substring(0, 2) : seat,
+                                style: TextStyle(
+                                  color: selectedSeats.contains(seat)
+                                      ? Colors.white
+                                      : (isBooked || isSelectedByOther
+                                          ? const Color(0xFF999999)
+                                          : Colors.white),
+                                  fontSize: 8,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
-                            );
-                          },
-                        ),
+                            ),
+                          );
+                        }),
                       ),
                     );
                   },
@@ -6534,18 +6853,24 @@ class _SeatSelectionPageWithAPIState extends State<SeatSelectionPageWithAPI> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text('TOTAL HARGA',
-                                style: TextStyle(
-                                    fontSize: 11,
-                                    color: isDark
-                                        ? Colors.grey.shade400
-                                        : const Color(0xFF666666))),
-                            Text('TEMPAT DUDUK',
-                                style: TextStyle(
-                                    fontSize: 11,
-                                    color: isDark
-                                        ? Colors.grey.shade400
-                                        : const Color(0xFF666666))),
+                            Text(
+                              'TOTAL HARGA',
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: isDark
+                                    ? Colors.grey.shade400
+                                    : const Color(0xFF666666),
+                              ),
+                            ),
+                            Text(
+                              'TEMPAT DUDUK',
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: isDark
+                                    ? Colors.grey.shade400
+                                    : const Color(0xFF666666),
+                              ),
+                            ),
                           ],
                         ),
                         const SizedBox(height: 8),
@@ -6615,11 +6940,15 @@ class _SeatSelectionPageWithAPIState extends State<SeatSelectionPageWithAPI> {
                                   const SnackBar(
                                     content: Row(
                                       children: [
-                                        Icon(Icons.error,
-                                            color: Colors.white, size: 20),
+                                        Icon(
+                                          Icons.error,
+                                          color: Colors.white,
+                                          size: 20,
+                                        ),
                                         SizedBox(width: 8),
                                         Text(
-                                            'Gagal booking kursi. Silakan coba lagi.'),
+                                          'Gagal booking kursi. Silakan coba lagi.',
+                                        ),
                                       ],
                                     ),
                                     backgroundColor: Colors.red,
@@ -6680,10 +7009,13 @@ class _SeatSelectionPageWithAPIState extends State<SeatSelectionPageWithAPI> {
           ),
         ),
         const SizedBox(width: 4),
-        Text(label,
-            style: TextStyle(
-                fontSize: 9,
-                color: isDark ? Colors.grey.shade400 : Colors.black87)),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 9,
+            color: isDark ? Colors.grey.shade400 : Colors.black87,
+          ),
+        ),
       ],
     );
   }
@@ -6790,17 +7122,19 @@ class _CheckoutPageState extends State<CheckoutPage> {
         backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back,
-              color:
-                  isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D)),
+          icon: Icon(
+            Icons.arrow_back,
+            color: isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D),
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           'Ringkasan Pembayaran',
           style: TextStyle(
-              color: isDark ? Colors.white : const Color(0xFF001A4D),
-              fontWeight: FontWeight.bold,
-              fontSize: 16),
+            color: isDark ? Colors.white : const Color(0xFF001A4D),
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
         ),
       ),
       body: Column(
@@ -6816,9 +7150,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 Text(
                   'Selesaikan dalam ${_formatTime(_remainingTime)}',
                   style: const TextStyle(
-                      color: Colors.red,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14),
+                    color: Colors.red,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
                 ),
               ],
             ),
@@ -6830,7 +7165,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 _buildFilmInfo(isDark),
                 const SizedBox(height: 16),
                 _buildTransactionDetail(
-                    totalPrice, serviceFee, finalPrice, isDark),
+                  totalPrice,
+                  serviceFee,
+                  finalPrice,
+                  isDark,
+                ),
                 const SizedBox(height: 16),
                 _buildPaymentMethods(isDark),
               ],
@@ -6844,9 +7183,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
           color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
           boxShadow: [
             BoxShadow(
-                color: Colors.black.withOpacity(isDark ? 0.3 : 0.12),
-                blurRadius: 4,
-                offset: const Offset(0, -2))
+              color: Colors.black.withOpacity(isDark ? 0.3 : 0.12),
+              blurRadius: 4,
+              offset: const Offset(0, -2),
+            ),
           ],
         ),
         child: SafeArea(
@@ -6854,8 +7194,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
             onPressed: selectedPaymentMethod == null
                 ? null
                 : () {
-                    final selectedMethod = paymentMethods
-                        .firstWhere((m) => m.id == selectedPaymentMethod);
+                    final selectedMethod = paymentMethods.firstWhere(
+                      (m) => m.id == selectedPaymentMethod,
+                    );
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -6881,9 +7222,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
             label: const Text(
               'LANJUT PEMBAYARAN',
               style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14),
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+              ),
             ),
             style: ElevatedButton.styleFrom(
               backgroundColor: selectedPaymentMethod == null
@@ -6893,7 +7235,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       : const Color(0xFF001A4D)),
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
           ),
         ),
@@ -6909,9 +7252,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
-              blurRadius: 8,
-              offset: const Offset(0, 2))
+            color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
         ],
       ),
       child: Row(
@@ -6940,9 +7284,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 Text(
                   widget.film.title,
                   style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                      color: isDark ? Colors.white : Colors.black),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    color: isDark ? Colors.white : Colors.black,
+                  ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -6951,14 +7296,19 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   children: [
                     const Icon(Icons.star, size: 14, color: Color(0xFFFFB800)),
                     const SizedBox(width: 4),
-                    Text(widget.film.rating,
-                        style: TextStyle(
-                            fontSize: 12,
-                            color: isDark ? Colors.white : Colors.black)),
+                    Text(
+                      widget.film.rating,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isDark ? Colors.white : Colors.black,
+                      ),
+                    ),
                     const SizedBox(width: 12),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 6, vertical: 2),
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
                         color: (isDark
                                 ? const Color(0xFFFFB800)
@@ -6969,11 +7319,12 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       child: Text(
                         widget.film.ageRating,
                         style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                            color: isDark
-                                ? const Color(0xFFFFB800)
-                                : const Color(0xFF001A4D)),
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: isDark
+                              ? const Color(0xFFFFB800)
+                              : const Color(0xFF001A4D),
+                        ),
                       ),
                     ),
                   ],
@@ -6981,20 +7332,23 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    Icon(Icons.location_on,
-                        size: 12,
-                        color: isDark
-                            ? Colors.grey.shade400
-                            : const Color(0xFF666666)),
+                    Icon(
+                      Icons.location_on,
+                      size: 12,
+                      color: isDark
+                          ? Colors.grey.shade400
+                          : const Color(0xFF666666),
+                    ),
                     const SizedBox(width: 4),
                     Expanded(
                       child: Text(
                         widget.cinema,
                         style: TextStyle(
-                            fontSize: 11,
-                            color: isDark
-                                ? Colors.grey.shade400
-                                : const Color(0xFF666666)),
+                          fontSize: 11,
+                          color: isDark
+                              ? Colors.grey.shade400
+                              : const Color(0xFF666666),
+                        ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -7004,18 +7358,21 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    Icon(Icons.calendar_today,
-                        size: 12,
-                        color: isDark
-                            ? Colors.grey.shade400
-                            : const Color(0xFF666666)),
+                    Icon(
+                      Icons.calendar_today,
+                      size: 12,
+                      color: isDark
+                          ? Colors.grey.shade400
+                          : const Color(0xFF666666),
+                    ),
                     const SizedBox(width: 4),
                     Text(
                       '${widget.date}, ${widget.time}',
                       style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: isDark ? Colors.white : Colors.black),
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? Colors.white : Colors.black,
+                      ),
                     ),
                   ],
                 ),
@@ -7028,7 +7385,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   Widget _buildTransactionDetail(
-      int totalPrice, int serviceFee, int finalPrice, bool isDark) {
+    int totalPrice,
+    int serviceFee,
+    int finalPrice,
+    bool isDark,
+  ) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -7036,9 +7397,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
-              blurRadius: 8,
-              offset: const Offset(0, 2))
+            color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
         ],
       ),
       child: Column(
@@ -7046,17 +7408,21 @@ class _CheckoutPageState extends State<CheckoutPage> {
         children: [
           Row(
             children: [
-              Icon(Icons.receipt_long,
-                  color: isDark
-                      ? const Color(0xFFFFB800)
-                      : const Color(0xFF001A4D),
-                  size: 20),
+              Icon(
+                Icons.receipt_long,
+                color:
+                    isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D),
+                size: 20,
+              ),
               const SizedBox(width: 8),
-              Text('Detail Transaksi',
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                      color: isDark ? Colors.white : Colors.black)),
+              Text(
+                'Detail Transaksi',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                  color: isDark ? Colors.white : Colors.black,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 12),
@@ -7082,32 +7448,39 @@ class _CheckoutPageState extends State<CheckoutPage> {
             isDark: isDark,
           ),
           Divider(
-              height: 24,
-              color: isDark ? Colors.grey.shade800 : Colors.grey.shade300),
+            height: 24,
+            color: isDark ? Colors.grey.shade800 : Colors.grey.shade300,
+          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Row(
                 children: [
-                  Icon(Icons.account_balance_wallet,
-                      color: isDark
-                          ? const Color(0xFFFFB800)
-                          : const Color(0xFF001A4D),
-                      size: 20),
+                  Icon(
+                    Icons.account_balance_wallet,
+                    color: isDark
+                        ? const Color(0xFFFFB800)
+                        : const Color(0xFF001A4D),
+                    size: 20,
+                  ),
                   const SizedBox(width: 8),
-                  Text('TOTAL BAYAR',
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                          color: isDark ? Colors.white : Colors.black)),
+                  Text(
+                    'TOTAL BAYAR',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                      color: isDark ? Colors.white : Colors.black,
+                    ),
+                  ),
                 ],
               ),
               Text(
                 'Rp${finalPrice.toString()}',
                 style: const TextStyle(
-                    color: Color(0xFF0066CC),
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18),
+                  color: Color(0xFF0066CC),
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
               ),
             ],
           ),
@@ -7124,25 +7497,32 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }) {
     return Row(
       children: [
-        Icon(icon,
-            size: 16,
-            color: isDark ? Colors.grey.shade400 : const Color(0xFF666666)),
+        Icon(
+          icon,
+          size: 16,
+          color: isDark ? Colors.grey.shade400 : const Color(0xFF666666),
+        ),
         const SizedBox(width: 8),
         Expanded(
-          child: Text(label,
-              style: TextStyle(
-                  fontSize: 12,
-                  color:
-                      isDark ? Colors.grey.shade400 : const Color(0xFF666666))),
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              color: isDark ? Colors.grey.shade400 : const Color(0xFF666666),
+            ),
+          ),
         ),
         const SizedBox(width: 8),
         Flexible(
-          child: Text(value,
-              style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: isDark ? Colors.white : Colors.black),
-              textAlign: TextAlign.right),
+          child: Text(
+            value,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: isDark ? Colors.white : Colors.black,
+            ),
+            textAlign: TextAlign.right,
+          ),
         ),
       ],
     );
@@ -7156,9 +7536,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
-              blurRadius: 8,
-              offset: const Offset(0, 2))
+            color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
         ],
       ),
       child: Column(
@@ -7166,24 +7547,30 @@ class _CheckoutPageState extends State<CheckoutPage> {
         children: [
           Row(
             children: [
-              Icon(Icons.payment,
-                  color: isDark
-                      ? const Color(0xFFFFB800)
-                      : const Color(0xFF001A4D),
-                  size: 20),
+              Icon(
+                Icons.payment,
+                color:
+                    isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D),
+                size: 20,
+              ),
               const SizedBox(width: 8),
-              Text('Metode Pembayaran',
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                      color: isDark ? Colors.white : Colors.black)),
+              Text(
+                'Metode Pembayaran',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                  color: isDark ? Colors.white : Colors.black,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 12),
-          ...paymentMethods.map((method) => Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: _buildPaymentOption(method, isDark),
-              )),
+          ...paymentMethods.map(
+            (method) => Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: _buildPaymentOption(method, isDark),
+            ),
+          ),
         ],
       ),
     );
@@ -7241,19 +7628,23 @@ class _CheckoutPageState extends State<CheckoutPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(method.name,
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13,
-                          color: isDark ? Colors.white : Colors.black)),
+                  Text(
+                    method.name,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                      color: isDark ? Colors.white : Colors.black,
+                    ),
+                  ),
                   const SizedBox(height: 4),
                   Text(
                     method.description,
                     style: TextStyle(
-                        fontSize: 11,
-                        color: isDark
-                            ? Colors.grey.shade400
-                            : const Color(0xFF666666)),
+                      fontSize: 11,
+                      color: isDark
+                          ? Colors.grey.shade400
+                          : const Color(0xFF666666),
+                    ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -7317,7 +7708,8 @@ class _PaymentConfirmPageState extends State<PaymentConfirmPage> {
 
   Future<void> _launchQRISUrl() async {
     final Uri url = Uri.parse(
-        'https://qris.online/homepage/plink/TIX${widget.totalAmount}');
+      'https://qris.online/homepage/plink/TIX${widget.totalAmount}',
+    );
     if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -7359,7 +7751,8 @@ class _PaymentConfirmPageState extends State<PaymentConfirmPage> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                      'QR Code berhasil diunduh!\nTotal: Rp${widget.totalAmount}'),
+                    'QR Code berhasil diunduh!\nTotal: Rp${widget.totalAmount}',
+                  ),
                 ),
               ],
             ),
@@ -7407,9 +7800,7 @@ class _PaymentConfirmPageState extends State<PaymentConfirmPage> {
       barrierDismissible: false,
       builder: (context) => AlertDialog(
         backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -7561,15 +7952,16 @@ class _PaymentConfirmPageState extends State<PaymentConfirmPage> {
               children: [
                 const Icon(Icons.warning, color: Colors.orange, size: 22),
                 const SizedBox(width: 8),
-                Text('Batalkan Pembayaran?',
-                    style:
-                        TextStyle(color: isDark ? Colors.white : Colors.black)),
+                Text(
+                  'Batalkan Pembayaran?',
+                  style: TextStyle(color: isDark ? Colors.white : Colors.black),
+                ),
               ],
             ),
             content: Text(
-                'Apakah Anda yakin ingin membatalkan proses pembayaran?',
-                style:
-                    TextStyle(color: isDark ? Colors.white70 : Colors.black87)),
+              'Apakah Anda yakin ingin membatalkan proses pembayaran?',
+              style: TextStyle(color: isDark ? Colors.white70 : Colors.black87),
+            ),
             actions: [
               TextButton.icon(
                 onPressed: () => Navigator.pop(context, false),
@@ -7579,8 +7971,10 @@ class _PaymentConfirmPageState extends State<PaymentConfirmPage> {
               ElevatedButton.icon(
                 onPressed: () => Navigator.pop(context, true),
                 icon: const Icon(Icons.check, color: Colors.white),
-                label: const Text('Ya, Batalkan',
-                    style: TextStyle(color: Colors.white)),
+                label: const Text(
+                  'Ya, Batalkan',
+                  style: TextStyle(color: Colors.white),
+                ),
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
               ),
             ],
@@ -7595,9 +7989,10 @@ class _PaymentConfirmPageState extends State<PaymentConfirmPage> {
           backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
           elevation: 0,
           leading: IconButton(
-            icon: Icon(Icons.arrow_back,
-                color:
-                    isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D)),
+            icon: Icon(
+              Icons.arrow_back,
+              color: isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D),
+            ),
             onPressed: () async {
               final shouldPop = await showDialog<bool>(
                 context: context,
@@ -7608,15 +8003,20 @@ class _PaymentConfirmPageState extends State<PaymentConfirmPage> {
                     children: [
                       const Icon(Icons.warning, color: Colors.orange, size: 22),
                       const SizedBox(width: 8),
-                      Text('Batalkan Pembayaran?',
-                          style: TextStyle(
-                              color: isDark ? Colors.white : Colors.black)),
+                      Text(
+                        'Batalkan Pembayaran?',
+                        style: TextStyle(
+                          color: isDark ? Colors.white : Colors.black,
+                        ),
+                      ),
                     ],
                   ),
                   content: Text(
-                      'Apakah Anda yakin ingin membatalkan proses pembayaran?',
-                      style: TextStyle(
-                          color: isDark ? Colors.white70 : Colors.black87)),
+                    'Apakah Anda yakin ingin membatalkan proses pembayaran?',
+                    style: TextStyle(
+                      color: isDark ? Colors.white70 : Colors.black87,
+                    ),
+                  ),
                   actions: [
                     TextButton.icon(
                       onPressed: () => Navigator.pop(context, false),
@@ -7626,10 +8026,13 @@ class _PaymentConfirmPageState extends State<PaymentConfirmPage> {
                     ElevatedButton.icon(
                       onPressed: () => Navigator.pop(context, true),
                       icon: const Icon(Icons.check, color: Colors.white),
-                      label: const Text('Ya, Batalkan',
-                          style: TextStyle(color: Colors.white)),
-                      style:
-                          ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                      label: const Text(
+                        'Ya, Batalkan',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                      ),
                     ),
                   ],
                 ),
@@ -7640,9 +8043,10 @@ class _PaymentConfirmPageState extends State<PaymentConfirmPage> {
           title: Text(
             'Pembayaran ${widget.paymentMethod.name}',
             style: TextStyle(
-                color: isDark ? Colors.white : const Color(0xFF001A4D),
-                fontWeight: FontWeight.bold,
-                fontSize: 16),
+              color: isDark ? Colors.white : const Color(0xFF001A4D),
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
           ),
         ),
         body: ListView(
@@ -7658,9 +8062,10 @@ class _PaymentConfirmPageState extends State<PaymentConfirmPage> {
                   Text(
                     'Selesaikan dalam ${_formatTime(_remainingTime)}',
                     style: const TextStyle(
-                        color: Colors.red,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14),
+                      color: Colors.red,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
                   ),
                 ],
               ),
@@ -7676,9 +8081,9 @@ class _PaymentConfirmPageState extends State<PaymentConfirmPage> {
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
-                            color:
-                                Colors.black.withOpacity(isDark ? 0.3 : 0.05),
-                            blurRadius: 8)
+                          color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+                          blurRadius: 8,
+                        ),
                       ],
                     ),
                     child: Column(
@@ -7686,16 +8091,19 @@ class _PaymentConfirmPageState extends State<PaymentConfirmPage> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(widget.paymentMethod.iconData,
-                                color: widget.paymentMethod.iconColor,
-                                size: 32),
+                            Icon(
+                              widget.paymentMethod.iconData,
+                              color: widget.paymentMethod.iconColor,
+                              size: 32,
+                            ),
                             const SizedBox(width: 12),
                             Text(
                               widget.paymentMethod.name,
                               style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 20,
-                                  color: isDark ? Colors.white : Colors.black),
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                                color: isDark ? Colors.white : Colors.black,
+                              ),
                             ),
                           ],
                         ),
@@ -7708,38 +8116,45 @@ class _PaymentConfirmPageState extends State<PaymentConfirmPage> {
                                 : const Color(0xFFF0F8FF),
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
-                                color: isDark
-                                    ? const Color(0xFFFFB800)
-                                    : const Color(0xFF0066CC)),
+                              color: isDark
+                                  ? const Color(0xFFFFB800)
+                                  : const Color(0xFF0066CC),
+                            ),
                           ),
                           child: Column(
                             children: [
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(Icons.account_balance_wallet,
-                                      color: isDark
-                                          ? const Color(0xFFFFB800)
-                                          : const Color(0xFF0066CC),
-                                      size: 20),
+                                  Icon(
+                                    Icons.account_balance_wallet,
+                                    color: isDark
+                                        ? const Color(0xFFFFB800)
+                                        : const Color(0xFF0066CC),
+                                    size: 20,
+                                  ),
                                   const SizedBox(width: 8),
-                                  Text('Total Pembayaran',
-                                      style: TextStyle(
-                                          fontSize: 13,
-                                          color: isDark
-                                              ? Colors.grey.shade400
-                                              : const Color(0xFF666666))),
+                                  Text(
+                                    'Total Pembayaran',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: isDark
+                                          ? Colors.grey.shade400
+                                          : const Color(0xFF666666),
+                                    ),
+                                  ),
                                 ],
                               ),
                               const SizedBox(height: 8),
                               Text(
                                 'Rp${widget.totalAmount}',
                                 style: TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    color: isDark
-                                        ? const Color(0xFFFFB800)
-                                        : const Color(0xFF0066CC)),
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: isDark
+                                      ? const Color(0xFFFFB800)
+                                      : const Color(0xFF0066CC),
+                                ),
                               ),
                             ],
                           ),
@@ -7751,26 +8166,34 @@ class _PaymentConfirmPageState extends State<PaymentConfirmPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.qr_code_scanner,
-                          color: isDark
-                              ? const Color(0xFFFFB800)
-                              : const Color(0xFF001A4D),
-                          size: 22),
+                      Icon(
+                        Icons.qr_code_scanner,
+                        color: isDark
+                            ? const Color(0xFFFFB800)
+                            : const Color(0xFF001A4D),
+                        size: 22,
+                      ),
                       const SizedBox(width: 8),
-                      Text('Pindai kode QR untuk membayar',
-                          style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                              color: isDark ? Colors.white : Colors.black)),
+                      Text(
+                        'Pindai kode QR untuk membayar',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: isDark ? Colors.white : Colors.black,
+                        ),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 8),
-                  Text('Mohon jangan menutup aplikasi ini',
-                      style: TextStyle(
-                          fontSize: 12,
-                          color: isDark
-                              ? Colors.grey.shade400
-                              : const Color(0xFF666666))),
+                  Text(
+                    'Mohon jangan menutup aplikasi ini',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: isDark
+                          ? Colors.grey.shade400
+                          : const Color(0xFF666666),
+                    ),
+                  ),
                   const SizedBox(height: 24),
                   Container(
                     padding: const EdgeInsets.all(20),
@@ -7779,9 +8202,9 @@ class _PaymentConfirmPageState extends State<PaymentConfirmPage> {
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
-                            color:
-                                Colors.black.withOpacity(isDark ? 0.3 : 0.05),
-                            blurRadius: 8)
+                          color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+                          blurRadius: 8,
+                        ),
                       ],
                     ),
                     child: Column(
@@ -7803,25 +8226,34 @@ class _PaymentConfirmPageState extends State<PaymentConfirmPage> {
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(Icons.qr_code,
-                                      size: 80, color: Color(0xFFCCCCCC)),
+                                  Icon(
+                                    Icons.qr_code,
+                                    size: 80,
+                                    color: Color(0xFFCCCCCC),
+                                  ),
                                   SizedBox(height: 8),
-                                  Text('QR CODE',
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          color: Color(0xFFCCCCCC))),
+                                  Text(
+                                    'QR CODE',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Color(0xFFCCCCCC),
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
                           ),
                         ),
                         const SizedBox(height: 16),
-                        Text('Scan dengan aplikasi e-wallet Anda',
-                            style: TextStyle(
-                                fontSize: 12,
-                                color: isDark
-                                    ? Colors.grey.shade400
-                                    : const Color(0xFF666666))),
+                        Text(
+                          'Scan dengan aplikasi e-wallet Anda',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: isDark
+                                ? Colors.grey.shade400
+                                : const Color(0xFF666666),
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -7839,10 +8271,11 @@ class _PaymentConfirmPageState extends State<PaymentConfirmPage> {
                             ? const Color(0xFFFFB800)
                             : const Color(0xFF001A4D),
                         side: BorderSide(
-                            color: isDark
-                                ? const Color(0xFFFFB800)
-                                : const Color(0xFF001A4D),
-                            width: 2),
+                          color: isDark
+                              ? const Color(0xFFFFB800)
+                              : const Color(0xFF001A4D),
+                          width: 2,
+                        ),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
@@ -7865,10 +8298,11 @@ class _PaymentConfirmPageState extends State<PaymentConfirmPage> {
                             ? const Color(0xFFFFB800)
                             : const Color(0xFF001A4D),
                         side: BorderSide(
-                            color: isDark
-                                ? const Color(0xFFFFB800)
-                                : const Color(0xFF001A4D),
-                            width: 2),
+                          color: isDark
+                              ? const Color(0xFFFFB800)
+                              : const Color(0xFF001A4D),
+                          width: 2,
+                        ),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
@@ -7886,23 +8320,28 @@ class _PaymentConfirmPageState extends State<PaymentConfirmPage> {
                           : const Color(0xFFFFF8E1),
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                          color: isDark
-                              ? const Color(0xFFFFB800)
-                              : const Color(0xFFFFB800)),
+                        color: isDark
+                            ? const Color(0xFFFFB800)
+                            : const Color(0xFFFFB800),
+                      ),
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.info_outline,
-                            color: Color(0xFFFFB800), size: 20),
+                        const Icon(
+                          Icons.info_outline,
+                          color: Color(0xFFFFB800),
+                          size: 20,
+                        ),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
                             'Pastikan pembayaran berhasil sebelum menutup halaman',
                             style: TextStyle(
-                                fontSize: 11,
-                                color: isDark
-                                    ? Colors.grey.shade300
-                                    : const Color(0xFF666666)),
+                              fontSize: 11,
+                              color: isDark
+                                  ? Colors.grey.shade300
+                                  : const Color(0xFF666666),
+                            ),
                           ),
                         ),
                       ],
@@ -7913,14 +8352,18 @@ class _PaymentConfirmPageState extends State<PaymentConfirmPage> {
                     width: double.infinity,
                     child: ElevatedButton.icon(
                       onPressed: _showSuccessNotificationAndNavigate,
-                      icon: const Icon(Icons.check_circle,
-                          color: Colors.white, size: 20),
+                      icon: const Icon(
+                        Icons.check_circle,
+                        color: Colors.white,
+                        size: 20,
+                      ),
                       label: const Text(
                         'CEK STATUS PEMBAYARAN',
                         style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 13),
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                        ),
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: isDark
@@ -8040,9 +8483,11 @@ class _TicketSuccessPageState extends State<TicketSuccessPage> {
     print('📌 Total: Rp${ticket.totalAmount}');
     print('📌 Status: ${ticket.status}');
     print(
-        '📌 Total Active Tickets: ${TicketHistoryService.getActiveTickets().length}');
+      '📌 Total Active Tickets: ${TicketHistoryService.getActiveTickets().length}',
+    );
     print(
-        '📌 Admin Notifications: ${AdminNotificationService.getUnreadCount()}');
+      '📌 Admin Notifications: ${AdminNotificationService.getUnreadCount()}',
+    );
     print('═══════════════════════════════════════');
     print('');
   }
@@ -8083,10 +8528,7 @@ class _TicketSuccessPageState extends State<TicketSuccessPage> {
                     const SizedBox(height: 4),
                     Text(
                       'Tiket ${widget.film.title} berhasil dipesan',
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: Colors.white,
-                      ),
+                      style: const TextStyle(fontSize: 13, color: Colors.white),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -8112,9 +8554,7 @@ class _TicketSuccessPageState extends State<TicketSuccessPage> {
           right: 16,
         ),
         duration: const Duration(seconds: 4),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         elevation: 10,
         padding: const EdgeInsets.all(16),
       ),
@@ -8240,9 +8680,10 @@ class _TicketSuccessPageState extends State<TicketSuccessPage> {
                         : const Color(0xFFF5F5F5),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                        color: isDark
-                            ? Colors.grey.shade800
-                            : const Color(0xFFDDDDDD)),
+                      color: isDark
+                          ? Colors.grey.shade800
+                          : const Color(0xFFDDDDDD),
+                    ),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -8367,9 +8808,10 @@ class _TicketSuccessPageState extends State<TicketSuccessPage> {
                     color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                        color: isDark
-                            ? Colors.grey.shade800
-                            : const Color(0xFFDDDDDD)),
+                      color: isDark
+                          ? Colors.grey.shade800
+                          : const Color(0xFFDDDDDD),
+                    ),
                   ),
                   child: Column(
                     children: [
@@ -8401,9 +8843,10 @@ class _TicketSuccessPageState extends State<TicketSuccessPage> {
                               : const Color(0xFFF5F5F5),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                              color: isDark
-                                  ? Colors.grey.shade700
-                                  : const Color(0xFFDDDDDD)),
+                            color: isDark
+                                ? Colors.grey.shade700
+                                : const Color(0xFFDDDDDD),
+                          ),
                         ),
                         child: Image.network(
                           'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=$bookingId',
@@ -8457,9 +8900,10 @@ class _TicketSuccessPageState extends State<TicketSuccessPage> {
                         : const Color(0xFFF0F8FF),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                        color: isDark
-                            ? const Color(0xFFFFB800)
-                            : const Color(0xFF0066CC)),
+                      color: isDark
+                          ? const Color(0xFFFFB800)
+                          : const Color(0xFF0066CC),
+                    ),
                   ),
                   child: Row(
                     children: [
@@ -8510,11 +8954,13 @@ class _TicketSuccessPageState extends State<TicketSuccessPage> {
                 width: double.infinity,
                 child: OutlinedButton.icon(
                   onPressed: _downloadETicket,
-                  icon: Icon(Icons.download,
-                      size: 18,
-                      color: isDark
-                          ? const Color(0xFFFFB800)
-                          : const Color(0xFF001A4D)),
+                  icon: Icon(
+                    Icons.download,
+                    size: 18,
+                    color: isDark
+                        ? const Color(0xFFFFB800)
+                        : const Color(0xFF001A4D),
+                  ),
                   label: Text(
                     'DOWNLOAD E-TICKET',
                     style: TextStyle(
@@ -8686,12 +9132,15 @@ class _TicketHistoryPageState extends State<TicketHistoryPage>
     );
   }
 
-  Widget _buildTicketList(List<TicketHistory> tickets,
-      {required bool isActive}) {
+  Widget _buildTicketList(
+    List<TicketHistory> tickets, {
+    required bool isActive,
+  }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     print(
-        'Building ${isActive ? "AKTIF" : "RIWAYAT"} list with ${tickets.length} tickets');
+      'Building ${isActive ? "AKTIF" : "RIWAYAT"} list with ${tickets.length} tickets',
+    );
 
     if (tickets.isEmpty) {
       return Center(
@@ -8732,14 +9181,18 @@ class _TicketHistoryPageState extends State<TicketHistoryPage>
                   }
                 },
                 icon: const Icon(Icons.add, color: Colors.white),
-                label: const Text('Pesan Tiket',
-                    style: TextStyle(color: Colors.white)),
+                label: const Text(
+                  'Pesan Tiket',
+                  style: TextStyle(color: Colors.white),
+                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: isDark
                       ? const Color(0xFFFFB800)
                       : const Color(0xFF001A4D),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
                 ),
               ),
           ],
@@ -8882,8 +9335,11 @@ class _TicketHistoryPageState extends State<TicketHistoryPage>
                       const SizedBox(height: 8),
                       Row(
                         children: [
-                          const Icon(Icons.star,
-                              size: 14, color: Color(0xFFFFB800)),
+                          const Icon(
+                            Icons.star,
+                            size: 14,
+                            color: Color(0xFFFFB800),
+                          ),
                           const SizedBox(width: 4),
                           Text(
                             ticket.film.rating,
@@ -8895,7 +9351,9 @@ class _TicketHistoryPageState extends State<TicketHistoryPage>
                           const SizedBox(width: 12),
                           Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 6, vertical: 2),
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
                             decoration: BoxDecoration(
                               color: (isDark
                                       ? const Color(0xFFFFB800)
@@ -9051,8 +9509,11 @@ class _TicketHistoryPageState extends State<TicketHistoryPage>
                       ),
                     );
                   },
-                  icon:
-                      const Icon(Icons.qr_code, color: Colors.white, size: 16),
+                  icon: const Icon(
+                    Icons.qr_code,
+                    color: Colors.white,
+                    size: 16,
+                  ),
                   label: const Text(
                     'LIHAT DETAIL',
                     style: TextStyle(
@@ -9066,7 +9527,9 @@ class _TicketHistoryPageState extends State<TicketHistoryPage>
                         ? const Color(0xFFFFB800)
                         : const Color(0xFF001A4D),
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 10),
+                      horizontal: 16,
+                      vertical: 10,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -9271,8 +9734,11 @@ Tunjukkan e-ticket ini di bioskop.
                     const SnackBar(
                       content: Row(
                         children: [
-                          Icon(Icons.check_circle,
-                              color: Colors.white, size: 20),
+                          Icon(
+                            Icons.check_circle,
+                            color: Colors.white,
+                            size: 20,
+                          ),
                           SizedBox(width: 8),
                           Text('Teks berhasil disalin!'),
                         ],
@@ -9329,8 +9795,11 @@ Tunjukkan e-ticket ini di bioskop.
                       const SnackBar(
                         content: Row(
                           children: [
-                            Icon(Icons.check_circle,
-                                color: Colors.white, size: 20),
+                            Icon(
+                              Icons.check_circle,
+                              color: Colors.white,
+                              size: 20,
+                            ),
                             SizedBox(width: 8),
                             Text('E-Ticket berhasil dibagikan!'),
                           ],
@@ -9371,8 +9840,11 @@ Tunjukkan e-ticket ini di bioskop.
                     SnackBar(
                       content: Row(
                         children: [
-                          const Icon(Icons.share,
-                              color: Colors.white, size: 20),
+                          const Icon(
+                            Icons.share,
+                            color: Colors.white,
+                            size: 20,
+                          ),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text('Booking ID: ${ticket.bookingId}'),
@@ -10028,12 +10500,14 @@ class _ProfilePageState extends State<ProfilePage> {
                             ? 'Masukkan URL foto profil'
                             : 'Masukkan URL background',
             hintStyle: TextStyle(
-                color: isDark ? Colors.grey.shade600 : Colors.grey.shade400),
+              color: isDark ? Colors.grey.shade600 : Colors.grey.shade400,
+            ),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
               borderSide: BorderSide(
-                  color: isDark ? Colors.grey.shade700 : Colors.grey.shade300),
+                color: isDark ? Colors.grey.shade700 : Colors.grey.shade300,
+              ),
             ),
             prefixIcon: Icon(
               field == 'name'
@@ -10055,12 +10529,16 @@ class _ProfilePageState extends State<ProfilePage> {
         actions: [
           TextButton.icon(
             onPressed: () => Navigator.pop(context),
-            icon: Icon(Icons.close,
-                color: isDark ? Colors.grey.shade400 : Colors.grey.shade600),
-            label: Text('Batal',
-                style: TextStyle(
-                    color:
-                        isDark ? Colors.grey.shade400 : Colors.grey.shade600)),
+            icon: Icon(
+              Icons.close,
+              color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+            ),
+            label: Text(
+              'Batal',
+              style: TextStyle(
+                color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+              ),
+            ),
           ),
           ElevatedButton.icon(
             onPressed: () {
@@ -10100,8 +10578,11 @@ class _ProfilePageState extends State<ProfilePage> {
                 SnackBar(
                   content: Row(
                     children: [
-                      const Icon(Icons.check_circle,
-                          color: Colors.white, size: 20),
+                      const Icon(
+                        Icons.check_circle,
+                        color: Colors.white,
+                        size: 20,
+                      ),
                       const SizedBox(width: 8),
                       Text(
                         '${field == "name" ? "Nama" : field == "phone" ? "Nomor telepon" : field == "email" ? "Email" : field == "profile" ? "Foto profil" : "Background"} berhasil diperbarui!',
@@ -10115,8 +10596,9 @@ class _ProfilePageState extends State<ProfilePage> {
             icon: const Icon(Icons.save, color: Colors.white),
             label: const Text('Simpan', style: TextStyle(color: Colors.white)),
             style: ElevatedButton.styleFrom(
-                backgroundColor:
-                    isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D)),
+              backgroundColor:
+                  isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D),
+            ),
           ),
         ],
       ),
@@ -10162,22 +10644,26 @@ class _ProfilePageState extends State<ProfilePage> {
         backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
         title: Row(
           children: [
-            Icon(Icons.wc,
-                color:
-                    isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D),
-                size: 22),
+            Icon(
+              Icons.wc,
+              color: isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D),
+              size: 22,
+            ),
             const SizedBox(width: 8),
-            Text('Edit Jenis Kelamin',
-                style: TextStyle(color: isDark ? Colors.white : Colors.black)),
+            Text(
+              'Edit Jenis Kelamin',
+              style: TextStyle(color: isDark ? Colors.white : Colors.black),
+            ),
           ],
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             RadioListTile<String>(
-              title: Text('Laki-laki',
-                  style:
-                      TextStyle(color: isDark ? Colors.white : Colors.black)),
+              title: Text(
+                'Laki-laki',
+                style: TextStyle(color: isDark ? Colors.white : Colors.black),
+              ),
               value: 'Laki-laki',
               groupValue: userProfile!.gender,
               activeColor:
@@ -10203,9 +10689,10 @@ class _ProfilePageState extends State<ProfilePage> {
               },
             ),
             RadioListTile<String>(
-              title: Text('Perempuan',
-                  style:
-                      TextStyle(color: isDark ? Colors.white : Colors.black)),
+              title: Text(
+                'Perempuan',
+                style: TextStyle(color: isDark ? Colors.white : Colors.black),
+              ),
               value: 'Perempuan',
               groupValue: userProfile!.gender,
               activeColor:
@@ -10235,12 +10722,16 @@ class _ProfilePageState extends State<ProfilePage> {
         actions: [
           TextButton.icon(
             onPressed: () => Navigator.pop(context),
-            icon: Icon(Icons.close,
-                color: isDark ? Colors.grey.shade400 : Colors.grey.shade600),
-            label: Text('Batal',
-                style: TextStyle(
-                    color:
-                        isDark ? Colors.grey.shade400 : Colors.grey.shade600)),
+            icon: Icon(
+              Icons.close,
+              color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+            ),
+            label: Text(
+              'Batal',
+              style: TextStyle(
+                color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+              ),
+            ),
           ),
         ],
       ),
@@ -10256,8 +10747,8 @@ class _ProfilePageState extends State<ProfilePage> {
         backgroundColor: isDark ? const Color(0xFF121212) : Colors.white,
         body: Center(
           child: CircularProgressIndicator(
-              color:
-                  isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D)),
+            color: isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D),
+          ),
         ),
       );
     }
@@ -10286,11 +10777,11 @@ class _ProfilePageState extends State<ProfilePage> {
                           colors: isDark
                               ? [
                                   const Color(0xFF2A2A2A),
-                                  const Color(0xFF1E1E1E)
+                                  const Color(0xFF1E1E1E),
                                 ]
                               : [
                                   const Color(0xFF001A4D),
-                                  const Color(0xFF0066CC)
+                                  const Color(0xFF0066CC),
                                 ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
@@ -10305,7 +10796,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         end: Alignment.bottomCenter,
                         colors: [
                           Colors.black.withOpacity(0.3),
-                          Colors.black.withOpacity(0.7)
+                          Colors.black.withOpacity(0.7),
                         ],
                       ),
                     ),
@@ -10319,8 +10810,11 @@ class _ProfilePageState extends State<ProfilePage> {
                         shape: BoxShape.circle,
                       ),
                       child: IconButton(
-                        icon: const Icon(Icons.edit,
-                            color: Colors.white, size: 20),
+                        icon: const Icon(
+                          Icons.edit,
+                          color: Colors.white,
+                          size: 20,
+                        ),
                         onPressed: () => _showEditDialog('background'),
                         tooltip: 'Edit Background',
                       ),
@@ -10343,10 +10837,11 @@ class _ProfilePageState extends State<ProfilePage> {
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               border: Border.all(
-                                  color: isDark
-                                      ? const Color(0xFFFFB800)
-                                      : Colors.white,
-                                  width: 4),
+                                color: isDark
+                                    ? const Color(0xFFFFB800)
+                                    : Colors.white,
+                                width: 4,
+                              ),
                               boxShadow: [
                                 BoxShadow(
                                   color: Colors.black.withOpacity(0.2),
@@ -10367,11 +10862,13 @@ class _ProfilePageState extends State<ProfilePage> {
                                   height: 120,
                                   fit: BoxFit.cover,
                                   errorBuilder: (context, error, stackTrace) {
-                                    return Icon(Icons.person,
-                                        size: 60,
-                                        color: isDark
-                                            ? const Color(0xFFFFB800)
-                                            : Colors.white);
+                                    return Icon(
+                                      Icons.person,
+                                      size: 60,
+                                      color: isDark
+                                          ? const Color(0xFFFFB800)
+                                          : Colors.white,
+                                    );
                                   },
                                 ),
                               ),
@@ -10387,14 +10884,18 @@ class _ProfilePageState extends State<ProfilePage> {
                                     : const Color(0xFF001A4D),
                                 shape: BoxShape.circle,
                                 border: Border.all(
-                                    color: isDark
-                                        ? const Color(0xFF2A2A2A)
-                                        : Colors.white,
-                                    width: 2),
+                                  color: isDark
+                                      ? const Color(0xFF2A2A2A)
+                                      : Colors.white,
+                                  width: 2,
+                                ),
                               ),
                               child: IconButton(
-                                icon: const Icon(Icons.camera_alt,
-                                    color: Colors.white, size: 20),
+                                icon: const Icon(
+                                  Icons.camera_alt,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
                                 onPressed: () => _showEditDialog('profile'),
                                 padding: const EdgeInsets.all(8),
                                 constraints: const BoxConstraints(),
@@ -10404,27 +10905,35 @@ class _ProfilePageState extends State<ProfilePage> {
                         ],
                       ),
                       const SizedBox(height: 16),
-                      Text(userProfile!.name,
-                          style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              color: isDark
-                                  ? Colors.white
-                                  : const Color(0xFF001A4D))),
+                      Text(
+                        userProfile!.name,
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color:
+                              isDark ? Colors.white : const Color(0xFF001A4D),
+                        ),
+                      ),
                       const SizedBox(height: 4),
-                      Text(userProfile!.phoneNumber,
-                          style: TextStyle(
-                              fontSize: 13,
-                              color: isDark
-                                  ? Colors.grey.shade400
-                                  : const Color(0xFF666666))),
+                      Text(
+                        userProfile!.phoneNumber,
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: isDark
+                              ? Colors.grey.shade400
+                              : const Color(0xFF666666),
+                        ),
+                      ),
                       if (userProfile!.email.isNotEmpty)
-                        Text(userProfile!.email,
-                            style: TextStyle(
-                                fontSize: 12,
-                                color: isDark
-                                    ? Colors.grey.shade500
-                                    : const Color(0xFF999999))),
+                        Text(
+                          userProfile!.email,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: isDark
+                                ? Colors.grey.shade500
+                                : const Color(0xFF999999),
+                          ),
+                        ),
                     ],
                   ),
                 ),
@@ -10458,9 +10967,10 @@ class _ProfilePageState extends State<ProfilePage> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
-              blurRadius: 8,
-              offset: const Offset(0, 2))
+            color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
         ],
       ),
       child: Column(
@@ -10470,18 +10980,22 @@ class _ProfilePageState extends State<ProfilePage> {
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
-                Icon(Icons.info_outline,
-                    color: isDark
-                        ? const Color(0xFFFFB800)
-                        : const Color(0xFF001A4D),
-                    size: 20),
+                Icon(
+                  Icons.info_outline,
+                  color: isDark
+                      ? const Color(0xFFFFB800)
+                      : const Color(0xFF001A4D),
+                  size: 20,
+                ),
                 const SizedBox(width: 8),
-                Text('Informasi Profil',
-                    style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                        color:
-                            isDark ? Colors.white : const Color(0xFF001A4D))),
+                Text(
+                  'Informasi Profil',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : const Color(0xFF001A4D),
+                  ),
+                ),
               ],
             ),
           ),
@@ -10492,8 +11006,9 @@ class _ProfilePageState extends State<ProfilePage> {
             onTap: () => _showEditDialog('name'),
           ),
           Divider(
-              height: 1,
-              color: isDark ? Colors.grey.shade800 : Colors.grey.shade200),
+            height: 1,
+            color: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
+          ),
           _buildProfileItem(
             icon: Icons.phone,
             title: 'Nomor Telepon',
@@ -10501,8 +11016,9 @@ class _ProfilePageState extends State<ProfilePage> {
             onTap: () => _showEditDialog('phone'),
           ),
           Divider(
-              height: 1,
-              color: isDark ? Colors.grey.shade800 : Colors.grey.shade200),
+            height: 1,
+            color: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
+          ),
           _buildProfileItem(
             icon: Icons.email,
             title: 'Email',
@@ -10511,8 +11027,9 @@ class _ProfilePageState extends State<ProfilePage> {
             onTap: () => _showEditDialog('email'),
           ),
           Divider(
-              height: 1,
-              color: isDark ? Colors.grey.shade800 : Colors.grey.shade200),
+            height: 1,
+            color: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
+          ),
           _buildProfileItem(
             icon: Icons.cake,
             title: 'Tanggal Lahir',
@@ -10522,8 +11039,9 @@ class _ProfilePageState extends State<ProfilePage> {
             onTap: () => _showEditDialog('birthdate'),
           ),
           Divider(
-              height: 1,
-              color: isDark ? Colors.grey.shade800 : Colors.grey.shade200),
+            height: 1,
+            color: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
+          ),
           _buildProfileItem(
             icon: Icons.wc,
             title: 'Jenis Kelamin',
@@ -10551,22 +11069,32 @@ class _ProfilePageState extends State<ProfilePage> {
               .withOpacity(0.1),
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Icon(icon,
-            color: isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D),
-            size: 20),
-      ),
-      title: Text(title,
-          style: TextStyle(
-              fontSize: 11,
-              color: isDark ? Colors.grey.shade400 : const Color(0xFF666666))),
-      subtitle: Text(subtitle,
-          style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: isDark ? Colors.white : Colors.black)),
-      trailing: Icon(Icons.edit,
+        child: Icon(
+          icon,
           color: isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D),
-          size: 20),
+          size: 20,
+        ),
+      ),
+      title: Text(
+        title,
+        style: TextStyle(
+          fontSize: 11,
+          color: isDark ? Colors.grey.shade400 : const Color(0xFF666666),
+        ),
+      ),
+      subtitle: Text(
+        subtitle,
+        style: TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+          color: isDark ? Colors.white : Colors.black,
+        ),
+      ),
+      trailing: Icon(
+        Icons.edit,
+        color: isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D),
+        size: 20,
+      ),
       onTap: onTap,
     );
   }
@@ -10582,9 +11110,10 @@ class _ProfilePageState extends State<ProfilePage> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
-              blurRadius: 8,
-              offset: const Offset(0, 2))
+            color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
         ],
       ),
       child: Column(
@@ -10602,8 +11131,9 @@ class _ProfilePageState extends State<ProfilePage> {
             },
           ),
           Divider(
-              height: 1,
-              color: isDark ? Colors.grey.shade800 : Colors.grey.shade200),
+            height: 1,
+            color: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
+          ),
           _buildMenuItem(
             icon: Icons.favorite,
             title: 'Watchlist',
@@ -10616,8 +11146,9 @@ class _ProfilePageState extends State<ProfilePage> {
             },
           ),
           Divider(
-              height: 1,
-              color: isDark ? Colors.grey.shade800 : Colors.grey.shade200),
+            height: 1,
+            color: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
+          ),
           _buildMenuItem(
             icon: Icons.settings,
             title: 'Pengaturan',
@@ -10629,8 +11160,9 @@ class _ProfilePageState extends State<ProfilePage> {
             },
           ),
           Divider(
-              height: 1,
-              color: isDark ? Colors.grey.shade800 : Colors.grey.shade200),
+            height: 1,
+            color: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
+          ),
           _buildMenuItem(
             icon: Icons.help,
             title: 'Bantuan',
@@ -10662,15 +11194,20 @@ class _ProfilePageState extends State<ProfilePage> {
               .withOpacity(0.1),
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Icon(icon,
-            color: isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D),
-            size: 20),
+        child: Icon(
+          icon,
+          color: isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D),
+          size: 20,
+        ),
       ),
-      title: Text(title,
-          style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-              color: isDark ? Colors.white : Colors.black)),
+      title: Text(
+        title,
+        style: TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w500,
+          color: isDark ? Colors.white : Colors.black,
+        ),
+      ),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -10691,9 +11228,11 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               ),
             ),
-          Icon(Icons.chevron_right,
-              color: isDark ? Colors.grey.shade600 : const Color(0xFF666666),
-              size: 20),
+          Icon(
+            Icons.chevron_right,
+            color: isDark ? Colors.grey.shade600 : const Color(0xFF666666),
+            size: 20,
+          ),
         ],
       ),
       onTap: onTap,
@@ -10715,25 +11254,34 @@ class _ProfilePageState extends State<ProfilePage> {
                 children: [
                   const Icon(Icons.warning, color: Colors.red, size: 22),
                   const SizedBox(width: 8),
-                  Text('Keluar',
-                      style: TextStyle(
-                          color: isDark ? Colors.white : Colors.black)),
+                  Text(
+                    'Keluar',
+                    style: TextStyle(
+                      color: isDark ? Colors.white : Colors.black,
+                    ),
+                  ),
                 ],
               ),
-              content: Text('Apakah Anda yakin ingin keluar?',
-                  style: TextStyle(
-                      color: isDark ? Colors.white70 : Colors.black87)),
+              content: Text(
+                'Apakah Anda yakin ingin keluar?',
+                style: TextStyle(
+                  color: isDark ? Colors.white70 : Colors.black87,
+                ),
+              ),
               actions: [
                 TextButton.icon(
                   onPressed: () => Navigator.pop(context),
-                  icon: Icon(Icons.close,
+                  icon: Icon(
+                    Icons.close,
+                    color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+                  ),
+                  label: Text(
+                    'Batal',
+                    style: TextStyle(
                       color:
-                          isDark ? Colors.grey.shade400 : Colors.grey.shade600),
-                  label: Text('Batal',
-                      style: TextStyle(
-                          color: isDark
-                              ? Colors.grey.shade400
-                              : Colors.grey.shade600)),
+                          isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+                    ),
+                  ),
                 ),
                 ElevatedButton.icon(
                   onPressed: () {
@@ -10741,13 +11289,16 @@ class _ProfilePageState extends State<ProfilePage> {
                     Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => const LoginPage()),
+                        builder: (context) => const LoginPage(),
+                      ),
                       (route) => false,
                     );
                   },
                   icon: const Icon(Icons.logout, color: Colors.white),
-                  label: const Text('Keluar',
-                      style: TextStyle(color: Colors.white)),
+                  label: const Text(
+                    'Keluar',
+                    style: TextStyle(color: Colors.white),
+                  ),
                   style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
                 ),
               ],
@@ -10795,7 +11346,8 @@ class _NotificationPageState extends State<NotificationPage> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final unreadCount = NotificationService.getUnreadCount(
-        AuthService.getCurrentUsername() ?? '');
+      AuthService.getCurrentUsername() ?? '',
+    );
 
     return Scaffold(
       backgroundColor:
@@ -10804,16 +11356,19 @@ class _NotificationPageState extends State<NotificationPage> {
         backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back,
-              color: isDark ? Colors.white : const Color(0xFF001A4D)),
+          icon: Icon(
+            Icons.arrow_back,
+            color: isDark ? Colors.white : const Color(0xFF001A4D),
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Row(
           children: [
-            Icon(Icons.notifications,
-                color:
-                    isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D),
-                size: 22),
+            Icon(
+              Icons.notifications,
+              color: isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D),
+              size: 22,
+            ),
             const SizedBox(width: 8),
             Text(
               'Notifikasi',
@@ -10828,12 +11383,15 @@ class _NotificationPageState extends State<NotificationPage> {
         actions: [
           if (notifications.isNotEmpty)
             PopupMenuButton<String>(
-              icon: Icon(Icons.more_vert,
-                  color: isDark ? Colors.white : const Color(0xFF001A4D)),
+              icon: Icon(
+                Icons.more_vert,
+                color: isDark ? Colors.white : const Color(0xFF001A4D),
+              ),
               onSelected: (value) {
                 if (value == 'markAllRead') {
                   NotificationService.markAllAsRead(
-                      AuthService.getCurrentUsername() ?? '');
+                    AuthService.getCurrentUsername() ?? '',
+                  );
                   setState(() {
                     _loadNotifications();
                   });
@@ -10851,7 +11409,8 @@ class _NotificationPageState extends State<NotificationPage> {
                           isDark ? const Color(0xFF1E1E1E) : Colors.white,
                       title: const Text('Hapus Semua'),
                       content: const Text(
-                          'Apakah Anda yakin ingin menghapus semua notifikasi?'),
+                        'Apakah Anda yakin ingin menghapus semua notifikasi?',
+                      ),
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.pop(context),
@@ -10860,16 +11419,20 @@ class _NotificationPageState extends State<NotificationPage> {
                         ElevatedButton(
                           onPressed: () {
                             NotificationService.clearAllNotifications(
-                                AuthService.getCurrentUsername() ?? '');
+                              AuthService.getCurrentUsername() ?? '',
+                            );
                             setState(() {
                               _loadNotifications();
                             });
                             Navigator.pop(context);
                           },
                           style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.red),
-                          child: const Text('Hapus',
-                              style: TextStyle(color: Colors.white)),
+                            backgroundColor: Colors.red,
+                          ),
+                          child: const Text(
+                            'Hapus',
+                            style: TextStyle(color: Colors.white),
+                          ),
                         ),
                       ],
                     ),
@@ -10906,8 +11469,11 @@ class _NotificationPageState extends State<NotificationPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.notifications_off_outlined,
-                      size: 80, color: Colors.grey.shade300),
+                  Icon(
+                    Icons.notifications_off_outlined,
+                    size: 80,
+                    color: Colors.grey.shade300,
+                  ),
                   const SizedBox(height: 16),
                   Text(
                     'Belum Ada Notifikasi',
@@ -10935,11 +11501,13 @@ class _NotificationPageState extends State<NotificationPage> {
                         : const Color(0xFFF0F8FF),
                     child: Row(
                       children: [
-                        Icon(Icons.info_outline,
-                            color: isDark
-                                ? const Color(0xFFFFB800)
-                                : const Color(0xFF0066CC),
-                            size: 20),
+                        Icon(
+                          Icons.info_outline,
+                          color: isDark
+                              ? const Color(0xFFFFB800)
+                              : const Color(0xFF0066CC),
+                          size: 20,
+                        ),
                         const SizedBox(width: 8),
                         Text(
                           'Anda memiliki $unreadCount notifikasi belum dibaca',
@@ -11261,10 +11829,7 @@ class IconTestPage extends StatelessWidget {
           ),
           child: Icon(icon, color: const Color(0xFF001A4D), size: 24),
         ),
-        title: Text(
-          label,
-          style: const TextStyle(fontWeight: FontWeight.w500),
-        ),
+        title: Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
         trailing: Icon(icon, size: 20, color: const Color(0xFF666666)),
       ),
     );
@@ -11332,8 +11897,10 @@ class AdminService {
   static Map<String, dynamic> getBookingStatistics() {
     final allTickets = TicketHistoryService.getAllTickets();
     int totalBookings = allTickets.length;
-    int totalRevenue =
-        allTickets.fold(0, (sum, ticket) => sum + ticket.totalAmount);
+    int totalRevenue = allTickets.fold(
+      0,
+      (sum, ticket) => sum + ticket.totalAmount,
+    );
     int activeTickets = allTickets.where((t) => t.status == 'active').length;
     int usedTickets = allTickets.where((t) => t.status == 'used').length;
 
@@ -11459,8 +12026,10 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
       if (!mounted) return;
 
       print('Attempting authentication...');
-      final isAuthenticated =
-          AdminService.authenticateAdmin(username, password);
+      final isAuthenticated = AdminService.authenticateAdmin(
+        username,
+        password,
+      );
 
       print('Authentication Result: $isAuthenticated');
       print('═══════════════════════════════════════');
@@ -11475,14 +12044,15 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
       } else {
         print('❌ LOGIN FAILED - Invalid credentials');
         _showDialog(
-            'Error',
-            'Username atau password admin salah!\n\n'
-                'Gunakan:\n'
-                'Username: admin\n'
-                'Password: admin123\n\n'
-                'atau\n\n'
-                'Username: admin2\n'
-                'Password: admin456');
+          'Error',
+          'Username atau password admin salah!\n\n'
+              'Gunakan:\n'
+              'Username: admin\n'
+              'Password: admin123\n\n'
+              'atau\n\n'
+              'Username: admin2\n'
+              'Password: admin456',
+        );
       }
     });
   }
@@ -11499,28 +12069,19 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
               size: 24,
             ),
             const SizedBox(width: 8),
-            Text(
-              title,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
           ],
         ),
         content: Text(
           message,
-          style: const TextStyle(
-            fontWeight: FontWeight.w500,
-          ),
+          style: const TextStyle(fontWeight: FontWeight.w500),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: const Text(
               'OK',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
         ],
@@ -11647,8 +12208,10 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                     fontWeight: FontWeight.w400,
                     color: Colors.black,
                   ),
-                  prefixIcon: const Icon(Icons.admin_panel_settings,
-                      color: Color(0xFFFFB800)),
+                  prefixIcon: const Icon(
+                    Icons.admin_panel_settings,
+                    color: Color(0xFFFFB800),
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide(color: Colors.grey.shade300),
@@ -11659,8 +12222,10 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide:
-                        const BorderSide(color: Color(0xFFFFB800), width: 2),
+                    borderSide: const BorderSide(
+                      color: Color(0xFFFFB800),
+                      width: 2,
+                    ),
                   ),
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 16,
@@ -11711,8 +12276,10 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide:
-                        const BorderSide(color: Color(0xFFFFB800), width: 2),
+                    borderSide: const BorderSide(
+                      color: Color(0xFFFFB800),
+                      width: 2,
+                    ),
                   ),
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 16,
@@ -11787,7 +12354,8 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const LoginPage()),
+                          builder: (context) => const LoginPage(),
+                        ),
                       );
                     },
                     child: const Text(
@@ -11812,7 +12380,11 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
   }
 
   Widget _buildCredentialRow(
-      String label1, String value1, String label2, String value2) {
+    String label1,
+    String value1,
+    String label2,
+    String value2,
+  ) {
     return Row(
       children: [
         Expanded(
@@ -11950,8 +12522,11 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
         automaticallyImplyLeading: false,
         title: Row(
           children: [
-            const Icon(Icons.admin_panel_settings,
-                color: Colors.white, size: 26),
+            const Icon(
+              Icons.admin_panel_settings,
+              color: Colors.white,
+              size: 26,
+            ),
             const SizedBox(width: 12),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -11966,10 +12541,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                 ),
                 Text(
                   AdminService.getCurrentAdmin()?.name ?? 'Administrator',
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 11,
-                  ),
+                  style: const TextStyle(color: Colors.white70, fontSize: 11),
                 ),
               ],
             ),
@@ -11980,8 +12552,11 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
           Stack(
             children: [
               IconButton(
-                icon: const Icon(Icons.chat_outlined,
-                    color: Colors.white, size: 26),
+                icon: const Icon(
+                  Icons.chat_outlined,
+                  color: Colors.white,
+                  size: 26,
+                ),
                 onPressed: () {
                   setState(() => selectedTab = 3); // ✅ Langsung ke tab chat
                 },
@@ -12017,8 +12592,11 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
           Stack(
             children: [
               IconButton(
-                icon: const Icon(Icons.notifications_outlined,
-                    color: Colors.white, size: 26),
+                icon: const Icon(
+                  Icons.notifications_outlined,
+                  color: Colors.white,
+                  size: 26,
+                ),
                 onPressed: () {
                   Navigator.push(
                     context,
@@ -12070,7 +12648,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                     ],
                   ),
                   content: const Text(
-                      'Apakah Anda yakin ingin keluar dari panel admin?'),
+                    'Apakah Anda yakin ingin keluar dari panel admin?',
+                  ),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(context),
@@ -12082,14 +12661,18 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                         Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const LoginPage()),
+                            builder: (context) => const LoginPage(),
+                          ),
                           (route) => false,
                         );
                       },
-                      style:
-                          ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                      child: const Text('Logout',
-                          style: TextStyle(color: Colors.white)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                      ),
+                      child: const Text(
+                        'Logout',
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ),
                   ],
                 ),
@@ -12183,7 +12766,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
 }
 // ==================== ADMIN OVERVIEW TAB ====================
 
-// ==================== ADMIN OVERVIEW TAB ====================
+// ==================== ADMIN OVERVIEW TAB ================== ==
 
 class AdminOverviewTab extends StatelessWidget {
   const AdminOverviewTab({Key? key}) : super(key: key);
@@ -12264,8 +12847,11 @@ class AdminOverviewTab extends StatelessWidget {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.access_time,
-                              color: Colors.white, size: 12),
+                          const Icon(
+                            Icons.access_time,
+                            color: Colors.white,
+                            size: 12,
+                          ),
                           const SizedBox(width: 4),
                           Text(
                             'Last updated: ${DateTime.now().hour}:${DateTime.now().minute.toString().padLeft(2, '0')}',
@@ -12362,10 +12948,7 @@ class AdminOverviewTab extends StatelessWidget {
                   const SizedBox(width: 12),
                   const Text(
                     'Performance Metrics',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
                 ],
               ),
@@ -12431,10 +13014,7 @@ class AdminOverviewTab extends StatelessWidget {
                   const SizedBox(width: 12),
                   const Text(
                     'Revenue Overview',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
                 ],
               ),
@@ -12490,10 +13070,7 @@ class AdminOverviewTab extends StatelessWidget {
                       ),
                     ],
                   ),
-                  TextButton(
-                    onPressed: () {},
-                    child: const Text('View All'),
-                  ),
+                  TextButton(onPressed: () {}, child: const Text('View All')),
                 ],
               ),
               const SizedBox(height: 16),
@@ -12514,8 +13091,9 @@ class AdminOverviewTab extends StatelessWidget {
                   ),
                 )
               else
-                ...recentBookings
-                    .map((ticket) => _buildRecentBookingItem(ticket)),
+                ...recentBookings.map(
+                  (ticket) => _buildRecentBookingItem(ticket),
+                ),
             ],
           ),
         ),
@@ -12567,8 +13145,10 @@ class AdminOverviewTab extends StatelessWidget {
               ),
               if (trend != null)
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.green.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
@@ -12587,10 +13167,7 @@ class AdminOverviewTab extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             title,
-            style: const TextStyle(
-              fontSize: 11,
-              color: Color(0xFF666666),
-            ),
+            style: const TextStyle(fontSize: 11, color: Color(0xFF666666)),
           ),
           const SizedBox(height: 4),
           Text(
@@ -12623,10 +13200,7 @@ class AdminOverviewTab extends StatelessWidget {
           children: [
             Text(
               label,
-              style: const TextStyle(
-                fontSize: 12,
-                color: Color(0xFF666666),
-              ),
+              style: const TextStyle(fontSize: 12, color: Color(0xFF666666)),
             ),
             Text(
               '$value$suffix',
@@ -12695,10 +13269,7 @@ class AdminOverviewTab extends StatelessWidget {
               width: 50,
               child: Text(
                 entry.key,
-                style: const TextStyle(
-                  fontSize: 11,
-                  color: Color(0xFF666666),
-                ),
+                style: const TextStyle(fontSize: 11, color: Color(0xFF666666)),
               ),
             ),
             const SizedBox(width: 8),
@@ -12790,11 +13361,7 @@ class AdminOverviewTab extends StatelessWidget {
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    Icon(
-                      Icons.person,
-                      size: 12,
-                      color: Colors.grey.shade600,
-                    ),
+                    Icon(Icons.person, size: 12, color: Colors.grey.shade600),
                     const SizedBox(width: 4),
                     Text(
                       ticket.userId,
@@ -12893,16 +13460,15 @@ class AdminOverviewTab extends StatelessWidget {
                   const SizedBox(width: 12),
                   const Text(
                     'Top Performing Films',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
                 ],
               ),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFFFFB800).withOpacity(0.1),
                   borderRadius: BorderRadius.circular(20),
@@ -12925,8 +13491,11 @@ class AdminOverviewTab extends StatelessWidget {
                 padding: EdgeInsets.all(20),
                 child: Column(
                   children: [
-                    Icon(Icons.movie_outlined,
-                        size: 50, color: Color(0xFFCCCCCC)),
+                    Icon(
+                      Icons.movie_outlined,
+                      size: 50,
+                      color: Color(0xFFCCCCCC),
+                    ),
                     SizedBox(height: 8),
                     Text(
                       'Belum ada data',
@@ -12937,11 +13506,13 @@ class AdminOverviewTab extends StatelessWidget {
               ),
             )
           else
-            ...sortedFilms.take(5).map((entry) => _buildFilmRankItem(
-                  entry.key,
-                  entry.value,
-                  sortedFilms.indexOf(entry) + 1,
-                )),
+            ...sortedFilms.take(5).map(
+                  (entry) => _buildFilmRankItem(
+                    entry.key,
+                    entry.value,
+                    sortedFilms.indexOf(entry) + 1,
+                  ),
+                ),
         ],
       ),
     );
@@ -13128,9 +13699,11 @@ class _AdminFilmManagementTabState extends State<AdminFilmManagementTab> {
         films = FilmService.getAllFilms();
       } else {
         films = FilmService.getAllFilms()
-            .where((film) =>
-                film.title.toLowerCase().contains(query.toLowerCase()) ||
-                film.genre.toLowerCase().contains(query.toLowerCase()))
+            .where(
+              (film) =>
+                  film.title.toLowerCase().contains(query.toLowerCase()) ||
+                  film.genre.toLowerCase().contains(query.toLowerCase()),
+            )
             .toList();
       }
     });
@@ -13166,7 +13739,8 @@ class _AdminFilmManagementTabState extends State<AdminFilmManagementTab> {
                   labelText: 'Judul Film',
                   prefixIcon: const Icon(Icons.movie, color: Color(0xFFFFB800)),
                   border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8)),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
               ),
               const SizedBox(height: 12),
@@ -13174,10 +13748,13 @@ class _AdminFilmManagementTabState extends State<AdminFilmManagementTab> {
                 controller: genreController,
                 decoration: InputDecoration(
                   labelText: 'Genre',
-                  prefixIcon:
-                      const Icon(Icons.category, color: Color(0xFFFFB800)),
+                  prefixIcon: const Icon(
+                    Icons.category,
+                    color: Color(0xFFFFB800),
+                  ),
                   border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8)),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
               ),
               const SizedBox(height: 12),
@@ -13185,10 +13762,13 @@ class _AdminFilmManagementTabState extends State<AdminFilmManagementTab> {
                 controller: durationController,
                 decoration: InputDecoration(
                   labelText: 'Durasi',
-                  prefixIcon:
-                      const Icon(Icons.schedule, color: Color(0xFFFFB800)),
+                  prefixIcon: const Icon(
+                    Icons.schedule,
+                    color: Color(0xFFFFB800),
+                  ),
                   border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8)),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
               ),
               const SizedBox(height: 12),
@@ -13198,7 +13778,8 @@ class _AdminFilmManagementTabState extends State<AdminFilmManagementTab> {
                   labelText: 'Rating',
                   prefixIcon: const Icon(Icons.star, color: Color(0xFFFFB800)),
                   border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8)),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
               ),
               const SizedBox(height: 12),
@@ -13206,10 +13787,13 @@ class _AdminFilmManagementTabState extends State<AdminFilmManagementTab> {
                 controller: directorController,
                 decoration: InputDecoration(
                   labelText: 'Director',
-                  prefixIcon:
-                      const Icon(Icons.person, color: Color(0xFFFFB800)),
+                  prefixIcon: const Icon(
+                    Icons.person,
+                    color: Color(0xFFFFB800),
+                  ),
                   border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8)),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
               ),
               const SizedBox(height: 12),
@@ -13219,7 +13803,8 @@ class _AdminFilmManagementTabState extends State<AdminFilmManagementTab> {
                   labelText: 'Age Rating',
                   prefixIcon: const Icon(Icons.info, color: Color(0xFFFFB800)),
                   border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8)),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
               ),
               const SizedBox(height: 12),
@@ -13229,7 +13814,8 @@ class _AdminFilmManagementTabState extends State<AdminFilmManagementTab> {
                   labelText: 'Image URL',
                   prefixIcon: const Icon(Icons.image, color: Color(0xFFFFB800)),
                   border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8)),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
               ),
               const SizedBox(height: 12),
@@ -13238,10 +13824,13 @@ class _AdminFilmManagementTabState extends State<AdminFilmManagementTab> {
                 decoration: InputDecoration(
                   labelText: 'YouTube Trailer URL',
                   hintText: 'https://youtu.be/...',
-                  prefixIcon:
-                      const Icon(Icons.play_circle, color: Color(0xFFFFB800)),
+                  prefixIcon: const Icon(
+                    Icons.play_circle,
+                    color: Color(0xFFFFB800),
+                  ),
                   border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8)),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
               ),
             ],
@@ -13297,7 +13886,8 @@ class _AdminFilmManagementTabState extends State<AdminFilmManagementTab> {
             icon: const Icon(Icons.save, color: Colors.white),
             label: const Text('Simpan', style: TextStyle(color: Colors.white)),
             style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFFFB800)),
+              backgroundColor: const Color(0xFFFFB800),
+            ),
           ),
         ],
       ),
@@ -13434,7 +14024,8 @@ class _AdminFilmManagementTabState extends State<AdminFilmManagementTab> {
             icon: const Icon(Icons.save, color: Colors.white),
             label: const Text('Update', style: TextStyle(color: Colors.white)),
             style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFFFB800)),
+              backgroundColor: const Color(0xFFFFB800),
+            ),
           ),
         ],
       ),
@@ -13518,8 +14109,9 @@ class _AdminFilmManagementTabState extends State<AdminFilmManagementTab> {
                             : null,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(25),
-                          borderSide:
-                              const BorderSide(color: Color(0xFFDDDDDD)),
+                          borderSide: const BorderSide(
+                            color: Color(0xFFDDDDDD),
+                          ),
                         ),
                         filled: true,
                         fillColor: const Color(0xFFF5F5F5),
@@ -13534,12 +14126,16 @@ class _AdminFilmManagementTabState extends State<AdminFilmManagementTab> {
                   ElevatedButton.icon(
                     onPressed: _showAddFilmDialog,
                     icon: const Icon(Icons.add, color: Colors.white, size: 20),
-                    label: const Text('Tambah',
-                        style: TextStyle(color: Colors.white)),
+                    label: const Text(
+                      'Tambah',
+                      style: TextStyle(color: Colors.white),
+                    ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFFFB800),
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 12),
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -13571,8 +14167,11 @@ class _AdminFilmManagementTabState extends State<AdminFilmManagementTab> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.movie_outlined,
-                          size: 80, color: Colors.grey.shade300),
+                      Icon(
+                        Icons.movie_outlined,
+                        size: 80,
+                        color: Colors.grey.shade300,
+                      ),
                       const SizedBox(height: 16),
                       Text(
                         'Tidak ada film',
@@ -13637,8 +14236,11 @@ class _AdminFilmManagementTabState extends State<AdminFilmManagementTab> {
                       return Container(
                         color: const Color(0xFFDDDDDD),
                         alignment: Alignment.center,
-                        child: const Icon(Icons.movie,
-                            size: 40, color: Colors.white),
+                        child: const Icon(
+                          Icons.movie,
+                          size: 40,
+                          color: Colors.white,
+                        ),
                       );
                     },
                   ),
@@ -13647,8 +14249,10 @@ class _AdminFilmManagementTabState extends State<AdminFilmManagementTab> {
                   top: 8,
                   right: 8,
                   child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: const Color(0xFFFFB800),
                       borderRadius: BorderRadius.circular(4),
@@ -13689,8 +14293,11 @@ class _AdminFilmManagementTabState extends State<AdminFilmManagementTab> {
                               ),
                             ],
                           ),
-                          child: const Icon(Icons.edit,
-                              size: 14, color: Colors.white),
+                          child: const Icon(
+                            Icons.edit,
+                            size: 14,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                       const SizedBox(width: 6),
@@ -13708,8 +14315,11 @@ class _AdminFilmManagementTabState extends State<AdminFilmManagementTab> {
                               ),
                             ],
                           ),
-                          child: const Icon(Icons.delete,
-                              size: 14, color: Colors.white),
+                          child: const Icon(
+                            Icons.delete,
+                            size: 14,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ],
@@ -13745,8 +14355,10 @@ class _AdminFilmManagementTabState extends State<AdminFilmManagementTab> {
                 ),
                 const SizedBox(height: 4),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: const Color(0xFF001A4D).withOpacity(0.1),
                     borderRadius: BorderRadius.circular(4),
@@ -13836,11 +14448,7 @@ class _AdminTicketManagementTabState extends State<AdminTicketManagementTab> {
               Row(
                 children: [
                   Expanded(
-                    child: _buildFilterButton(
-                      'Semua',
-                      'all',
-                      Icons.list,
-                    ),
+                    child: _buildFilterButton('Semua', 'all', Icons.list),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
@@ -13870,22 +14478,31 @@ class _AdminTicketManagementTabState extends State<AdminTicketManagementTab> {
                 decoration: InputDecoration(
                   labelText: 'Filter by User',
                   labelStyle: const TextStyle(color: Colors.black),
-                  prefixIcon:
-                      const Icon(Icons.person, color: Color(0xFFFFB800)),
+                  prefixIcon: const Icon(
+                    Icons.person,
+                    color: Color(0xFFFFB800),
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
                 items: [
                   const DropdownMenuItem(
-                      value: 'all',
-                      child: Text('Semua User',
-                          style: TextStyle(color: Colors.black))),
-                  ...users.map((user) => DropdownMenuItem(
-                        value: user,
-                        child: Text(user,
-                            style: const TextStyle(color: Colors.black)),
-                      )),
+                    value: 'all',
+                    child: Text(
+                      'Semua User',
+                      style: TextStyle(color: Colors.black),
+                    ),
+                  ),
+                  ...users.map(
+                    (user) => DropdownMenuItem(
+                      value: user,
+                      child: Text(
+                        user,
+                        style: const TextStyle(color: Colors.black),
+                      ),
+                    ),
+                  ),
                 ],
                 onChanged: (value) {
                   setState(() {
@@ -13896,8 +14513,11 @@ class _AdminTicketManagementTabState extends State<AdminTicketManagementTab> {
               const SizedBox(height: 12),
               Row(
                 children: [
-                  const Icon(Icons.confirmation_number,
-                      color: Color(0xFFFFB800), size: 20),
+                  const Icon(
+                    Icons.confirmation_number,
+                    color: Color(0xFFFFB800),
+                    size: 20,
+                  ),
                   const SizedBox(width: 8),
                   Text(
                     'Total: ${filtered.length} Tiket',
@@ -13918,8 +14538,11 @@ class _AdminTicketManagementTabState extends State<AdminTicketManagementTab> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.confirmation_number_outlined,
-                          size: 80, color: Colors.grey.shade300),
+                      Icon(
+                        Icons.confirmation_number_outlined,
+                        size: 80,
+                        color: Colors.grey.shade300,
+                      ),
                       const SizedBox(height: 16),
                       Text(
                         'Tidak ada tiket',
@@ -14037,8 +14660,10 @@ class _AdminTicketManagementTabState extends State<AdminTicketManagementTab> {
                 ),
                 const Spacer(),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: ticket.status == 'active'
                         ? Colors.white.withOpacity(0.2)
@@ -14075,8 +14700,11 @@ class _AdminTicketManagementTabState extends State<AdminTicketManagementTab> {
                       width: 80,
                       height: 110,
                       color: const Color(0xFFDDDDDD),
-                      child: const Icon(Icons.movie,
-                          size: 40, color: Colors.white),
+                      child: const Icon(
+                        Icons.movie,
+                        size: 40,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ),
@@ -14098,14 +14726,19 @@ class _AdminTicketManagementTabState extends State<AdminTicketManagementTab> {
                       const SizedBox(height: 8),
                       Row(
                         children: [
-                          const Icon(Icons.location_on,
-                              size: 12, color: Colors.black54),
+                          const Icon(
+                            Icons.location_on,
+                            size: 12,
+                            color: Colors.black54,
+                          ),
                           const SizedBox(width: 4),
                           Expanded(
                             child: Text(
                               ticket.cinema,
                               style: const TextStyle(
-                                  fontSize: 11, color: Colors.black54),
+                                fontSize: 11,
+                                color: Colors.black54,
+                              ),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -14115,8 +14748,11 @@ class _AdminTicketManagementTabState extends State<AdminTicketManagementTab> {
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          const Icon(Icons.calendar_today,
-                              size: 12, color: Colors.black54),
+                          const Icon(
+                            Icons.calendar_today,
+                            size: 12,
+                            color: Colors.black54,
+                          ),
                           const SizedBox(width: 4),
                           Text(
                             '${ticket.date}, ${ticket.time}',
@@ -14132,14 +14768,19 @@ class _AdminTicketManagementTabState extends State<AdminTicketManagementTab> {
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          const Icon(Icons.event_seat,
-                              size: 12, color: Color(0xFF666666)),
+                          const Icon(
+                            Icons.event_seat,
+                            size: 12,
+                            color: Color(0xFF666666),
+                          ),
                           const SizedBox(width: 4),
                           Expanded(
                             child: Text(
                               'Kursi: ${ticket.seats.join(', ')}',
                               style: const TextStyle(
-                                  fontSize: 11, color: Color(0xFF666666)),
+                                fontSize: 11,
+                                color: Color(0xFF666666),
+                              ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -14149,14 +14790,19 @@ class _AdminTicketManagementTabState extends State<AdminTicketManagementTab> {
                       const SizedBox(height: 8),
                       Row(
                         children: [
-                          const Icon(Icons.qr_code,
-                              size: 12, color: Color(0xFF666666)),
+                          const Icon(
+                            Icons.qr_code,
+                            size: 12,
+                            color: Color(0xFF666666),
+                          ),
                           const SizedBox(width: 4),
                           Expanded(
                             child: Text(
                               'ID: ${ticket.bookingId}',
                               style: const TextStyle(
-                                  fontSize: 10, color: Color(0xFF666666)),
+                                fontSize: 10,
+                                color: Color(0xFF666666),
+                              ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -14186,13 +14832,18 @@ class _AdminTicketManagementTabState extends State<AdminTicketManagementTab> {
                   children: [
                     const Row(
                       children: [
-                        Icon(Icons.account_balance_wallet,
-                            size: 14, color: Color(0xFF666666)),
+                        Icon(
+                          Icons.account_balance_wallet,
+                          size: 14,
+                          color: Color(0xFF666666),
+                        ),
                         SizedBox(width: 4),
                         Text(
                           'Total Pembayaran',
-                          style:
-                              TextStyle(fontSize: 11, color: Color(0xFF666666)),
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Color(0xFF666666),
+                          ),
                         ),
                       ],
                     ),
@@ -14305,7 +14956,8 @@ class _AdminProfileTabState extends State<AdminProfileTab> {
             icon: const Icon(Icons.save, color: Colors.white),
             label: const Text('Simpan', style: TextStyle(color: Colors.white)),
             style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFFFB800)),
+              backgroundColor: const Color(0xFFFFB800),
+            ),
           ),
         ],
       ),
@@ -14358,8 +15010,11 @@ class _AdminProfileTabState extends State<AdminProfileTab> {
                           height: 100,
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) {
-                            return const Icon(Icons.person,
-                                size: 50, color: Color(0xFFFFB800));
+                            return const Icon(
+                              Icons.person,
+                              size: 50,
+                              color: Color(0xFFFFB800),
+                            );
                           },
                         ),
                       ),
@@ -14375,7 +15030,9 @@ class _AdminProfileTabState extends State<AdminProfileTab> {
                           color: Colors.white,
                           shape: BoxShape.circle,
                           border: Border.all(
-                              color: const Color(0xFFFFB800), width: 2),
+                            color: const Color(0xFFFFB800),
+                            width: 2,
+                          ),
                         ),
                         padding: const EdgeInsets.all(8),
                         child: const Icon(
@@ -14399,8 +15056,10 @@ class _AdminProfileTabState extends State<AdminProfileTab> {
               ),
               const SizedBox(height: 4),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(20),
@@ -14408,8 +15067,11 @@ class _AdminProfileTabState extends State<AdminProfileTab> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.admin_panel_settings,
-                        color: Colors.white, size: 16),
+                    const Icon(
+                      Icons.admin_panel_settings,
+                      color: Colors.white,
+                      size: 16,
+                    ),
                     const SizedBox(width: 6),
                     Text(
                       admin?.role.toUpperCase() ?? 'ADMIN',
@@ -14448,8 +15110,11 @@ class _AdminProfileTabState extends State<AdminProfileTab> {
                   children: [
                     const Row(
                       children: [
-                        Icon(Icons.analytics,
-                            color: Color(0xFFFFB800), size: 20),
+                        Icon(
+                          Icons.analytics,
+                          color: Color(0xFFFFB800),
+                          size: 20,
+                        ),
                         SizedBox(width: 8),
                         Text(
                           'Statistik Sistem',
@@ -14462,8 +15127,11 @@ class _AdminProfileTabState extends State<AdminProfileTab> {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    _buildStatRow('Total Booking', '${stats['totalBookings']}',
-                        Icons.confirmation_number),
+                    _buildStatRow(
+                      'Total Booking',
+                      '${stats['totalBookings']}',
+                      Icons.confirmation_number,
+                    ),
                     const Divider(height: 20),
                     _buildStatRow(
                       'Total Revenue',
@@ -14471,14 +15139,23 @@ class _AdminProfileTabState extends State<AdminProfileTab> {
                       Icons.attach_money,
                     ),
                     const Divider(height: 20),
-                    _buildStatRow('Tiket Aktif', '${stats['activeTickets']}',
-                        Icons.check_circle),
+                    _buildStatRow(
+                      'Tiket Aktif',
+                      '${stats['activeTickets']}',
+                      Icons.check_circle,
+                    ),
                     const Divider(height: 20),
-                    _buildStatRow('Tiket Digunakan', '${stats['usedTickets']}',
-                        Icons.history),
+                    _buildStatRow(
+                      'Tiket Digunakan',
+                      '${stats['usedTickets']}',
+                      Icons.history,
+                    ),
                     const Divider(height: 20),
-                    _buildStatRow('Total Film',
-                        '${FilmService.getAllFilms().length}', Icons.movie),
+                    _buildStatRow(
+                      'Total Film',
+                      '${FilmService.getAllFilms().length}',
+                      Icons.movie,
+                    ),
                   ],
                 ),
               ),
@@ -14502,8 +15179,11 @@ class _AdminProfileTabState extends State<AdminProfileTab> {
                   children: [
                     const Row(
                       children: [
-                        Icon(Icons.info_outline,
-                            color: Color(0xFFFFB800), size: 20),
+                        Icon(
+                          Icons.info_outline,
+                          color: Color(0xFFFFB800),
+                          size: 20,
+                        ),
                         SizedBox(width: 8),
                         Text(
                           'Informasi Admin',
@@ -14517,12 +15197,18 @@ class _AdminProfileTabState extends State<AdminProfileTab> {
                     ),
                     const SizedBox(height: 16),
                     _buildInfoRow(
-                        'Username', admin?.username ?? '-', Icons.person),
+                      'Username',
+                      admin?.username ?? '-',
+                      Icons.person,
+                    ),
                     const Divider(height: 20),
                     _buildInfoRow('Nama', admin?.name ?? '-', Icons.badge),
                     const Divider(height: 20),
-                    _buildInfoRow('Role', admin?.role.toUpperCase() ?? '-',
-                        Icons.admin_panel_settings),
+                    _buildInfoRow(
+                      'Role',
+                      admin?.role.toUpperCase() ?? '-',
+                      Icons.admin_panel_settings,
+                    ),
                   ],
                 ),
               ),
@@ -14543,7 +15229,8 @@ class _AdminProfileTabState extends State<AdminProfileTab> {
                           ],
                         ),
                         content: const Text(
-                            'Apakah Anda yakin ingin keluar dari panel admin?'),
+                          'Apakah Anda yakin ingin keluar dari panel admin?',
+                        ),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.pop(context),
@@ -14555,14 +15242,18 @@ class _AdminProfileTabState extends State<AdminProfileTab> {
                               Navigator.pushAndRemoveUntil(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => const LoginPage()),
+                                  builder: (context) => const LoginPage(),
+                                ),
                                 (route) => false,
                               );
                             },
                             style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.red),
-                            child: const Text('Logout',
-                                style: TextStyle(color: Colors.white)),
+                              backgroundColor: Colors.red,
+                            ),
+                            child: const Text(
+                              'Logout',
+                              style: TextStyle(color: Colors.white),
+                            ),
                           ),
                         ],
                       ),
@@ -14599,10 +15290,7 @@ class _AdminProfileTabState extends State<AdminProfileTab> {
         Expanded(
           child: Text(
             label,
-            style: const TextStyle(
-              fontSize: 13,
-              color: Color(0xFF666666),
-            ),
+            style: const TextStyle(fontSize: 13, color: Color(0xFF666666)),
           ),
         ),
         Text(
@@ -14635,10 +15323,7 @@ class _AdminProfileTabState extends State<AdminProfileTab> {
             children: [
               Text(
                 label,
-                style: const TextStyle(
-                  fontSize: 11,
-                  color: Color(0xFF666666),
-                ),
+                style: const TextStyle(fontSize: 11, color: Color(0xFF666666)),
               ),
               const SizedBox(height: 2),
               Text(
@@ -14738,7 +15423,9 @@ class _AdminChatManagementTabState extends State<AdminChatManagementTab> {
                   if (unreadCount > 0)
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 6),
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.red,
                         borderRadius: BorderRadius.circular(20),
@@ -14764,8 +15451,11 @@ class _AdminChatManagementTabState extends State<AdminChatManagementTab> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.chat_bubble_outline,
-                          size: 80, color: Colors.grey.shade300),
+                      Icon(
+                        Icons.chat_bubble_outline,
+                        size: 80,
+                        color: Colors.grey.shade300,
+                      ),
                       const SizedBox(height: 16),
                       Text(
                         'Belum ada percakapan',
@@ -14779,7 +15469,9 @@ class _AdminChatManagementTabState extends State<AdminChatManagementTab> {
                       Text(
                         'User akan muncul di sini setelah mengirim pesan',
                         style: TextStyle(
-                            fontSize: 13, color: Colors.grey.shade500),
+                          fontSize: 13,
+                          color: Colors.grey.shade500,
+                        ),
                       ),
                     ],
                   ),
@@ -14906,10 +15598,7 @@ class _AdminChatManagementTabState extends State<AdminChatManagementTab> {
                 Expanded(
                   child: Text(
                     lastMessage?.text ?? 'Belum ada pesan',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Colors.black,
-                    ),
+                    style: TextStyle(fontSize: 13, color: Colors.black),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -14919,10 +15608,7 @@ class _AdminChatManagementTabState extends State<AdminChatManagementTab> {
             const SizedBox(height: 4),
             Text(
               _formatTime(conversation.lastMessageTime),
-              style: TextStyle(
-                fontSize: 11,
-                color: Colors.black,
-              ),
+              style: TextStyle(fontSize: 11, color: Colors.black),
             ),
           ],
         ),
@@ -14931,9 +15617,8 @@ class _AdminChatManagementTabState extends State<AdminChatManagementTab> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => AdminChatDetailPage(
-                conversation: conversation,
-              ),
+              builder: (context) =>
+                  AdminChatDetailPage(conversation: conversation),
             ),
           ).then((_) => setState(() {}));
         },
@@ -14969,10 +15654,8 @@ class _AdminChatManagementTabState extends State<AdminChatManagementTab> {
 class AdminChatDetailPage extends StatefulWidget {
   final ChatConversation conversation;
 
-  const AdminChatDetailPage({
-    Key? key,
-    required this.conversation,
-  }) : super(key: key);
+  const AdminChatDetailPage({Key? key, required this.conversation})
+      : super(key: key);
 
   @override
   State<AdminChatDetailPage> createState() => _AdminChatDetailPageState();
@@ -15096,10 +15779,7 @@ class _AdminChatDetailPageState extends State<AdminChatDetailPage> {
                   ),
                   Text(
                     'User ID: ${_conversation.userId}',
-                    style: const TextStyle(
-                      color: Colors.white70,
-                      fontSize: 11,
-                    ),
+                    style: const TextStyle(color: Colors.white70, fontSize: 11),
                   ),
                 ],
               ),
@@ -15150,8 +15830,11 @@ class _AdminChatDetailPageState extends State<AdminChatDetailPage> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.chat_bubble_outline,
-                            size: 80, color: Colors.black),
+                        Icon(
+                          Icons.chat_bubble_outline,
+                          size: 80,
+                          color: Colors.black,
+                        ),
                         const SizedBox(height: 16),
                         Text(
                           'Belum ada pesan',
@@ -15219,8 +15902,9 @@ class _AdminChatDetailPageState extends State<AdminChatDetailPage> {
                         hintStyle: const TextStyle(color: Colors.black),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(25),
-                          borderSide:
-                              const BorderSide(color: Color(0xFFDDDDDD)),
+                          borderSide: const BorderSide(
+                            color: Color(0xFFDDDDDD),
+                          ),
                         ),
                         filled: true,
                         fillColor: const Color(0xFFF5F5F5),
@@ -15239,8 +15923,11 @@ class _AdminChatDetailPageState extends State<AdminChatDetailPage> {
                       shape: BoxShape.circle,
                     ),
                     child: IconButton(
-                      icon:
-                          const Icon(Icons.send, color: Colors.white, size: 22),
+                      icon: const Icon(
+                        Icons.send,
+                        color: Colors.white,
+                        size: 22,
+                      ),
                       onPressed: _sendMessage,
                     ),
                   ),
@@ -15390,7 +16077,8 @@ class _AdminChatDetailPageState extends State<AdminChatDetailPage> {
           ],
         ),
         content: Text(
-            'Apakah Anda yakin ingin menghapus percakapan dengan ${_conversation.userName}?'),
+          'Apakah Anda yakin ingin menghapus percakapan dengan ${_conversation.userName}?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -15468,20 +16156,14 @@ class _AdminChatDetailPageState extends State<AdminChatDetailPage> {
             width: 120,
             child: Text(
               label,
-              style: const TextStyle(
-                fontSize: 12,
-                color: Color(0xFF666666),
-              ),
+              style: const TextStyle(fontSize: 12, color: Color(0xFF666666)),
             ),
           ),
           const Text(': ', style: TextStyle(fontSize: 12)),
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
             ),
           ),
         ],
@@ -15592,7 +16274,8 @@ class _AdminNotificationPageState extends State<AdminNotificationPage> {
                     builder: (context) => AlertDialog(
                       title: const Text('Hapus Semua'),
                       content: const Text(
-                          'Apakah Anda yakin ingin menghapus semua notifikasi?'),
+                        'Apakah Anda yakin ingin menghapus semua notifikasi?',
+                      ),
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.pop(context),
@@ -15607,9 +16290,12 @@ class _AdminNotificationPageState extends State<AdminNotificationPage> {
                             Navigator.pop(context);
                           },
                           style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.red),
-                          child: const Text('Hapus',
-                              style: TextStyle(color: Colors.white)),
+                            backgroundColor: Colors.red,
+                          ),
+                          child: const Text(
+                            'Hapus',
+                            style: TextStyle(color: Colors.white),
+                          ),
                         ),
                       ],
                     ),
@@ -15646,8 +16332,11 @@ class _AdminNotificationPageState extends State<AdminNotificationPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.notifications_off_outlined,
-                      size: 80, color: Colors.grey.shade300),
+                  Icon(
+                    Icons.notifications_off_outlined,
+                    size: 80,
+                    color: Colors.grey.shade300,
+                  ),
                   const SizedBox(height: 16),
                   Text(
                     'Belum Ada Notifikasi',
@@ -15673,8 +16362,11 @@ class _AdminNotificationPageState extends State<AdminNotificationPage> {
                     color: Colors.orange.shade50,
                     child: Row(
                       children: [
-                        const Icon(Icons.info_outline,
-                            color: Colors.orange, size: 20),
+                        const Icon(
+                          Icons.info_outline,
+                          color: Colors.orange,
+                          size: 20,
+                        ),
                         const SizedBox(width: 8),
                         Text(
                           'Anda memiliki $unreadCount notifikasi baru',
@@ -15876,7 +16568,9 @@ class _AdminNotificationPageState extends State<AdminNotificationPage> {
               _buildDetailRow('Waktu', data['time'] ?? '-'),
               const Divider(),
               _buildDetailRow(
-                  'Kursi', (data['seats'] as List?)?.join(', ') ?? '-'),
+                'Kursi',
+                (data['seats'] as List?)?.join(', ') ?? '-',
+              ),
               const Divider(),
               _buildDetailRow('Total', 'Rp${data['totalAmount'] ?? 0}'),
             ],
@@ -15902,20 +16596,14 @@ class _AdminNotificationPageState extends State<AdminNotificationPage> {
             width: 100,
             child: Text(
               label,
-              style: const TextStyle(
-                fontSize: 12,
-                color: Color(0xFF666666),
-              ),
+              style: const TextStyle(fontSize: 12, color: Color(0xFF666666)),
             ),
           ),
           const Text(': ', style: TextStyle(fontSize: 12)),
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
             ),
           ),
         ],
@@ -15975,16 +16663,19 @@ class _SettingsPageState extends State<SettingsPage> {
         backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back,
-              color: isDark ? Colors.white : const Color(0xFF001A4D)),
+          icon: Icon(
+            Icons.arrow_back,
+            color: isDark ? Colors.white : const Color(0xFF001A4D),
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Row(
           children: [
-            Icon(Icons.settings,
-                color:
-                    isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D),
-                size: 22),
+            Icon(
+              Icons.settings,
+              color: isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D),
+              size: 22,
+            ),
             const SizedBox(width: 8),
             Text(
               'Pengaturan',
@@ -16012,9 +16703,9 @@ class _SettingsPageState extends State<SettingsPage> {
                 setState(() {
                   notificationsEnabled = value;
                 });
-                _showSnackBar(value
-                    ? 'Notifikasi diaktifkan'
-                    : 'Notifikasi dinonaktifkan');
+                _showSnackBar(
+                  value ? 'Notifikasi diaktifkan' : 'Notifikasi dinonaktifkan',
+                );
               },
             ),
             const Divider(height: 1),
@@ -16027,9 +16718,11 @@ class _SettingsPageState extends State<SettingsPage> {
                 setState(() {
                   emailNotifications = value;
                 });
-                _showSnackBar(value
-                    ? 'Email notifikasi diaktifkan'
-                    : 'Email notifikasi dinonaktifkan');
+                _showSnackBar(
+                  value
+                      ? 'Email notifikasi diaktifkan'
+                      : 'Email notifikasi dinonaktifkan',
+                );
               },
             ),
           ]),
@@ -16053,9 +16746,9 @@ class _SettingsPageState extends State<SettingsPage> {
                 // Update theme secara real-time TANPA restart
                 if (mounted) {
                   TixIDApp.updateTheme(context);
-                  _showSnackBar(value
-                      ? 'Mode Gelap diaktifkan'
-                      : 'Mode Terang diaktifkan');
+                  _showSnackBar(
+                    value ? 'Mode Gelap diaktifkan' : 'Mode Terang diaktifkan',
+                  );
                 }
               },
             ),
@@ -16063,9 +16756,10 @@ class _SettingsPageState extends State<SettingsPage> {
             ListTile(
               title: const Text('Bahasa'),
               subtitle: Text(selectedLanguage),
-              trailing: Icon(Icons.chevron_right,
-                  color:
-                      isDark ? Colors.grey.shade600 : const Color(0xFF666666)),
+              trailing: Icon(
+                Icons.chevron_right,
+                color: isDark ? Colors.grey.shade600 : const Color(0xFF666666),
+              ),
               onTap: () => _showLanguageDialog(),
             ),
           ]),
@@ -16078,7 +16772,8 @@ class _SettingsPageState extends State<SettingsPage> {
             SwitchListTile(
               title: const Text('PIN 4 Digit'),
               subtitle: Text(
-                  pinEnabled ? 'PIN aktif' : 'Tambahkan PIN untuk keamanan'),
+                pinEnabled ? 'PIN aktif' : 'Tambahkan PIN untuk keamanan',
+              ),
               value: pinEnabled,
               activeColor: const Color(0xFFFFB800),
               onChanged: (value) {
@@ -16092,9 +16787,11 @@ class _SettingsPageState extends State<SettingsPage> {
             const Divider(height: 1),
             SwitchListTile(
               title: const Text('Keamanan Biometrik'),
-              subtitle: Text(biometricEnabled
-                  ? 'Fingerprint/Face ID aktif'
-                  : 'Gunakan sidik jari / Face ID'),
+              subtitle: Text(
+                biometricEnabled
+                    ? 'Fingerprint/Face ID aktif'
+                    : 'Gunakan sidik jari / Face ID',
+              ),
               value: biometricEnabled,
               activeColor: const Color(0xFFFFB800),
               onChanged: pinEnabled
@@ -16105,27 +16802,31 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
             const Divider(height: 1),
             ListTile(
-              leading: Icon(Icons.lock,
-                  color: isDark
-                      ? const Color(0xFFFFB800)
-                      : const Color(0xFF001A4D)),
+              leading: Icon(
+                Icons.lock,
+                color:
+                    isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D),
+              ),
               title: const Text('Ubah PIN'),
-              trailing: Icon(Icons.chevron_right,
-                  color:
-                      isDark ? Colors.grey.shade600 : const Color(0xFF666666)),
+              trailing: Icon(
+                Icons.chevron_right,
+                color: isDark ? Colors.grey.shade600 : const Color(0xFF666666),
+              ),
               enabled: pinEnabled,
               onTap: pinEnabled ? () => _changePin() : null,
             ),
             const Divider(height: 1),
             ListTile(
-              leading: Icon(Icons.privacy_tip,
-                  color: isDark
-                      ? const Color(0xFFFFB800)
-                      : const Color(0xFF001A4D)),
+              leading: Icon(
+                Icons.privacy_tip,
+                color:
+                    isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D),
+              ),
               title: const Text('Kebijakan Privasi'),
-              trailing: Icon(Icons.chevron_right,
-                  color:
-                      isDark ? Colors.grey.shade600 : const Color(0xFF666666)),
+              trailing: Icon(
+                Icons.chevron_right,
+                color: isDark ? Colors.grey.shade600 : const Color(0xFF666666),
+              ),
               onTap: () => _showPrivacyPolicy(),
             ),
           ]),
@@ -16136,10 +16837,11 @@ class _SettingsPageState extends State<SettingsPage> {
           _buildSectionTitle('Tentang Aplikasi', isDark),
           _buildSettingsCard(isDark, [
             ListTile(
-              leading: Icon(Icons.info,
-                  color: isDark
-                      ? const Color(0xFFFFB800)
-                      : const Color(0xFF001A4D)),
+              leading: Icon(
+                Icons.info,
+                color:
+                    isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D),
+              ),
               title: const Text('Versi Aplikasi'),
               subtitle: const Text('v1.0.0'),
               trailing: Container(
@@ -16225,8 +16927,10 @@ class _SettingsPageState extends State<SettingsPage> {
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Nonaktifkan',
-                style: TextStyle(color: Colors.white)),
+            child: const Text(
+              'Nonaktifkan',
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),
@@ -16349,7 +17053,9 @@ class _SettingsPageState extends State<SettingsPage> {
                             if (isConfirming) {
                               if (confirmPin.isNotEmpty) {
                                 confirmPin = confirmPin.substring(
-                                    0, confirmPin.length - 1);
+                                  0,
+                                  confirmPin.length - 1,
+                                );
                               }
                             } else {
                               if (pin.isNotEmpty) {
@@ -16443,10 +17149,7 @@ class _SettingsPageState extends State<SettingsPage> {
         child: Center(
           child: Text(
             number,
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
         ),
       ),
@@ -16542,14 +17245,12 @@ class HelpPage extends StatelessWidget {
     const message = 'Halo CINEMA 1, saya membutuhkan bantuan.';
 
     final whatsappUrl = Uri.parse(
-        'https://wa.me/$phoneNumber?text=${Uri.encodeComponent(message)}');
+      'https://wa.me/$phoneNumber?text=${Uri.encodeComponent(message)}',
+    );
 
     try {
       if (await canLaunchUrl(whatsappUrl)) {
-        await launchUrl(
-          whatsappUrl,
-          mode: LaunchMode.externalApplication,
-        );
+        await launchUrl(whatsappUrl, mode: LaunchMode.externalApplication);
       } else {
         if (context.mounted) {
           _showErrorDialog(
@@ -16573,9 +17274,7 @@ class HelpPage extends StatelessWidget {
   void _openChatCS(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => const ChatCSPage(),
-      ),
+      MaterialPageRoute(builder: (context) => const ChatCSPage()),
     );
   }
 
@@ -16599,8 +17298,9 @@ class HelpPage extends StatelessWidget {
   }
 
   Future<void> _launchEmail(BuildContext context) async {
-    final emailUrl =
-        Uri.parse('mailto:alfianawinanto7@gmail.com?subject=Bantuan CINEMA 1');
+    final emailUrl = Uri.parse(
+      'mailto:alfianawinanto7@gmail.com?subject=Bantuan CINEMA 1',
+    );
 
     try {
       if (await canLaunchUrl(emailUrl)) {
@@ -16628,12 +17328,16 @@ class HelpPage extends StatelessWidget {
           children: [
             const Icon(Icons.error, color: Colors.red, size: 22),
             const SizedBox(width: 8),
-            Text(title,
-                style: TextStyle(color: isDark ? Colors.white : Colors.black)),
+            Text(
+              title,
+              style: TextStyle(color: isDark ? Colors.white : Colors.black),
+            ),
           ],
         ),
-        content: Text(message,
-            style: TextStyle(color: isDark ? Colors.white70 : Colors.black87)),
+        content: Text(
+          message,
+          style: TextStyle(color: isDark ? Colors.white70 : Colors.black87),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -16655,16 +17359,19 @@ class HelpPage extends StatelessWidget {
         backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back,
-              color: isDark ? Colors.white : const Color(0xFF001A4D)),
+          icon: Icon(
+            Icons.arrow_back,
+            color: isDark ? Colors.white : const Color(0xFF001A4D),
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Row(
           children: [
-            Icon(Icons.help,
-                color:
-                    isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D),
-                size: 22),
+            Icon(
+              Icons.help,
+              color: isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D),
+              size: 22,
+            ),
             const SizedBox(width: 8),
             Text(
               'Bantuan',
@@ -16686,17 +17393,18 @@ class HelpPage extends StatelessWidget {
             decoration: InputDecoration(
               hintText: 'Cari pertanyaan...',
               hintStyle: TextStyle(
-                  color:
-                      isDark ? Colors.grey.shade600 : const Color(0xFF666666)),
-              prefixIcon: Icon(Icons.search,
-                  color:
-                      isDark ? Colors.grey.shade600 : const Color(0xFF666666)),
+                color: isDark ? Colors.grey.shade600 : const Color(0xFF666666),
+              ),
+              prefixIcon: Icon(
+                Icons.search,
+                color: isDark ? Colors.grey.shade600 : const Color(0xFF666666),
+              ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(25),
                 borderSide: BorderSide(
-                    color: isDark
-                        ? Colors.grey.shade800
-                        : const Color(0xFFDDDDDD)),
+                  color:
+                      isDark ? Colors.grey.shade800 : const Color(0xFFDDDDDD),
+                ),
               ),
               filled: true,
               fillColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
@@ -16847,10 +17555,11 @@ class HelpPage extends StatelessWidget {
                       .withOpacity(0.1),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(icon,
-                color:
-                    isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D),
-                size: 20),
+            child: Icon(
+              icon,
+              color: isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D),
+              size: 20,
+            ),
           ),
           title: Text(
             question,
@@ -16921,10 +17630,7 @@ class HelpPage extends StatelessWidget {
           const SizedBox(height: 8),
           const Text(
             'Kami siap membantu Anda 24/7',
-            style: TextStyle(
-              color: Colors.white70,
-              fontSize: 13,
-            ),
+            style: TextStyle(color: Colors.white70, fontSize: 13),
           ),
           const SizedBox(height: 20),
           Row(
@@ -16976,10 +17682,7 @@ class HelpPage extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             label,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 11,
-            ),
+            style: const TextStyle(color: Colors.white, fontSize: 11),
           ),
         ],
       ),
@@ -16995,9 +17698,11 @@ class HelpPage extends StatelessWidget {
   ) {
     return ElevatedButton.icon(
       onPressed: onTap,
-      icon: Icon(icon,
-          color: isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D),
-          size: 20),
+      icon: Icon(
+        icon,
+        color: isDark ? const Color(0xFFFFB800) : const Color(0xFF001A4D),
+        size: 20,
+      ),
       label: Text(
         label,
         style: TextStyle(
@@ -17009,9 +17714,7 @@ class HelpPage extends StatelessWidget {
         backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
         elevation: 2,
         padding: const EdgeInsets.symmetric(vertical: 16),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
     );
   }
@@ -17053,32 +17756,32 @@ class _ChatCSPageState extends State<ChatCSPage> {
     {
       'icon': Icons.movie,
       'label': 'Film Tayang',
-      'message': 'Film apa saja yang sedang tayang?'
+      'message': 'Film apa saja yang sedang tayang?',
     },
     {
       'icon': Icons.event_seat,
       'label': 'Kursi Tersedia',
-      'message': 'Apakah masih ada kursi tersedia untuk film [nama film]?'
+      'message': 'Apakah masih ada kursi tersedia untuk film [nama film]?',
     },
     {
       'icon': Icons.schedule,
       'label': 'Jadwal Film',
-      'message': 'Kapan jadwal tayang film [nama film]?'
+      'message': 'Kapan jadwal tayang film [nama film]?',
     },
     {
       'icon': Icons.location_on,
       'label': 'Lokasi Bioskop',
-      'message': 'Dimana saja lokasi bioskop CINEMA 1?'
+      'message': 'Dimana saja lokasi bioskop CINEMA 1?',
     },
     {
       'icon': Icons.payment,
       'label': 'Cara Bayar',
-      'message': 'Bagaimana cara pembayaran tiket?'
+      'message': 'Bagaimana cara pembayaran tiket?',
     },
     {
       'icon': Icons.help,
       'label': 'Bantuan Lain',
-      'message': 'Saya butuh bantuan untuk masalah lain'
+      'message': 'Saya butuh bantuan untuk masalah lain',
     },
   ];
 
@@ -17217,10 +17920,7 @@ class _ChatCSPageState extends State<ChatCSPage> {
                 ),
                 Text(
                   'Admin CINEMA 1',
-                  style: TextStyle(
-                    color: Colors.greenAccent,
-                    fontSize: 11,
-                  ),
+                  style: TextStyle(color: Colors.greenAccent, fontSize: 11),
                 ),
               ],
             ),
@@ -17398,7 +18098,8 @@ class _ChatCSPageState extends State<ChatCSPage> {
                     child: TextField(
                       controller: _messageController,
                       style: TextStyle(
-                          color: isDark ? Colors.white : Colors.black),
+                        color: isDark ? Colors.white : Colors.black,
+                      ),
                       decoration: InputDecoration(
                         hintText: 'Ketik pesan...',
                         hintStyle: TextStyle(
@@ -17452,8 +18153,11 @@ class _ChatCSPageState extends State<ChatCSPage> {
                       shape: BoxShape.circle,
                     ),
                     child: IconButton(
-                      icon:
-                          const Icon(Icons.send, color: Colors.white, size: 22),
+                      icon: const Icon(
+                        Icons.send,
+                        color: Colors.white,
+                        size: 22,
+                      ),
                       onPressed: _sendMessage,
                     ),
                   ),
@@ -17696,7 +18400,8 @@ class _ChatCSPageState extends State<ChatCSPage> {
     const message = 'Halo CINEMA 1, saya membutuhkan bantuan.';
 
     final whatsappUrl = Uri.parse(
-        'https://wa.me/$phoneNumber?text=${Uri.encodeComponent(message)}');
+      'https://wa.me/$phoneNumber?text=${Uri.encodeComponent(message)}',
+    );
 
     try {
       if (await canLaunchUrl(whatsappUrl)) {
