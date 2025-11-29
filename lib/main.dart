@@ -9,9 +9,19 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:local_auth/local_auth.dart';
 import 'dart:math';
 import 'package:flutter/services.dart';
+import 'package:supabase_flutter/supabase_flutter.dart'; // TAMBAHKAN IMPORT INI
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Supabase
+  await Supabase.initialize(
+    url:
+        'https://wxiohhpvxdlhkqlspfnu.supabase.co', // Ganti dengan URL Supabase kamu
+    anonKey:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind4aW9oaHB2eGRsaGtxbHNwZm51Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ0MTE3MzMsImV4cCI6MjA3OTk4NzczM30.X14iuwUVw2r0VLusNbtOfPTRNLJLTJ0J9b4N74v9bdI', // Ganti dengan anon key kamu
+  );
+
   await SettingsService.init();
 
   print('Initial Active: ${TicketHistoryService.getActiveTickets()}');
@@ -897,75 +907,130 @@ class TicketHistoryService {
   }
 }
 
-// ==================== SEAT SERVICE ====================
-
-const String MOCKAPI_URL = 'https://68f11ba50b966ad5003567dd.mockapi.io';
-
 class SeatService {
+  static final supabase = Supabase.instance.client;
+
+  // ✅ CACHE untuk mengurangi query ke database
+  static final Map<String, List<Map<String, dynamic>>> _seatCache = {};
+
+  // ✅ Generate cache key
+  static String _getCacheKey({
+    required String filmId,
+    required String cinema,
+    required String date,
+    required String time,
+  }) {
+    return '$filmId|$cinema|$date|$time';
+  }
+
+  // ✅ Get seats dengan caching
   static Future<List<Map<String, dynamic>>> getSeats({
     required String filmId,
     required String cinema,
     required String date,
     required String time,
   }) async {
-    try {
-      final response = await http.get(
-        Uri.parse(
-            '$MOCKAPI_URL/seats?filmId=$filmId&cinema=$cinema&date=$date&time=$time'),
-      );
+    final cacheKey = _getCacheKey(
+      filmId: filmId,
+      cinema: cinema,
+      date: date,
+      time: time,
+    );
 
-      if (response.statusCode == 200) {
-        List<dynamic> data = json.decode(response.body);
-        print('Loaded ${data.length} seats from API');
-        return data.cast<Map<String, dynamic>>();
+    // Cek cache dulu
+    if (_seatCache.containsKey(cacheKey)) {
+      print('✅ Using cached seats');
+      return _seatCache[cacheKey]!;
+    }
+
+    try {
+      final response = await supabase
+          .from('seats')
+          .select()
+          .eq('film_id', filmId)
+          .eq('cinema', cinema)
+          .eq('date', date)
+          .eq('time', time);
+
+      final seats = List<Map<String, dynamic>>.from(response);
+
+      // ✅ PENTING: Jika seats kosong, initialize SEKALI saja
+      if (seats.isEmpty) {
+        print('⚠️ No seats found, initializing...');
+        await initializeSeats(
+          filmId: filmId,
+          cinema: cinema,
+          date: date,
+          time: time,
+        );
+
+        // Fetch ulang setelah initialize
+        final newResponse = await supabase
+            .from('seats')
+            .select()
+            .eq('film_id', filmId)
+            .eq('cinema', cinema)
+            .eq('date', date)
+            .eq('time', time);
+
+        final newSeats = List<Map<String, dynamic>>.from(newResponse);
+        _seatCache[cacheKey] = newSeats;
+        return newSeats;
       }
-      print('Failed to load seats: ${response.statusCode}');
-      return [];
+
+      // Simpan ke cache
+      _seatCache[cacheKey] = seats;
+      print('✅ Loaded ${seats.length} seats from Supabase');
+      return seats;
     } catch (e) {
-      print('Error getting seats: $e');
+      print('❌ Error getting seats: $e');
       return [];
     }
   }
 
+  // ✅ Select seat (dengan cache update)
   static Future<bool> selectSeat({
     required String seatId,
     required String userId,
   }) async {
     try {
-      final response = await http.put(
-        Uri.parse('$MOCKAPI_URL/seats/$seatId'),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          'status': 'selected',
-          'userId': userId,
-        }),
-      );
-      print('Select seat $seatId: ${response.statusCode}');
-      return response.statusCode == 200;
+      await supabase.from('seats').update({
+        'status': 'selected',
+        'user_id': userId,
+        'updated_at': DateTime.now().toIso8601String(),
+      }).eq('id', seatId);
+
+      // Clear cache agar data selalu fresh
+      _seatCache.clear();
+
+      print('✅ Seat $seatId selected');
+      return true;
     } catch (e) {
-      print('Error selecting seat: $e');
+      print('❌ Error selecting seat: $e');
       return false;
     }
   }
 
+  // ✅ Unselect seat
   static Future<bool> unselectSeat({required String seatId}) async {
     try {
-      final response = await http.put(
-        Uri.parse('$MOCKAPI_URL/seats/$seatId'),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          'status': 'available',
-          'userId': null,
-        }),
-      );
-      print('Unselect seat $seatId: ${response.statusCode}');
-      return response.statusCode == 200;
+      await supabase.from('seats').update({
+        'status': 'available',
+        'user_id': null,
+        'updated_at': DateTime.now().toIso8601String(),
+      }).eq('id', seatId);
+
+      _seatCache.clear();
+
+      print('✅ Seat $seatId unselected');
+      return true;
     } catch (e) {
-      print('Error unselecting seat: $e');
+      print('❌ Error unselecting seat: $e');
       return false;
     }
   }
 
+  // ✅ Book seats (BATCH INSERT)
   static Future<bool> bookSeats({
     required List<String> seatIds,
     required String userId,
@@ -975,42 +1040,43 @@ class SeatService {
     required String time,
   }) async {
     try {
+      // 1. Update status seats jadi 'booked' (BATCH)
       for (String seatId in seatIds) {
-        await http.put(
-          Uri.parse('$MOCKAPI_URL/seats/$seatId'),
-          headers: {'Content-Type': 'application/json'},
-          body: json.encode({
-            'status': 'booked',
-            'userId': userId,
-          }),
-        );
+        await supabase.from('seats').update({
+          'status': 'booked',
+          'user_id': userId,
+          'updated_at': DateTime.now().toIso8601String(),
+        }).eq('id', seatId);
       }
 
-      for (String seatId in seatIds) {
-        await http.post(
-          Uri.parse('$MOCKAPI_URL/bookings'),
-          headers: {'Content-Type': 'application/json'},
-          body: json.encode({
-            'filmId': filmId,
-            'cinema': cinema,
-            'date': date,
-            'time': time,
-            'seatId': seatId,
-            'userId': userId,
-            'status': 'booked',
-            'createdAt': DateTime.now().toIso8601String(),
-          }),
-        );
-      }
+      // 2. Insert ke tabel bookings (BATCH)
+      final bookingData = seatIds
+          .map((seatId) => {
+                'film_id': filmId,
+                'cinema': cinema,
+                'date': date,
+                'time': time,
+                'seat_id': int.parse(seatId),
+                'user_id': userId,
+                'status': 'booked',
+                'created_at': DateTime.now().toIso8601String(),
+              })
+          .toList();
 
-      print('Booking completed for ${seatIds.length} seats');
+      await supabase.from('bookings').insert(bookingData);
+
+      // Clear cache
+      _seatCache.clear();
+
+      print('✅ Booking completed for ${seatIds.length} seats');
       return true;
     } catch (e) {
-      print('Error booking seats: $e');
+      print('❌ Error booking seats: $e');
       return false;
     }
   }
 
+  // ✅ Initialize seats (OPTIMIZED BATCH INSERT)
   static Future<void> initializeSeats({
     required String filmId,
     required String cinema,
@@ -1028,37 +1094,42 @@ class SeatService {
       ['H7', 'H6', 'H5', 'H4', '', '', 'H3', 'H2', 'H1'],
     ];
 
-    print('Initializing seats for $cinema on $date at $time...');
+    print('🔄 Initializing seats for $cinema on $date at $time...');
+
+    // ✅ BATCH INSERT: Kumpulkan semua data dulu
+    List<Map<String, dynamic>> allSeats = [];
 
     for (var row in seatLayout) {
       for (var seat in row) {
         if (seat.isNotEmpty) {
-          try {
-            final response = await http.post(
-              Uri.parse('$MOCKAPI_URL/seats'),
-              headers: {'Content-Type': 'application/json'},
-              body: json.encode({
-                'filmId': filmId,
-                'cinema': cinema,
-                'date': date,
-                'time': time,
-                'seatNumber': seat,
-                'status': 'available',
-                'userId': null,
-              }),
-            );
-
-            if (response.statusCode == 201) {
-              print('Seat $seat initialized successfully');
-            }
-          } catch (e) {
-            print('Error initializing seat $seat: $e');
-          }
+          allSeats.add({
+            'film_id': filmId,
+            'cinema': cinema,
+            'date': date,
+            'time': time,
+            'seat_number': seat,
+            'status': 'available',
+            'user_id': null,
+            'created_at': DateTime.now().toIso8601String(),
+            'updated_at': DateTime.now().toIso8601String(),
+          });
         }
       }
     }
 
-    print('Seat initialization completed!');
+    try {
+      // ✅ INSERT SEKALIGUS (JAUH LEBIH CEPAT!)
+      await supabase.from('seats').insert(allSeats);
+      print('✅ Successfully initialized ${allSeats.length} seats!');
+    } catch (e) {
+      print('❌ Error initializing seats: $e');
+    }
+  }
+
+  // ✅ Clear cache (panggil saat logout atau refresh)
+  static void clearCache() {
+    _seatCache.clear();
+    print('🗑️ Seat cache cleared');
   }
 }
 
